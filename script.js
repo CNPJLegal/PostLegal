@@ -1,4 +1,4 @@
-const API_KEY = "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"; // Troque por sua chave real
+const API_KEY = "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";
 
 const canvas = document.getElementById("postCanvas");
 const ctx = canvas.getContext("2d");
@@ -18,6 +18,7 @@ const formats = {
 
 let currentFormat = "post";
 let lastColor = null;
+let lastContent = null;
 
 async function chamarIA(prompt) {
   try {
@@ -114,6 +115,7 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
   const themeInput = document.getElementById("themeInput").value.trim();
   const temaFinal = themeInput || await gerarTemaIA();
   const conteudo = await gerarConteudoIA(temaFinal);
+  lastContent = conteudo;
   const format = currentFormat || "post";
   const color = lastColor || getRandomColor();
   await drawPost({ ...conteudo, format, color });
@@ -135,15 +137,14 @@ document.querySelectorAll(".color-btn").forEach(btn => {
 });
 
 document.querySelectorAll(".dimension-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
+  btn.addEventListener("click", async () => {
     currentFormat = btn.dataset.format;
     document.querySelectorAll(".dimension-btn").forEach(b => b.classList.remove("selected"));
     btn.classList.add("selected");
 
-    // atualiza canvas imediatamente
-    canvas.width = formats[currentFormat].width;
-    canvas.height = formats[currentFormat].height;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (lastContent && lastColor) {
+      await drawPost({ ...lastContent, format: currentFormat, color: lastColor });
+    }
   });
 });
 
