@@ -1,4 +1,4 @@
-const API_KEY = "COLE_SUA_CHAVE_OPENROUTER_AQUI"; // Troque por sua chave real
+const API_KEY = "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"; // Troque por sua chave real
 
 const canvas = document.getElementById("postCanvas");
 const ctx = canvas.getContext("2d");
@@ -28,7 +28,7 @@ async function chamarIA(prompt) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "openai/gpt-3.5-turbo", // Modelo testado e estável
+        model: "openai/gpt-3.5-turbo",
         messages: [{ role: "user", content: prompt }],
         temperature: 0.8
       })
@@ -74,6 +74,22 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
 
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
+
+  const texture = new Image();
+  texture.src = "https://iili.io/FrLiI5P.png";
+  texture.crossOrigin = "anonymous";
+  try {
+    await new Promise((res, rej) => {
+      texture.onload = res;
+      texture.onerror = rej;
+    });
+    ctx.save();
+    ctx.globalCompositeOperation = "multiply";
+    ctx.drawImage(texture, 0, 0, width, height);
+    ctx.restore();
+  } catch (err) {
+    console.warn("Erro ao carregar textura:", err);
+  }
 
   ctx.fillStyle = color === "branco" ? "#000" : "#fff";
   ctx.textAlign = "center";
@@ -123,6 +139,11 @@ document.querySelectorAll(".dimension-btn").forEach(btn => {
     currentFormat = btn.dataset.format;
     document.querySelectorAll(".dimension-btn").forEach(b => b.classList.remove("selected"));
     btn.classList.add("selected");
+
+    // atualiza canvas imediatamente
+    canvas.width = formats[currentFormat].width;
+    canvas.height = formats[currentFormat].height;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
   });
 });
 
