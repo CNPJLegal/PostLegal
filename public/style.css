@@ -1,1 +1,137 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
+body {
+  font-family: 'Inter', sans-serif;
+  background: #121212;
+  color: #f0f0f0;
+  display: flex;
+  height: 100vh;
+}
+
+.controls {
+  width: 340px;
+  background: #1e1e1e;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border-right: 1px solid #333;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #aaa;
+}
+
+.controls input[type="text"] {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  font-size: 14px;
+  background: #2a2a2a;
+  color: #fff;
+  width: 100%;
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.color-btn {
+  padding: 8px 14px;
+  border-radius: 24px;
+  border: none;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.color-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 5px rgba(255,255,255,0.1);
+}
+
+.color-btn[data-color="azul"]   { background: #0f3efa; color: white; }
+.color-btn[data-color="verde"]  { background: #17e30d; color: black; } /* ✅ Contraste para verde */
+.color-btn[data-color="preto"]  { background: #1c1c1c; color: white; }
+.color-btn[data-color="branco"] { background: #ffffff; color: black; }
+
+.color-btn.selected {
+  outline: 2px solid #fff;
+}
+
+.dimension-btn {
+  border: 2px solid #666;
+  background: transparent;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  color: #f0f0f0;
+  transition: border 0.2s, background 0.2s;
+}
+
+.dimension-btn.selected {
+  background: #2e2e2e;
+  border-color: #0f3efa;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#generateBtn, #downloadBtn {
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#generateBtn {
+  background: #17e30d;
+  color: black; /* ✅ Melhor contraste */
+}
+
+#generateBtn:hover {
+  background: #14c70a;
+}
+
+#downloadBtn {
+  background: #0f3efa;
+  color: white;
+}
+
+#downloadBtn:hover {
+  background: #0c2bbd;
+}
+
+.canvas-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 24px;
+  overflow: auto;
+  background: #121212;
+}
+
+canvas {
+  transform: scale(0.35);
+  transform-origin: top;
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+}
