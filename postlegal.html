@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerador de Posts - CNPJ Legal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      height: 100vh;
+      display: flex;
+      font-family: 'Inter', sans-serif;
+      background: #121212;
+      color: #f0f0f0;
+    }
+    .controls {
+      width: 340px;
+      background: #1e1e1e;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      border-right: 1px solid #333;
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #aaa;
+    }
+    .controls input[type="text"] {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #444;
+      font-size: 14px;
+      background: #2a2a2a;
+      color: #fff;
+      width: 100%;
+    }
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .color-btn {
+      padding: 8px 14px;
+      border-radius: 24px;
+      border: none;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .color-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 5px rgba(255,255,255,0.1);
+    }
+    .color-btn[data-color="azul"] { background: #0f3efa; color: white; }
+    .color-btn[data-color="verde"] { background: #17e30d; color: white; }
+    .color-btn[data-color="preto"] { background: #1c1c1c; color: white; }
+    .color-btn[data-color="branco"] { background: #ffffff; color: #000; }
+    .dimension-btn {
+      border: 2px solid #666;
+      background: transparent;
+      width: 70px;
+      height: 70px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: bold;
+      gap: 6px;
+      transition: border 0.2s, background 0.2s;
+      color: #f0f0f0;
+    }
+    .dimension-btn.selected {
+      background: #2e2e2e;
+      border-color: #0f3efa;
+    }
+    .dimension-btn svg {
+      width: 24px;
+      height: 24px;
+      stroke: #0f3efa;
+      fill: none;
+      stroke-width: 2;
+    }
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #generateBtn {
+      background: #17e30d;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 32px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #generateBtn:hover { background: #14c70a; }
+    #downloadBtn {
+      background: #0f3efa;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 32px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #downloadBtn:hover { background: #0c2bbd; }
+    .canvas-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px;
+      overflow: auto;
+      background: #121212;
+    }
+    canvas {
+      transform: scale(0.35);
+      transform-origin: top;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+      background: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <div class="section-title">Tema do Post</div>
+    <input type="text" id="themeInput" placeholder="Deixe em branco para gerar automaticamente..." />
+    <div class="section-title">Cor de Fundo</div>
+    <div class="options" id="colorOptions">
+      <button class="color-btn" data-color="azul">Azul</button>
+      <button class="color-btn" data-color="verde">Verde</button>
+      <button class="color-btn" data-color="preto">Preto</button>
+      <button class="color-btn" data-color="branco">Branco</button>
+    </div>
+    <div class="section-title">Formato</div>
+    <div class="options" id="formatOptions">
+      <button class="dimension-btn" data-format="quadrado">
+        <svg viewBox="0 0 100 100"><rect x="15" y="15" width="70" height="70" rx="8" /></svg>
+        <span>Quadrado<br>(1080x1080)</span>
+      </button>
+      <button class="dimension-btn" data-format="post">
+        <svg viewBox="0 0 100 100"><rect x="25" y="10" width="50" height="80" rx="8" /></svg>
+        <span>Post<br>(1080x1350)</span>
+      </button>
+      <button class="dimension-btn" data-format="stories">
+        <svg viewBox="0 0 100 100"><rect x="30" y="5" width="40" height="90" rx="8" /></svg>
+        <span>Stories<br>(1080x1920)</span>
+      </button>
+    </div>
+    <div class="actions">
+      <button id="generateBtn">Gerar</button>
+      <button id="downloadBtn">Baixar</button>
+    </div>
+  </div>
+
+  <div class="canvas-container">
+    <canvas id="postCanvas" width="1080" height="1350"></canvas>
+  </div>
+
+  <script>
+    const API_KEY = "COLE_SUA_CHAVE_AQUI"; // 👈 Sua chave vai aqui
+    const canvas = document.getElementById("postCanvas");
+    const ctx = canvas.getContext("2d");
+    const colors = { azul: "#0f3efa", verde: "#17e30d", preto: "#1c1c1c", branco: "#ffffff" };
+    const formats = {
+      quadrado: { width: 1080, height: 1080 },
+      post: { width: 1080, height: 1350 },
+      stories: { width: 1080, height: 1920 }
+    };
+    let currentFormat = "post", lastColor = null;
+
+    async function chamarIA(prompt) {
+      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${API_KEY}`,
+          "HTTP-Referer": "https://seudominio.com",
+          "X-Title": "Gerador CNPJ Legal",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "openchat/openchat",
+          messages: [{ role: "user", content: prompt }],
+          temperature: 0.8
+        })
+      });
+
+      const json = await res.json();
+      return json.choices?.[0]?.message?.content || "";
+    }
+
+    async function gerarTemaIA() {
+      const prompt = `
+Gere 5 temas criativos e atuais para posts no Instagram sobre:
+- abrir CNPJ
+- dúvidas fiscais
+- microempreendedores
+Responda somente com uma lista.`;
+      const texto = await chamarIA(prompt);
+      const temas = texto.split("\n").map(l => l.replace(/^[\d\-\*\.\s]+/, "").trim()).filter(Boolean);
+      return temas[Math.floor(Math.random() * temas.length)] || "Empreendedorismo Legal";
+    }
+
+    async function gerarConteudoIA(tema) {
+      const prompt = `
+TEMA: ${tema}
+Crie para um post da marca CNPJ Legal:
+HEADLINE: título impactante
+SUBHEADLINE: reforço útil
+MENSAGEM: frase prática`;
+      const texto = await chamarIA(prompt);
+      const extract = campo => texto.match(new RegExp(`${campo}:\\s*(.+)`, "i"))?.[1]?.trim() || "";
+      return {
+        tema,
+        headline: extract("HEADLINE"),
+        subheadline: extract("SUBHEADLINE"),
+        mensagem: extract("MENSAGEM")
+      };
+    }
+
+    async function drawPost({ tema, headline, subheadline, mensagem, format, color }) {
+      const { width, height } = formats[format];
+      canvas.width = width;
+      canvas.height = height;
+
+      ctx.fillStyle = colors[color];
+      ctx.fillRect(0, 0, width, height);
+
+      const texture = new Image();
+      texture.src = "https://iili.io/FrLiI5P.png";
+      texture.crossOrigin = "anonymous";
+      try {
+        await new Promise((res, rej) => {
+          texture.onload = res;
+          texture.onerror = rej;
+        });
+        ctx.save();
+        ctx.globalCompositeOperation = "multiply";
+        ctx.drawImage(texture, 0, 0, width, height);
+        ctx.restore();
+      } catch {}
+
+      ctx.fillStyle = (color === "branco") ? "#000" : "#fff";
+      ctx.textAlign = "center";
+      ctx.font = "bold 24px Inter"; ctx.fillText(tema, width / 2, height / 2 - 200);
+      ctx.font = "bold 48px Inter"; ctx.fillText("CNPJ Legal", width / 2, height / 2 - 150);
+      ctx.font = "bold 38px Inter"; ctx.fillText(headline, width / 2, height / 2 - 80);
+      ctx.font = "28px Inter"; ctx.fillText(subheadline, width / 2, height / 2 - 30);
+      ctx.font = "20px Inter"; ctx.fillText(mensagem, width / 2, height / 2 + 30);
+    }
+
+    document.getElementById("generateBtn").addEventListener("click", async () => {
+      const themeInput = document.getElementById("themeInput").value.trim();
+      const temaFinal = themeInput || await gerarTemaIA();
+      const conteudo = await gerarConteudoIA(temaFinal);
+      const format = currentFormat || "post";
+      const color = lastColor || getRandomColor();
+      await drawPost({ ...conteudo, format, color });
+    });
+
+    document.getElementById("downloadBtn").addEventListener("click", () => {
+      const link = document.createElement("a");
+      link.download = "post-cnpj-legal.png";
+      link.href = canvas.toDataURL();
+      link.click();
+    });
+
+    document.querySelectorAll(".color-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        lastColor = btn.dataset.color;
+        document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+      });
+    });
+
+    document.querySelectorAll(".dimension-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        currentFormat = btn.dataset.format;
+        document.querySelectorAll(".dimension-btn").forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+      });
+    });
+
+    function getRandomColor() {
+      const keys = Object.keys(colors).filter(k => k !== lastColor);
+      return keys[Math.floor(Math.random() * keys.length)];
+    }
+  </script>
+</body>
+</html>
