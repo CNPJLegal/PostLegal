@@ -1,4 +1,4 @@
-const API_KEY = "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"; // Troque pela sua chave válida
+const API_KEY = "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";
 
 const canvas = document.getElementById("postCanvas");
 const ctx = canvas.getContext("2d");
@@ -20,7 +20,6 @@ let currentFormat = "post";
 let lastColor = null;
 let lastContent = null;
 
-// IA 🔮
 async function chamarIA(prompt) {
   try {
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -35,6 +34,7 @@ async function chamarIA(prompt) {
         temperature: 0.8
       })
     });
+
     const json = await res.json();
     return json.choices?.[0]?.message?.content || "";
   } catch (e) {
@@ -92,23 +92,27 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
     console.warn("Erro ao carregar textura:", err);
   }
 
-  // Texto
   ctx.fillStyle = color === "branco" ? "#000" : "#fff";
   ctx.textAlign = "center";
+
   ctx.font = "bold 24px Inter";
   ctx.fillText(tema, width / 2, height / 2 - 200);
+
   ctx.font = "bold 48px Inter";
   ctx.fillText("CNPJ Legal", width / 2, height / 2 - 150);
+
   ctx.font = "bold 38px Inter";
   ctx.fillText(headline, width / 2, height / 2 - 80);
+
   ctx.font = "28px Inter";
   ctx.fillText(subheadline, width / 2, height / 2 - 30);
+
   ctx.font = "20px Inter";
   ctx.fillText(mensagem, width / 2, height / 2 + 30);
 
-  // Logotipo
+  // Logotipo fixo no rodapé
   const logo = new Image();
-  logo.src = "https://iili.io/FrMCkIB.png"; // URL da logo
+  logo.src = "logo.png"; // ✅ use um caminho local ou URL confiável com CORS liberado
   logo.crossOrigin = "anonymous";
   try {
     await new Promise((res, rej) => {
@@ -125,11 +129,11 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
   }
 }
 
-// Geração manual
 document.getElementById("generateBtn").addEventListener("click", async () => {
   const themeInput = document.getElementById("themeInput").value.trim();
   const temaFinal = themeInput || await gerarTemaIA();
-  const color = getRandomColor();
+
+  const color = lastColor || getRandomColor(); // ✅ respeita cor manual
   lastColor = color;
 
   const conteudo = await gerarConteudoIA(temaFinal);
@@ -138,7 +142,6 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
   await drawPost({ ...conteudo, format: currentFormat, color });
 });
 
-// Baixar imagem
 document.getElementById("downloadBtn").addEventListener("click", () => {
   const link = document.createElement("a");
   link.download = "post-cnpj-legal.png";
@@ -146,7 +149,6 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
   link.click();
 });
 
-// Cor
 document.querySelectorAll(".color-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     lastColor = btn.dataset.color;
@@ -155,7 +157,6 @@ document.querySelectorAll(".color-btn").forEach(btn => {
   });
 });
 
-// Formato
 document.querySelectorAll(".dimension-btn").forEach(btn => {
   btn.addEventListener("click", async () => {
     currentFormat = btn.dataset.format;
