@@ -1,4 +1,3 @@
-
 const canvas = document.getElementById("postCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -7,6 +6,13 @@ const colors = {
   verde: "#17e30d",
   preto: "#1c1c1c",
   branco: "#ffffff"
+};
+
+const logos = {
+  azul: "https://iili.io/Frik9yl.png",
+  preto: "https://iili.io/Frik9yl.png",
+  branco: "https://iili.io/Fri8NTl.png",
+  verde: "https://iili.io/FryqWHG.png"
 };
 
 const formats = {
@@ -19,17 +25,23 @@ let currentFormat = "post";
 let lastColor = null;
 let lastContent = null;
 
+// 🎯 IA - chamada do endpoint
 async function chamarIA(prompt) {
-  const res = await fetch("/api/gerar", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt })
-  });
-
-  const json = await res.json();
-  return json.result || "";
+  try {
+    const res = await fetch("/api/gerar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt })
+    });
+    const json = await res.json();
+    return json.result || "";
+  } catch (err) {
+    alert("Erro ao chamar IA.");
+    return "";
+  }
 }
 
+// 🎯 IA - gerar tema se vazio
 async function gerarTemaIA() {
   const prompt = "Gere 5 temas criativos e atuais para posts sobre abrir CNPJ e empreendedorismo.";
   const texto = await chamarIA(prompt);
@@ -37,6 +49,7 @@ async function gerarTemaIA() {
   return temas[Math.floor(Math.random() * temas.length)] || "Empreendedorismo Legal";
 }
 
+// 🎯 IA - gerar conteúdo com headline, subheadline, mensagem
 async function gerarConteudoIA(tema) {
   const prompt = `TEMA: ${tema}\nHEADLINE: título impactante\nSUBHEADLINE: reforço útil\nMENSAGEM: frase prática.`;
   const texto = await chamarIA(prompt);
@@ -54,14 +67,17 @@ async function gerarConteudoIA(tema) {
   };
 }
 
+// 🎨 Desenho do post
 async function drawPost({ tema, headline, subheadline, mensagem, format, color }) {
   const { width, height } = formats[format];
   canvas.width = width;
   canvas.height = height;
 
+  // Fundo
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
+  // Texto
   ctx.fillStyle = color === "branco" ? "#000" : "#fff";
   ctx.textAlign = "center";
 
@@ -79,8 +95,30 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
 
   ctx.font = "20px Inter";
   ctx.fillText(mensagem, width / 2, height / 2 + 30);
+
+  // Logotipo (centralizado na base)
+  const logo = await carregarLogo(logos[color]);
+  const logoWidth = 120;
+  const ratio = logo.height / logo.width;
+  const logoHeight = logoWidth * ratio;
+  const logoX = (width - logoWidth) / 2;
+  const logoY = height - logoHeight - 40;
+
+  ctx.drawImage(logo, logoX, logoY, logoWidth, logoHeight);
 }
 
+// 🖼️ Carregar imagem de logo externa
+function carregarLogo(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+// 🎯 Botão GERAR
 document.getElementById("generateBtn").addEventListener("click", async () => {
   const themeInput = document.getElementById("themeInput").value.trim();
   const temaFinal = themeInput || await gerarTemaIA();
@@ -88,10 +126,18 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
   lastContent = conteudo;
 
   const format = currentFormat;
-  const color = lastColor || getRandomColor();
+  const color = getRandomColor(); // força cor nova
+  lastColor = color;
+
   await drawPost({ ...conteudo, format, color });
+
+  // Marca botão selecionado
+  document.querySelectorAll(".color-btn").forEach(btn => {
+    btn.classList.toggle("selected", btn.dataset.color === color);
+  });
 });
 
+// 🎯 Botão BAIXAR
 document.getElementById("downloadBtn").addEventListener("click", () => {
   const link = document.createElement("a");
   link.download = "post-cnpj-legal.png";
@@ -99,14 +145,20 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
   link.click();
 });
 
+// 🎯 Seleção de COR
 document.querySelectorAll(".color-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     lastColor = btn.dataset.color;
     document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("selected"));
     btn.classList.add("selected");
+
+    if (lastContent) {
+      drawPost({ ...lastContent, format: currentFormat, color: lastColor });
+    }
   });
 });
 
+// 🎯 Seleção de FORMATO
 document.querySelectorAll(".dimension-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     currentFormat = btn.dataset.format;
@@ -119,6 +171,7 @@ document.querySelectorAll(".dimension-btn").forEach(btn => {
   });
 });
 
+// 💡 Gera cor aleatória diferente da última
 function getRandomColor() {
   const keys = Object.keys(colors).filter(k => k !== lastColor);
   return keys[Math.floor(Math.random() * keys.length)];
