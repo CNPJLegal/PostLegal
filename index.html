@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerador de Posts - CNPJ Legal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="controls">
+    <div class="section-title">Tema do Post</div>
+    <input type="text" id="themeInput" placeholder="Deixe em branco para gerar automaticamente..." />
+    <div class="section-title">Cor de Fundo</div>
+    <div class="options" id="colorOptions">
+      <button class="color-btn" data-color="azul">Azul</button>
+      <button class="color-btn" data-color="verde">Verde</button>
+      <button class="color-btn" data-color="preto">Preto</button>
+      <button class="color-btn" data-color="branco">Branco</button>
+    </div>
+    <div class="section-title">Formato</div>
+    <div class="options" id="formatOptions">
+      <button class="dimension-btn" data-format="quadrado">Quadrado</button>
+      <button class="dimension-btn" data-format="post">Post</button>
+      <button class="dimension-btn" data-format="stories">Stories</button>
+    </div>
+    <div class="actions">
+      <button id="generateBtn">Gerar</button>
+      <button id="downloadBtn">Baixar</button>
+    </div>
+  </div>
+  <div class="canvas-container">
+    <canvas id="postCanvas" width="1080" height="1350"></canvas>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
