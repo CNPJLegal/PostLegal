@@ -52,6 +52,7 @@ async function gerarTemaIA() {
 
 async function gerarConteudoIA(tema) {
   const prompt = `TEMA: ${tema}\nHEADLINE: título impactante\nSUBHEADLINE: reforço útil\nMENSAGEM: frase prática.`;
+
   const texto = await chamarIA(prompt);
 
   const extract = campo => {
@@ -75,7 +76,6 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
-  // Textura
   const texture = new Image();
   texture.src = "https://iili.io/FrLiI5P.png";
   texture.crossOrigin = "anonymous";
@@ -110,10 +110,13 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
   ctx.font = "20px Inter";
   ctx.fillText(mensagem, width / 2, height / 2 + 30);
 
-  // Logotipo fixo no rodapé
   const logo = new Image();
-  logo.src = "logo.png"; // ✅ use um caminho local ou URL confiável com CORS liberado
   logo.crossOrigin = "anonymous";
+  const isFundoClaro = color === "branco" || color === "verde";
+  logo.src = isFundoClaro
+    ? "https://iili.io/Frik9yl.png"
+    : "https://iili.io/Fri8NTl.png";
+
   try {
     await new Promise((res, rej) => {
       logo.onload = res;
@@ -133,7 +136,7 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
   const themeInput = document.getElementById("themeInput").value.trim();
   const temaFinal = themeInput || await gerarTemaIA();
 
-  const color = lastColor || getRandomColor(); // ✅ respeita cor manual
+  const color = getRandomColor();
   lastColor = color;
 
   const conteudo = await gerarConteudoIA(temaFinal);
