@@ -60,7 +60,7 @@ body {
 }
 
 .color-btn[data-color="azul"]   { background: #0f3efa; color: white; }
-.color-btn[data-color="verde"]  { background: #17e30d; color: white; }
+.color-btn[data-color="verde"]  { background: #17e30d; color: black; }
 .color-btn[data-color="preto"]  { background: #1c1c1c; color: white; }
 .color-btn[data-color="branco"] { background: #ffffff; color: #000; }
 
@@ -102,7 +102,7 @@ body {
 
 #generateBtn {
   background: #17e30d;
-  color: white;
+  color: black;
 }
 
 #generateBtn:hover {
