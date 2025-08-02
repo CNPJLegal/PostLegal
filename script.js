@@ -1,4 +1,4 @@
-const API_KEY = "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";
+const API_KEY = "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"; // 🔐 Troque pela sua chave real
 
 const canvas = document.getElementById("postCanvas");
 const ctx = canvas.getContext("2d");
@@ -18,7 +18,7 @@ const formats = {
 
 let currentFormat = "post";
 let lastColor = null;
-let lastContent = null;
+let lastContent = null; // 👉 salva último conteúdo IA
 
 async function chamarIA(prompt) {
   try {
@@ -79,6 +79,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
   const texture = new Image();
   texture.src = "https://iili.io/FrLiI5P.png";
   texture.crossOrigin = "anonymous";
+
   try {
     await new Promise((res, rej) => {
       texture.onload = res;
@@ -115,10 +116,12 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
   const themeInput = document.getElementById("themeInput").value.trim();
   const temaFinal = themeInput || await gerarTemaIA();
   const conteudo = await gerarConteudoIA(temaFinal);
-  lastContent = conteudo;
   const format = currentFormat || "post";
   const color = lastColor || getRandomColor();
   await drawPost({ ...conteudo, format, color });
+
+  // salva o último conteúdo renderizado
+  lastContent = conteudo;
 });
 
 document.getElementById("downloadBtn").addEventListener("click", () => {
@@ -133,6 +136,10 @@ document.querySelectorAll(".color-btn").forEach(btn => {
     lastColor = btn.dataset.color;
     document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("selected"));
     btn.classList.add("selected");
+
+    if (lastContent) {
+      drawPost({ ...lastContent, format: currentFormat, color: lastColor });
+    }
   });
 });
 
