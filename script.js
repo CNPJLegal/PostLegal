@@ -115,10 +115,15 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
 
   // Logotipo correto
   const logo = new Image();
-  logo.src = color === "branco"
-    ? "https://iili.io/Frik9yl.png"
-    : "https://iili.io/Fri8NTl.png";
   logo.crossOrigin = "anonymous";
+
+  if (color === "branco") {
+    logo.src = "https://iili.io/Fri8NTl.png"; // logo para fundo claro
+  } else if (color === "verde") {
+    logo.src = "https://iili.io/FryqWHG.png"; // logo para fundo verde
+  } else {
+    logo.src = "https://iili.io/Frik9yl.png"; // logo para fundo escuro
+  }
 
   await new Promise((res, rej) => {
     logo.onload = res;
