@@ -1,4 +1,4 @@
-const API_KEY = "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"; // Troque pela sua chave real
+const API_KEY = "COLE_SUA_CHAVE_OPENROUTER_AQUI"; // Troque pela sua chave real válida
 
 const canvas = document.getElementById("postCanvas");
 const ctx = canvas.getContext("2d");
@@ -17,44 +17,57 @@ const formats = {
 };
 
 let currentFormat = "post";
-let lastColor = "azul"; // padrão inicial
+let lastColor = "azul";
 let lastContent = null;
 
 async function chamarIA(prompt) {
   try {
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${API_KEY}`,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://seudominio.com",
+        "X-Title": "Gerador CNPJ Legal"
       },
       body: JSON.stringify({
-        model: "openai/gpt-3.5-turbo",
+        model: "openchat/openchat", // Ou "openai/gpt-3.5-turbo" se preferir
         messages: [{ role: "user", content: prompt }],
         temperature: 0.8
       })
     });
 
-    const json = await res.json();
-    return json.choices?.[0]?.message?.content || "";
+    const json = await response.json();
+    const content = json.choices?.[0]?.message?.content;
+    return content || "";
   } catch (e) {
-    console.error("Erro ao chamar IA:", e);
-    return "";
+    console.error("Erro na IA:", e);
+    return "Erro ao gerar conteúdo com IA.";
   }
 }
 
 async function gerarTemaIA() {
-  const prompt = "Gere 5 temas criativos e atuais para posts sobre abrir CNPJ e empreendedorismo.";
+  const prompt = `
+Gere 5 temas criativos e atuais para posts no Instagram sobre:
+- abrir CNPJ
+- dúvidas fiscais
+- microempreendedores
+Responda somente com uma lista.`;
+
   const texto = await chamarIA(prompt);
-  const temas = texto.split("\n").map(l => l.replace(/^\d+[\-\*\.]?\s*/, "").trim()).filter(Boolean);
+  const temas = texto.split("\n").map(l => l.replace(/^[\d\-\*\.]+\s*/, "").trim()).filter(Boolean);
   return temas[Math.floor(Math.random() * temas.length)] || "Empreendedorismo Legal";
 }
 
 async function gerarConteudoIA(tema) {
-  const prompt = `TEMA: ${tema}\nHEADLINE: título impactante\nSUBHEADLINE: reforço útil\nMENSAGEM: frase prática.`;
+  const prompt = `
+TEMA: ${tema}
+Crie para um post da marca CNPJ Legal:
+HEADLINE: título impactante
+SUBHEADLINE: reforço útil
+MENSAGEM: frase prática`;
 
   const texto = await chamarIA(prompt);
-
   const extract = campo => {
     const match = texto.match(new RegExp(`${campo}:\\s*(.+)`, "i"));
     return match?.[1]?.trim() || "";
@@ -76,10 +89,10 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
+  // ✅ Textura
   const texture = new Image();
   texture.src = "https://iili.io/FrLiI5P.png";
   texture.crossOrigin = "anonymous";
-
   try {
     await new Promise((res, rej) => {
       texture.onload = res;
@@ -93,6 +106,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
     console.warn("Erro ao carregar textura:", err);
   }
 
+  // ✅ Textos
   ctx.fillStyle = color === "branco" ? "#000" : "#fff";
   ctx.textAlign = "center";
 
@@ -110,19 +124,35 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
 
   ctx.font = "20px Inter";
   ctx.fillText(mensagem, width / 2, height / 2 + 30);
+
+  // ✅ Logotipo no rodapé centralizado
+  const logo = new Image();
+  logo.src = "https://iili.io/J9PC4Hg.png"; // Substitua pelo seu logo PNG transparente
+  logo.crossOrigin = "anonymous";
+  try {
+    await new Promise((res, rej) => {
+      logo.onload = res;
+      logo.onerror = rej;
+    });
+
+    const logoWidth = 150;
+    const logoHeight = logo.height * (logoWidth / logo.width);
+    const x = (width - logoWidth) / 2;
+    const y = height - logoHeight - 40;
+    ctx.drawImage(logo, x, y, logoWidth, logoHeight);
+  } catch (e) {
+    console.warn("Erro ao carregar logotipo:", e);
+  }
 }
 
+// Botões principais
 document.getElementById("generateBtn").addEventListener("click", async () => {
   const themeInput = document.getElementById("themeInput").value.trim();
   const temaFinal = themeInput || await gerarTemaIA();
   const conteudo = await gerarConteudoIA(temaFinal);
   lastContent = conteudo;
 
-  await drawPost({
-    ...conteudo,
-    format: currentFormat,
-    color: lastColor
-  });
+  await drawPost({ ...conteudo, format: currentFormat, color: lastColor });
 });
 
 document.getElementById("downloadBtn").addEventListener("click", () => {
@@ -132,6 +162,7 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
   link.click();
 });
 
+// Cores
 document.querySelectorAll(".color-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     lastColor = btn.dataset.color;
@@ -139,15 +170,12 @@ document.querySelectorAll(".color-btn").forEach(btn => {
     btn.classList.add("selected");
 
     if (lastContent) {
-      drawPost({
-        ...lastContent,
-        format: currentFormat,
-        color: lastColor
-      });
+      drawPost({ ...lastContent, format: currentFormat, color: lastColor });
     }
   });
 });
 
+// Formatos
 document.querySelectorAll(".dimension-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     currentFormat = btn.dataset.format;
@@ -155,15 +183,12 @@ document.querySelectorAll(".dimension-btn").forEach(btn => {
     btn.classList.add("selected");
 
     if (lastContent) {
-      drawPost({
-        ...lastContent,
-        format: currentFormat,
-        color: lastColor
-      });
+      drawPost({ ...lastContent, format: currentFormat, color: lastColor });
     }
   });
 });
 
+// Cor aleatória se não definida
 function getRandomColor() {
   const keys = Object.keys(colors).filter(k => k !== lastColor);
   return keys[Math.floor(Math.random() * keys.length)];
