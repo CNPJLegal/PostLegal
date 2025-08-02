@@ -1,4 +1,4 @@
-const API_KEY = "COLE_SUA_CHAVE_OPENROUTER_AQUI"; // Troque pela sua chave real válida
+const API_KEY = "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"; // Troque pela sua chave real válida
 
 const canvas = document.getElementById("postCanvas");
 const ctx = canvas.getContext("2d");
