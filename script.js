@@ -78,44 +78,60 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
-  // logotipo correto conforme fundo
+  // Textura
+  const texture = new Image();
+  texture.src = "https://iili.io/FrLiI5P.png";
+  texture.crossOrigin = "anonymous";
+  try {
+    await new Promise((res, rej) => {
+      texture.onload = res;
+      texture.onerror = rej;
+    });
+    ctx.save();
+    ctx.globalCompositeOperation = "multiply";
+    ctx.drawImage(texture, 0, 0, width, height);
+    ctx.restore();
+  } catch (err) {
+    console.warn("Erro ao carregar textura:", err);
+  }
+
+  ctx.fillStyle = color === "branco" ? "#000" : "#fff";
+  ctx.textAlign = "center";
+
+  ctx.font = "bold 24px Inter";
+  ctx.fillText(tema, width / 2, height / 2 - 200);
+
+  ctx.font = "bold 48px Inter";
+  ctx.fillText("CNPJ Legal", width / 2, height / 2 - 150);
+
+  ctx.font = "bold 38px Inter";
+  ctx.fillText(headline, width / 2, height / 2 - 80);
+
+  ctx.font = "28px Inter";
+  ctx.fillText(subheadline, width / 2, height / 2 - 30);
+
+  ctx.font = "20px Inter";
+  ctx.fillText(mensagem, width / 2, height / 2 + 30);
+
+  // Logotipo correto
   const logo = new Image();
   logo.src = color === "branco"
-    ? "https://iili.io/Fri8NTl.png"
-    : "https://iili.io/Frik9yl.png";
+    ? "https://iili.io/Frik9yl.png"
+    : "https://iili.io/Fri8NTl.png";
   logo.crossOrigin = "anonymous";
 
-  const drawTexts = () => {
-    ctx.fillStyle = color === "branco" ? "#000" : "#fff";
-    ctx.textAlign = "center";
-
-    ctx.font = "bold 24px Inter";
-    ctx.fillText(tema, width / 2, height / 2 - 200);
-
-    ctx.font = "bold 48px Inter";
-    ctx.fillText("CNPJ Legal", width / 2, height / 2 - 150);
-
-    ctx.font = "bold 38px Inter";
-    ctx.fillText(headline, width / 2, height / 2 - 80);
-
-    ctx.font = "28px Inter";
-    ctx.fillText(subheadline, width / 2, height / 2 - 30);
-
-    ctx.font = "20px Inter";
-    ctx.fillText(mensagem, width / 2, height / 2 + 30);
-  };
-
-  return new Promise(resolve => {
-    logo.onload = () => {
-      drawTexts();
-      ctx.drawImage(logo, width / 2 - 100, height - 120, 200, 60); // centralizado
-      resolve();
-    };
-    logo.onerror = () => {
-      drawTexts();
-      resolve();
-    };
+  await new Promise((res, rej) => {
+    logo.onload = res;
+    logo.onerror = rej;
   });
+
+  const logoMaxWidth = width * 0.2;
+  const logoRatio = logo.height / logo.width;
+  const logoWidth = logoMaxWidth;
+  const logoHeight = logoMaxWidth * logoRatio;
+  const logoX = (width - logoWidth) / 2;
+  const logoY = height - logoHeight - 60;
+  ctx.drawImage(logo, logoX, logoY, logoWidth, logoHeight);
 }
 
 document.getElementById("generateBtn").addEventListener("click", async () => {
