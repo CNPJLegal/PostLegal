@@ -1,4 +1,4 @@
-const API_KEY = "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"; // ← Troque pela sua chave da OpenAI
+const API_KEY = "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"; // ← Troque pela sua chave da OpenAI
 
 const canvas = document.getElementById("postCanvas");
 const ctx = canvas.getContext("2d");
