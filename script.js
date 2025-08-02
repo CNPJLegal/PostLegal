@@ -46,13 +46,15 @@ async function chamarIA(prompt) {
 async function gerarTemaIA() {
   const prompt = "Gere 5 temas criativos e atuais para posts sobre abrir CNPJ e empreendedorismo.";
   const texto = await chamarIA(prompt);
-  const temas = texto.split("\n").map(l => l.replace(/^\d+[\-\*\.]?\s*/, "").trim()).filter(Boolean);
+  const temas = texto
+    .split("\n")
+    .map(l => l.replace(/^\d+[\-\*\.]?\s*/, "").trim())
+    .filter(Boolean);
   return temas[Math.floor(Math.random() * temas.length)] || "Empreendedorismo Legal";
 }
 
 async function gerarConteudoIA(tema) {
   const prompt = `TEMA: ${tema}\nHEADLINE: título impactante\nSUBHEADLINE: reforço útil\nMENSAGEM: frase prática.`;
-
   const texto = await chamarIA(prompt);
 
   const extract = campo => {
@@ -76,73 +78,58 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
-  const texture = new Image();
-  texture.src = "https://iili.io/FrLiI5P.png";
-  texture.crossOrigin = "anonymous";
-  try {
-    await new Promise((res, rej) => {
-      texture.onload = res;
-      texture.onerror = rej;
-    });
-    ctx.save();
-    ctx.globalCompositeOperation = "multiply";
-    ctx.drawImage(texture, 0, 0, width, height);
-    ctx.restore();
-  } catch (err) {
-    console.warn("Erro ao carregar textura:", err);
-  }
-
-  ctx.fillStyle = color === "branco" ? "#000" : "#fff";
-  ctx.textAlign = "center";
-
-  ctx.font = "bold 24px Inter";
-  ctx.fillText(tema, width / 2, height / 2 - 200);
-
-  ctx.font = "bold 48px Inter";
-  ctx.fillText("CNPJ Legal", width / 2, height / 2 - 150);
-
-  ctx.font = "bold 38px Inter";
-  ctx.fillText(headline, width / 2, height / 2 - 80);
-
-  ctx.font = "28px Inter";
-  ctx.fillText(subheadline, width / 2, height / 2 - 30);
-
-  ctx.font = "20px Inter";
-  ctx.fillText(mensagem, width / 2, height / 2 + 30);
-
+  // logotipo correto conforme fundo
   const logo = new Image();
+  logo.src = color === "branco"
+    ? "https://iili.io/Fri8NTl.png"
+    : "https://iili.io/Frik9yl.png";
   logo.crossOrigin = "anonymous";
-  const isFundoClaro = color === "branco" || color === "verde";
-  logo.src = isFundoClaro
-    ? "https://iili.io/Frik9yl.png"
-    : "https://iili.io/Fri8NTl.png";
 
-  try {
-    await new Promise((res, rej) => {
-      logo.onload = res;
-      logo.onerror = rej;
-    });
-    const logoWidth = width * 0.18;
-    const logoHeight = (logo.height / logo.width) * logoWidth;
-    const x = (width - logoWidth) / 2;
-    const y = height - logoHeight - 50;
-    ctx.drawImage(logo, x, y, logoWidth, logoHeight);
-  } catch (err) {
-    console.warn("Erro ao carregar logo:", err);
-  }
+  const drawTexts = () => {
+    ctx.fillStyle = color === "branco" ? "#000" : "#fff";
+    ctx.textAlign = "center";
+
+    ctx.font = "bold 24px Inter";
+    ctx.fillText(tema, width / 2, height / 2 - 200);
+
+    ctx.font = "bold 48px Inter";
+    ctx.fillText("CNPJ Legal", width / 2, height / 2 - 150);
+
+    ctx.font = "bold 38px Inter";
+    ctx.fillText(headline, width / 2, height / 2 - 80);
+
+    ctx.font = "28px Inter";
+    ctx.fillText(subheadline, width / 2, height / 2 - 30);
+
+    ctx.font = "20px Inter";
+    ctx.fillText(mensagem, width / 2, height / 2 + 30);
+  };
+
+  return new Promise(resolve => {
+    logo.onload = () => {
+      drawTexts();
+      ctx.drawImage(logo, width / 2 - 100, height - 120, 200, 60); // centralizado
+      resolve();
+    };
+    logo.onerror = () => {
+      drawTexts();
+      resolve();
+    };
+  });
 }
 
 document.getElementById("generateBtn").addEventListener("click", async () => {
   const themeInput = document.getElementById("themeInput").value.trim();
   const temaFinal = themeInput || await gerarTemaIA();
+  const conteudo = await gerarConteudoIA(temaFinal);
+  const format = currentFormat || "post";
 
-  const color = getRandomColor();
+  let availableColors = Object.keys(colors).filter(c => c !== lastColor);
+  const color = availableColors[Math.floor(Math.random() * availableColors.length)];
   lastColor = color;
 
-  const conteudo = await gerarConteudoIA(temaFinal);
-  lastContent = conteudo;
-
-  await drawPost({ ...conteudo, format: currentFormat, color });
+  lastContent = { ...conteudo, format, color };
+  await drawPost(lastContent);
 });
 
 document.getElementById("downloadBtn").addEventListener("click", () => {
@@ -153,27 +140,28 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
 });
 
 document.querySelectorAll(".color-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    lastColor = btn.dataset.color;
+  btn.addEventListener("click", async () => {
+    const selectedColor = btn.dataset.color;
+    lastColor = selectedColor;
+
     document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("selected"));
     btn.classList.add("selected");
+
+    if (lastContent) {
+      await drawPost({ ...lastContent, color: selectedColor });
+    }
   });
 });
 
 document.querySelectorAll(".dimension-btn").forEach(btn => {
   btn.addEventListener("click", async () => {
     currentFormat = btn.dataset.format;
+
     document.querySelectorAll(".dimension-btn").forEach(b => b.classList.remove("selected"));
     btn.classList.add("selected");
 
     if (lastContent) {
-      const color = lastColor || getRandomColor();
-      await drawPost({ ...lastContent, format: currentFormat, color });
+      await drawPost({ ...lastContent, format: currentFormat });
     }
   });
 });
-
-function getRandomColor() {
-  const keys = Object.keys(colors).filter(k => k !== lastColor);
-  return keys[Math.floor(Math.random() * keys.length)];
-}
