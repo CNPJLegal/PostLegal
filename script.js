@@ -1,5 +1,5 @@
 
-const API_KEY = "COLE_SUA_CHAVE_AQUI";
+const API_KEY = "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";
 const canvas = document.getElementById("postCanvas");
 const ctx = canvas.getContext("2d");
 const colors = { azul: "#0f3efa", verde: "#17e30d", preto: "#1c1c1c", branco: "#ffffff" };
