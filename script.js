@@ -1,4 +1,4 @@
-const API_KEY = "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";
+const API_KEY = "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"; // ← Troque pela sua chave da OpenAI
 
 const canvas = document.getElementById("postCanvas");
 const ctx = canvas.getContext("2d");
@@ -22,14 +22,14 @@ let lastContent = null;
 
 async function chamarIA(prompt) {
   try {
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${API_KEY}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "openai/gpt-3.5-turbo",
+        model: "gpt-4o", // ← você pode trocar por "gpt-3.5-turbo" se quiser economizar
         messages: [{ role: "user", content: prompt }],
         temperature: 0.8
       })
@@ -116,13 +116,12 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
   // Logotipo correto
   const logo = new Image();
   logo.crossOrigin = "anonymous";
-
   if (color === "branco") {
-    logo.src = "https://iili.io/Fri8NTl.png"; // logo para fundo claro
+    logo.src = "https://iili.io/Fri8NTl.png";
   } else if (color === "verde") {
-    logo.src = "https://iili.io/FryqWHG.png"; // logo para fundo verde
+    logo.src = "https://iili.io/FryqWHG.png";
   } else {
-    logo.src = "https://iili.io/Frik9yl.png"; // logo para fundo escuro
+    logo.src = "https://iili.io/Frik9yl.png";
   }
 
   await new Promise((res, rej) => {
