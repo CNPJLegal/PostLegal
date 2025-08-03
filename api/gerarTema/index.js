@@ -6,11 +6,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await fetch("https://www.sebrae.com.br/sites/PortalSebrae/artigos", {
-      headers: {
-        "User-Agent": "Mozilla/5.0"
-      }
-    });
+    const response = await fetch("https://www.sebrae.com.br/sites/PortalSebrae/artigos");
     const html = await response.text();
 
     const $ = cheerio.load(html);
