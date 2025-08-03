@@ -63,10 +63,10 @@ body {
   box-shadow: 0 0 5px rgba(255,255,255,0.1);
 }
 
-.color-btn[data-color="azul"]     { background: #0f3efa; color: white; }
-.color-btn[data-color="verde"]    { background: #17e30d; color: black; }
-.color-btn[data-color="preto"]    { background: #1c1c1c; color: white; }
-.color-btn[data-color="branco"]   { background: #ffffff; color: #000; }
+.color-btn[data-color="azul"]      { background: #0f3efa; color: white; }
+.color-btn[data-color="verde"]     { background: #17e30d; color: black; }
+.color-btn[data-color="preto"]     { background: #1c1c1c; color: white; }
+.color-btn[data-color="branco"]    { background: #ffffff; color: #000; }
 .color-btn[data-color="aleatoria"] { background: #444; color: #fff; }
 
 .color-btn.selected {
