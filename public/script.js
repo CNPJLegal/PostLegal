@@ -42,7 +42,6 @@ document.getElementById("zoomOutBtn").addEventListener("click", () => {
 
 applyZoom();
 
-// Geração de tema usando API local ou fallback
 async function gerarTemaIA() {
   try {
     const res = await fetch(`${window.location.origin}/api/gerarTema`);
