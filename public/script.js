@@ -42,24 +42,20 @@ document.getElementById("zoomOutBtn").addEventListener("click", () => {
 
 applyZoom();
 
+// Geração de tema usando API local ou fallback
 async function gerarTemaIA() {
-  const temasCnpjLegal = [
-    "Como abrir um MEI em 2025",
-    "Benefícios de formalizar seu negócio",
-    "CNPJ para autônomos e freelancers",
-    "Emissão de nota fiscal simplificada",
-    "Passo a passo para abrir CNPJ",
-    "Diferença entre MEI e Simples Nacional",
-    "Como declarar imposto como MEI",
-    "Vantagens de ter um CNPJ regularizado"
-  ];
-  const index = Math.floor(Math.random() * temasCnpjLegal.length);
-  return temasCnpjLegal[index];
+  try {
+    const res = await fetch("/api/gerarTema");
+    const data = await res.json();
+    return data.tema || "Empreendedorismo Legal";
+  } catch (e) {
+    console.warn("⚠️ Falha ao buscar tema:", e);
+    return "Empreendedorismo Legal";
+  }
 }
 
 async function gerarConteudoIA(tema) {
   const lower = tema.toLowerCase();
-
   let headline = tema;
   let subheadline = "Abra seu CNPJ com facilidade e segurança.";
   let mensagem = "Clique no link da bio para começar hoje mesmo!";
@@ -76,6 +72,8 @@ async function gerarConteudoIA(tema) {
   } else if (lower.includes("autônomo") || lower.includes("freelancer")) {
     headline = "CNPJ para autônomos: vale a pena?";
     subheadline = "Veja as vantagens de se formalizar agora mesmo.";
+  } else if (lower.includes("vantagens")) {
+    mensagem = "Confira as vantagens na legenda do post!";
   }
 
   return { tema, headline, subheadline, mensagem };
