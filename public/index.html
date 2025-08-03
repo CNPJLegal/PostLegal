@@ -8,12 +8,9 @@
 
   <!-- Fonte Inter -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-
-  <!-- Favicon padrão para evitar erro 404 -->
   <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
-
-  <!-- Estilos -->
   <link rel="stylesheet" href="style.css" />
+
   <style>
     .zoom-controls {
       position: absolute;
@@ -43,13 +40,28 @@
       display: flex;
       gap: 6px;
       flex-wrap: nowrap;
-      flex-direction: row;
-      flex: 1;
     }
 
     #colorOptions .color-btn {
-      flex: 1;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      height: 32px;
+      border-radius: 16px;
+      border: none;
       white-space: nowrap;
+      cursor: pointer;
+      flex: 1 1 auto;
+    }
+
+    .color-btn[data-color="azul"]      { background: #0f3efa; color: white; }
+    .color-btn[data-color="verde"]     { background: #17e30d; color: black; }
+    .color-btn[data-color="preto"]     { background: #1c1c1c; color: white; }
+    .color-btn[data-color="branco"]    { background: #ffffff; color: black; }
+    .color-btn[data-color="aleatoria"] { background: #444; color: white; }
+
+    .color-btn.selected {
+      outline: 2px solid #fff;
     }
   </style>
 </head>
@@ -94,7 +106,6 @@
       Seu navegador não suporta canvas.
     </canvas>
 
-    <!-- Controles de Zoom -->
     <div class="zoom-controls">
       <button id="zoomInBtn">+</button>
       <button id="zoomOutBtn">−</button>
@@ -116,7 +127,6 @@
       canvas.style.transform = `scale(${zoomLevel})`;
     });
 
-    // Aplicar zoom inicial
     canvas.style.transform = `scale(${zoomLevel})`;
     canvas.style.transformOrigin = "top";
   </script>
