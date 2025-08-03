@@ -84,11 +84,9 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
   canvas.width = width;
   canvas.height = height;
 
-  // Fundo
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
-  // Textura
   try {
     const texture = await carregarImagem("https://iili.io/FrLiI5P.png");
     ctx.save();
@@ -99,7 +97,6 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
     console.warn("Erro ao carregar textura:", e);
   }
 
-  // Textos
   ctx.fillStyle = color === "branco" ? "#000" : "#fff";
   ctx.textAlign = "center";
 
@@ -118,7 +115,6 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
   ctx.font = "20px Inter";
   ctx.fillText(mensagem, width / 2, height / 2 + 30);
 
-  // Logo
   try {
     const logo = await carregarImagem(logos[color]);
     const logoWidth = 120;
@@ -129,7 +125,6 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
   }
 }
 
-// Botão GERAR
 document.getElementById("generateBtn").addEventListener("click", async () => {
   const themeInput = document.getElementById("themeInput").value.trim();
   const temaFinal = themeInput || await gerarTemaIA();
@@ -137,7 +132,7 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
   lastContent = conteudo;
 
   const format = currentFormat;
-  const color = lastColor || getRandomColor();
+  const color = getRandomColor();
   lastColor = color;
 
   await drawPost({ ...conteudo, format, color });
@@ -147,7 +142,6 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
   });
 });
 
-// Botão BAIXAR
 document.getElementById("downloadBtn").addEventListener("click", () => {
   const link = document.createElement("a");
   link.download = "post-cnpj-legal.png";
@@ -155,7 +149,6 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
   link.click();
 });
 
-// Cor selecionada
 document.querySelectorAll(".color-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     lastColor = btn.dataset.color;
@@ -168,7 +161,6 @@ document.querySelectorAll(".color-btn").forEach(btn => {
   });
 });
 
-// Formato selecionado
 document.querySelectorAll(".dimension-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     currentFormat = btn.dataset.format;
