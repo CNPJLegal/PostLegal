@@ -25,7 +25,6 @@ let currentFormat = "post";
 let lastColor = null;
 let lastContent = null;
 
-// 🔐 Busca tema via backend seguro
 async function gerarTemaIA() {
   try {
     const res = await fetch("/api/gerarTema");
@@ -37,7 +36,6 @@ async function gerarTemaIA() {
   }
 }
 
-// 🧠 Gera texto com base no tema
 async function gerarConteudoIA(tema) {
   try {
     return {
@@ -67,6 +65,29 @@ function carregarImagem(src) {
   });
 }
 
+function wrapText(text, x, y, maxWidth, lineHeight) {
+  const words = text.split(" ");
+  let line = "";
+  let lines = [];
+
+  for (let n = 0; n < words.length; n++) {
+    const testLine = line + words[n] + " ";
+    const metrics = ctx.measureText(testLine);
+    const testWidth = metrics.width;
+    if (testWidth > maxWidth && n > 0) {
+      lines.push(line.trim());
+      line = words[n] + " ";
+    } else {
+      line = testLine;
+    }
+  }
+  lines.push(line.trim());
+
+  lines.forEach((l, i) => {
+    ctx.fillText(l, x, y + i * lineHeight);
+  });
+}
+
 async function drawPost({ tema, headline, subheadline, mensagem, format, color }) {
   const { width, height } = formats[format];
   canvas.width = width;
@@ -85,27 +106,43 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
     console.warn("Erro ao carregar textura:", e);
   }
 
-  ctx.fillStyle = color === "branco" ? "#000" : "#fff";
+  // Vinheta radial escura do topo
+  const gradient = ctx.createRadialGradient(width / 2, 0, 100, width / 2, height / 2, height);
+  gradient.addColorStop(0, "rgba(0,0,0,0.4)");
+  gradient.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+
+  // Cor do texto
+  let textColor = "#fff";
+  if (color === "branco" || color === "verde") textColor = "#000";
   ctx.textAlign = "center";
 
+  // Tema (acima da headline)
   ctx.font = "bold 24px Inter";
-  ctx.fillText(tema, width / 2, height / 2 - 200);
+  ctx.fillStyle = textColor;
+  wrapText(tema, width / 2, height / 2 - 280, width * 0.8, 30);
 
-  ctx.font = "bold 48px Inter";
-  ctx.fillText("CNPJ Legal", width / 2, height / 2 - 150);
+  // Headline (em destaque)
+  ctx.font = "bold 46px Inter";
+  ctx.fillStyle =
+    color === "verde" ? "#000" :
+    color === "branco" ? "#0f3efa" :
+    "#17e30d";
+  wrapText(headline, width / 2, height / 2 - 200, width * 0.9, 50);
 
-  ctx.font = "bold 38px Inter";
-  ctx.fillText(headline, width / 2, height / 2 - 80);
-
+  // Subheadline
   ctx.font = "28px Inter";
-  ctx.fillText(subheadline, width / 2, height / 2 - 30);
+  ctx.fillStyle = textColor;
+  wrapText(subheadline, width / 2, height / 2 - 80, width * 0.75, 34);
 
+  // CTA
   ctx.font = "20px Inter";
-  ctx.fillText(mensagem, width / 2, height / 2 + 30);
+  wrapText(mensagem, width / 2, height / 2, width * 0.7, 28);
 
   try {
     const logo = await carregarImagem(logos[color]);
-    const logoWidth = 120;
+    const logoWidth = 160;
     const logoHeight = logo.height * (logoWidth / logo.width);
     ctx.drawImage(logo, (width - logoWidth) / 2, height - logoHeight - 40, logoWidth, logoHeight);
   } catch (e) {
