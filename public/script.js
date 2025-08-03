@@ -26,44 +26,36 @@ let lastColor = null;
 let lastContent = null;
 
 async function gerarTemaIA() {
-  const temas = [
-    "Dicas fiscais para MEI",
-    "Como abrir seu CNPJ sem erro",
-    "Parcelamento de dívidas do MEI",
-    "Obrigações mensais do MEI",
-    "Como emitir nota fiscal sendo MEI"
-  ];
-  return temas[Math.floor(Math.random() * temas.length)];
+  try {
+    const response = await fetch("https://newsdata.io/api/1/news?apikey=demo&q=MEI");
+    const data = await response.json();
+    const headlines = data.results?.map(item => item.title).filter(Boolean);
+    return headlines?.[Math.floor(Math.random() * headlines.length)] || "Empreendedorismo Legal";
+  } catch (e) {
+    console.warn("⚠️ Falha ao obter tema via scraping:", e);
+    return "Empreendedorismo Legal";
+  }
 }
 
 async function gerarConteudoIA(tema) {
-  const exemplos = [
-    {
-      headline: "Seu MEI está em dia?",
-      subheadline: "Evite multas e problemas fiscais!",
-      mensagem: "Confira suas obrigações do mês agora!"
-    },
-    {
-      headline: "Imposto atrasado?",
-      subheadline: "Dá pra parcelar e ficar regularizado!",
-      mensagem: "Clique para saber como resolver."
-    },
-    {
-      headline: "Já declarou o DASN?",
-      subheadline: "Prazo termina este mês!",
-      mensagem: "Não perca o prazo e evite dores de cabeça."
-    },
-    {
-      headline: "Você conhece o Simples Nacional?",
-      subheadline: "Entenda os benefícios para MEI",
-      mensagem: "Aproveite e economize mais."
-    }
-  ];
-  const escolhido = exemplos[Math.floor(Math.random() * exemplos.length)];
-  return {
-    tema,
-    ...escolhido
-  };
+  try {
+    const response = await fetch(`https://api.quotable.io/random?tags=business`);
+    const quote = await response.json();
+    return {
+      tema,
+      headline: quote.content || "(HEADLINE não encontrada)",
+      subheadline: quote.author ? `— ${quote.author}` : "(SUBHEADLINE não encontrada)",
+      mensagem: "Transforme sua ideia em um CNPJ hoje mesmo!"
+    };
+  } catch (e) {
+    console.warn("⚠️ Falha ao gerar conteúdo IA:", e);
+    return {
+      tema,
+      headline: "(HEADLINE não encontrada)",
+      subheadline: "(SUBHEADLINE não encontrada)",
+      mensagem: "(MENSAGEM não encontrada)"
+    };
+  }
 }
 
 function carregarImagem(src) {
