@@ -47,9 +47,11 @@ async function gerarTemaIA() {
   try {
     const res = await fetch("/api/gerarTema");
     const data = await res.json();
-    return data.tema || "Empreendedorismo Legal";
+    if (!data.tema) throw new Error("Tema não encontrado");
+    return data.tema;
   } catch (e) {
-    console.warn("⚠️ Falha ao buscar tema:", e);
+    console.warn("⚠️ Tema automático indisponível:", e);
+    alert("⚠️ Não foi possível gerar um tema automático no momento.");
     return "Empreendedorismo Legal";
   }
 }
