@@ -18,51 +18,69 @@ const logos = {
 const formats = {
   quadrado: { width: 1080, height: 1080 },
   post: { width: 1080, height: 1350 },
-  stories: { width: 1080, height: 1720 } // reduzido para caber
+  stories: { width: 1080, height: 1720 }
 };
 
 let currentFormat = "post";
 let lastColor = null;
 let lastContent = null;
-let zoomLevel = 0.45; // inicial
+let zoomLevel = 0.45;
 
-// Zoom
 function applyZoom() {
   canvas.style.transform = `scale(${zoomLevel})`;
 }
+
 document.getElementById("zoomInBtn").addEventListener("click", () => {
   zoomLevel = Math.min(zoomLevel + 0.05, 1);
   applyZoom();
 });
+
 document.getElementById("zoomOutBtn").addEventListener("click", () => {
   zoomLevel = Math.max(zoomLevel - 0.05, 0.2);
   applyZoom();
 });
+
 applyZoom();
 
-// IA: tema
 async function gerarTemaIA() {
-  try {
-    const res = await fetch("/api/gerarTema");
-    const data = await res.json();
-    return data.tema || "Empreendedorismo Legal";
-  } catch (e) {
-    console.warn("⚠️ Falha ao buscar tema:", e);
-    return "Empreendedorismo Legal";
-  }
+  const temasCnpjLegal = [
+    "Como abrir um MEI em 2025",
+    "Benefícios de formalizar seu negócio",
+    "CNPJ para autônomos e freelancers",
+    "Emissão de nota fiscal simplificada",
+    "Passo a passo para abrir CNPJ",
+    "Diferença entre MEI e Simples Nacional",
+    "Como declarar imposto como MEI",
+    "Vantagens de ter um CNPJ regularizado"
+  ];
+  const index = Math.floor(Math.random() * temasCnpjLegal.length);
+  return temasCnpjLegal[index];
 }
 
-// IA: conteúdo
 async function gerarConteudoIA(tema) {
-  return {
-    tema,
-    headline: tema,
-    subheadline: "Abra seu CNPJ com facilidade e segurança.",
-    mensagem: "Clique no link da bio para começar hoje mesmo!"
-  };
+  const lower = tema.toLowerCase();
+
+  let headline = tema;
+  let subheadline = "Abra seu CNPJ com facilidade e segurança.";
+  let mensagem = "Clique no link da bio para começar hoje mesmo!";
+
+  if (lower.includes("mei")) {
+    headline = "Descubra como abrir seu MEI sem complicações";
+    subheadline = "A maneira mais rápida e fácil de se formalizar.";
+  } else if (lower.includes("nota fiscal")) {
+    headline = "Aprenda a emitir nota fiscal sem burocracia";
+    subheadline = "Emita NFs com facilidade sendo MEI ou autônomo.";
+  } else if (lower.includes("imposto")) {
+    headline = "Evite multas: entenda seus impostos como MEI";
+    subheadline = "Saiba como manter seu CNPJ em dia.";
+  } else if (lower.includes("autônomo") || lower.includes("freelancer")) {
+    headline = "CNPJ para autônomos: vale a pena?";
+    subheadline = "Veja as vantagens de se formalizar agora mesmo.";
+  }
+
+  return { tema, headline, subheadline, mensagem };
 }
 
-// Load image
 function carregarImagem(src) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -73,7 +91,6 @@ function carregarImagem(src) {
   });
 }
 
-// Word wrap
 function wrapText(text, x, y, maxWidth, lineHeight) {
   const words = text.split(" ");
   let line = "";
@@ -93,7 +110,6 @@ function wrapText(text, x, y, maxWidth, lineHeight) {
   lines.forEach((l, i) => ctx.fillText(l, x, y + i * lineHeight));
 }
 
-// Desenha post
 async function drawPost({ tema, headline, subheadline, mensagem, format, color }) {
   const { width, height } = formats[format];
   canvas.width = width;
@@ -102,7 +118,6 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
-  // textura
   try {
     const texture = await carregarImagem("https://iili.io/FrLiI5P.png");
     ctx.save();
@@ -113,14 +128,12 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
     console.warn("Erro ao carregar textura:", e);
   }
 
-  // vinheta topo
   const gradient = ctx.createRadialGradient(width / 2, 0, 100, width / 2, height / 2, height);
   gradient.addColorStop(0, "rgba(0,0,0,0.4)");
   gradient.addColorStop(1, "rgba(0,0,0,0)");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width, height);
 
-  // texto
   let textColor = (color === "branco" || color === "verde") ? "#000" : "#fff";
   ctx.textAlign = "center";
 
@@ -135,7 +148,6 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
   ctx.font = "20px Inter";
   wrapText(mensagem, width / 2, height / 2 + 20, width * 0.7, 28);
 
-  // logo
   try {
     const logo = await carregarImagem(logos[color]);
     const logoWidth = 140;
@@ -146,7 +158,6 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
   }
 }
 
-// Geração
 document.getElementById("generateBtn").addEventListener("click", async () => {
   const themeInput = document.getElementById("themeInput").value.trim();
   const temaFinal = themeInput || await gerarTemaIA();
@@ -170,7 +181,6 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
   await drawPost({ ...conteudo, format: currentFormat, color });
 });
 
-// Download
 document.getElementById("downloadBtn").addEventListener("click", () => {
   const link = document.createElement("a");
   link.download = "post-cnpj-legal.png";
@@ -178,7 +188,6 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
   link.click();
 });
 
-// Cor
 document.querySelectorAll(".color-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("selected"));
@@ -192,7 +201,6 @@ document.querySelectorAll(".color-btn").forEach(btn => {
   });
 });
 
-// Formato
 document.querySelectorAll(".dimension-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".dimension-btn").forEach(b => b.classList.remove("selected"));
@@ -204,7 +212,6 @@ document.querySelectorAll(".dimension-btn").forEach(btn => {
   });
 });
 
-// Aleatória
 function getRandomColor() {
   const keys = Object.keys(colors);
   return keys[Math.floor(Math.random() * keys.length)];
