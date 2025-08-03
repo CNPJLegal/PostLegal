@@ -25,7 +25,7 @@ let currentFormat = "post";
 let lastColor = null;
 let lastContent = null;
 
-// 🔐 Chamada segura para sua API protegida no backend
+// 🔐 Busca tema via backend seguro
 async function gerarTemaIA() {
   try {
     const res = await fetch("/api/gerarTema");
@@ -37,15 +37,14 @@ async function gerarTemaIA() {
   }
 }
 
+// 🧠 Gera texto com base no tema
 async function gerarConteudoIA(tema) {
   try {
-    const response = await fetch(`https://api.quotable.io/random?tags=business`);
-    const quote = await response.json();
     return {
       tema,
-      headline: quote.content || "(HEADLINE não encontrada)",
-      subheadline: quote.author ? `— ${quote.author}` : "(SUBHEADLINE não encontrada)",
-      mensagem: "Transforme sua ideia em um CNPJ hoje mesmo!"
+      headline: tema || "(HEADLINE não encontrada)",
+      subheadline: "Abra seu CNPJ com facilidade e segurança.",
+      mensagem: "Clique no link da bio para começar hoje mesmo!"
     };
   } catch (e) {
     console.warn("⚠️ Falha ao gerar conteúdo IA:", e);
