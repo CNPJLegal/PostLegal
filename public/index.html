@@ -1,62 +1,19 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gerador de Posts - CNPJ Legal</title>
+let zoomLevel = 0.45;
+const canvasContainer = document.querySelector('.canvas-container');
+const canvasEl = document.getElementById('postCanvas');
 
-  <!-- Fonte Inter -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-  
-  <!-- Favicon padrão para evitar erro 404 -->
-  <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
+function applyZoom() {
+  canvasEl.style.transform = `scale(${zoomLevel})`;
+}
 
-  <!-- Estilos -->
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="controls">
-    <div class="section-title">Tema do Post</div>
-    <input type="text" id="themeInput" placeholder="Deixe em branco para gerar automaticamente..." />
+document.getElementById('zoomInBtn').addEventListener('click', () => {
+  zoomLevel = Math.min(zoomLevel + 0.05, 1);
+  applyZoom();
+});
 
-    <div class="section-title">Cor de Fundo</div>
-    <div class="options" id="colorOptions" style="flex-wrap: nowrap; justify-content: space-between;">
-      <button type="button" class="color-btn-mini selected" data-color="aleatoria">🎨</button>
-      <button type="button" class="color-btn-mini" data-color="azul" title="Azul" style="background:#0f3efa;"></button>
-      <button type="button" class="color-btn-mini" data-color="verde" title="Verde" style="background:#17e30d;"></button>
-      <button type="button" class="color-btn-mini" data-color="preto" title="Preto" style="background:#1c1c1c;"></button>
-      <button type="button" class="color-btn-mini" data-color="branco" title="Branco" style="background:#ffffff; border: 1px solid #999;"></button>
-    </div>
+document.getElementById('zoomOutBtn').addEventListener('click', () => {
+  zoomLevel = Math.max(zoomLevel - 0.05, 0.2);
+  applyZoom();
+});
 
-    <div class="section-title">Formato</div>
-    <div class="options" id="formatOptions">
-      <button type="button" class="dimension-btn" data-format="quadrado">
-        <svg viewBox="0 0 100 100"><rect x="15" y="15" width="70" height="70" rx="8" /></svg>
-        <span>Quadrado<br>(1080x1080)</span>
-      </button>
-      <button type="button" class="dimension-btn selected" data-format="post">
-        <svg viewBox="0 0 100 100"><rect x="25" y="10" width="50" height="80" rx="8" /></svg>
-        <span>Post<br>(1080x1350)</span>
-      </button>
-      <button type="button" class="dimension-btn" data-format="stories">
-        <svg viewBox="0 0 100 100"><rect x="30" y="5" width="40" height="90" rx="8" /></svg>
-        <span>Stories<br>(1080x1920)</span>
-      </button>
-    </div>
-
-    <div class="actions">
-      <button type="button" id="generateBtn">Gerar</button>
-      <button type="button" id="downloadBtn">Baixar</button>
-    </div>
-  </div>
-
-  <div class="canvas-container">
-    <canvas id="postCanvas" width="800" height="1000">
-      Seu navegador não suporta canvas.
-    </canvas>
-  </div>
-
-  <script src="script.js"></script>
-</body>
-</html>
+applyZoom(); // Inicializa com zoom adequado
