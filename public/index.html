@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gerador de Posts - CNPJ Legal</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
@@ -22,9 +23,18 @@
 
     <div class="section-title">Formato</div>
     <div class="options" id="formatOptions">
-      <button class="dimension-btn" data-format="quadrado">Quadrado</button>
-      <button class="dimension-btn" data-format="post">Post</button>
-      <button class="dimension-btn" data-format="stories">Stories</button>
+      <button class="dimension-btn" data-format="quadrado">
+        <svg viewBox="0 0 100 100"><rect x="15" y="15" width="70" height="70" rx="8" /></svg>
+        <span>Quadrado<br>(1080x1080)</span>
+      </button>
+      <button class="dimension-btn" data-format="post">
+        <svg viewBox="0 0 100 100"><rect x="25" y="10" width="50" height="80" rx="8" /></svg>
+        <span>Post<br>(1080x1350)</span>
+      </button>
+      <button class="dimension-btn" data-format="stories">
+        <svg viewBox="0 0 100 100"><rect x="30" y="5" width="40" height="90" rx="8" /></svg>
+        <span>Stories<br>(1080x1920)</span>
+      </button>
     </div>
 
     <div class="actions">
@@ -34,7 +44,9 @@
   </div>
 
   <div class="canvas-container">
-    <canvas id="postCanvas" width="1080" height="1350"></canvas>
+    <canvas id="postCanvas" width="1080" height="1350">
+      Seu navegador não suporta canvas.
+    </canvas>
   </div>
 
   <script src="script.js"></script>
