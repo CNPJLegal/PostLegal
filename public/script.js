@@ -131,15 +131,23 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
   const conteudo = await gerarConteudoIA(temaFinal);
   lastContent = conteudo;
 
-  const format = currentFormat;
-  const color = getRandomColor();
+  const selectedColorBtn = document.querySelector(".color-btn.selected");
+  const userColorChoice = selectedColorBtn?.dataset?.color;
+
+  const color =
+    !userColorChoice || userColorChoice === "aleatoria"
+      ? getRandomColor()
+      : userColorChoice;
+
+  if (userColorChoice === "aleatoria") {
+    // Garante que nenhum botão fique marcado além do "aleatoria"
+    document.querySelectorAll(".color-btn").forEach(b => {
+      b.classList.toggle("selected", b.dataset.color === "aleatoria");
+    });
+  }
+
   lastColor = color;
-
-  await drawPost({ ...conteudo, format, color });
-
-  document.querySelectorAll(".color-btn").forEach(btn => {
-    btn.classList.toggle("selected", btn.dataset.color === color);
-  });
+  await drawPost({ ...conteudo, format: currentFormat, color });
 });
 
 document.getElementById("downloadBtn").addEventListener("click", () => {
@@ -151,29 +159,36 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
 
 document.querySelectorAll(".color-btn").forEach(btn => {
   btn.addEventListener("click", () => {
-    lastColor = btn.dataset.color;
     document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("selected"));
     btn.classList.add("selected");
 
-    if (lastContent) {
+    const corSelecionada = btn.dataset.color;
+    lastColor = corSelecionada === "aleatoria" ? null : corSelecionada;
+
+    if (lastContent && lastColor) {
       drawPost({ ...lastContent, format: currentFormat, color: lastColor });
+    } else if (lastContent && !lastColor) {
+      const corAleatoria = getRandomColor();
+      drawPost({ ...lastContent, format: currentFormat, color: corAleatoria });
     }
   });
 });
 
 document.querySelectorAll(".dimension-btn").forEach(btn => {
   btn.addEventListener("click", () => {
-    currentFormat = btn.dataset.format;
     document.querySelectorAll(".dimension-btn").forEach(b => b.classList.remove("selected"));
     btn.classList.add("selected");
 
+    currentFormat = btn.dataset.format;
+
     if (lastContent) {
-      drawPost({ ...lastContent, format: currentFormat, color: lastColor || getRandomColor() });
+      const color = lastColor || getRandomColor();
+      drawPost({ ...lastContent, format: currentFormat, color });
     }
   });
 });
 
 function getRandomColor() {
-  const keys = Object.keys(colors).filter(k => k !== lastColor);
+  const keys = Object.keys(colors);
   return keys[Math.floor(Math.random() * keys.length)];
 }
