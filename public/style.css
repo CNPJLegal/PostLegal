@@ -1,4 +1,4 @@
-/* Reset */
+/* RESET */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -6,13 +6,14 @@
 }
 
 body {
+  height: 100vh;
+  display: flex;
   font-family: 'Inter', sans-serif;
   background: #121212;
   color: #f0f0f0;
-  display: flex;
-  height: 100vh;
 }
 
+/* LATERAL ESQUERDA */
 .controls {
   width: 340px;
   background: #1e1e1e;
@@ -45,6 +46,7 @@ body {
   gap: 10px;
 }
 
+/* BOTÕES DE COR */
 .color-btn {
   padding: 8px 14px;
   border-radius: 24px;
@@ -61,15 +63,15 @@ body {
 }
 
 .color-btn[data-color="azul"]   { background: #0f3efa; color: white; }
-.color-btn[data-color="verde"]  { background: #17e30d; color: black; }
+.color-btn[data-color="verde"]  { background: #17e30d; color: white; }
 .color-btn[data-color="preto"]  { background: #1c1c1c; color: white; }
-.color-btn[data-color="branco"] { background: #ffffff; color: black; }
+.color-btn[data-color="branco"] { background: #ffffff; color: #000; }
 
 .color-btn.selected {
   outline: 2px solid #fff;
 }
 
-/* 🔁 DIMENSION BTN COM ÍCONE */
+/* BOTÕES DE FORMATO */
 .dimension-btn {
   border: 2px solid #666;
   background: transparent;
@@ -84,14 +86,14 @@ body {
   font-size: 11px;
   font-weight: bold;
   text-align: center;
-  gap: 4px;
-  color: white;
+  gap: 6px;
   transition: border 0.2s, background 0.2s;
+  color: white;
 }
 
 .dimension-btn svg {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   stroke: #0f3efa;
   fill: none;
   stroke-width: 2;
@@ -102,25 +104,23 @@ body {
   border-color: #0f3efa;
 }
 
-/* Actions */
+/* BOTÕES DE AÇÃO */
 .actions {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-#generateBtn, #downloadBtn {
-  border: none;
-  padding: 12px;
-  border-radius: 32px;
-  font-weight: 600;
-  cursor: pointer;
-  font-size: 14px;
-}
-
 #generateBtn {
   background: #17e30d;
-  color: black;
+  color: white;
+  border: none;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 32px;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
 #generateBtn:hover {
@@ -130,13 +130,20 @@ body {
 #downloadBtn {
   background: #0f3efa;
   color: white;
+  border: none;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 32px;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
 #downloadBtn:hover {
   background: #0c2bbd;
 }
 
-/* CANVAS com efeito papel amassado */
+/* CANVAS COM EFEITO DE PAPEL AMASSADO */
 .canvas-container {
   flex: 1;
   display: flex;
@@ -152,6 +159,5 @@ canvas {
   transform-origin: top;
   border-radius: 10px;
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
-  background: #ffffff url("https://iili.io/FrLiI5P.png") center center / cover no-repeat;
-  mix-blend-mode: multiply;
+  background: white;
 }
