@@ -41,40 +41,19 @@ async function chamarIA(prompt) {
 }
 
 async function gerarTemaIA() {
-  const prompt = `
-Gere 5 temas criativos e atuais para posts no Instagram sobre:
-- abrir CNPJ
-- dúvidas fiscais
-- microempreendedores
-Responda somente com uma lista.`;
+  const prompt = "gerar lista de temas para post sobre MEI";
   const texto = await chamarIA(prompt);
   const temas = texto.split("\n").map(l => l.replace(/^[\d\-\*\.\s]+/, "").trim()).filter(Boolean);
   return temas[Math.floor(Math.random() * temas.length)] || "Empreendedorismo Legal";
 }
 
 async function gerarConteudoIA(tema) {
-  const prompt = `
-TEMA: ${tema}
-Crie para um post da marca CNPJ Legal.
-
-O tema deve trazer algo novo e atual, seguir o calendário do MEI para garantir as informações corretas no tempo certo. Quando não tiver algo importante no calendário do MEI (que deve ser prioridade), pode trazer algum insight de empreendedorismo, algo sobre o dia a dia do MEI, algo divertido talvez...
-
-HEADLINE: (estilo bold)
-SUBHEADLINE: (estilo regular)
-MENSAGEM: (CTA, estilo thin)
-
-Utilize fonte Galano Classic, Gilroy ou Montserrat no design final.
-Responda no seguinte formato:
-
-HEADLINE: ...
-SUBHEADLINE: ...
-MENSAGEM: ...`;
-
+  const prompt = `gerar copy para: ${tema}`;
   const texto = await chamarIA(prompt);
   console.log("📩 IA respondeu:", texto);
 
   const extract = campo => {
-    const match = texto.match(new RegExp(`${campo}:\\s*(.+)`, "i"));
+    const match = texto.match(new RegExp(campo + ":\\s*(.+)", "i"));
     return match?.[1]?.trim() || `(${campo} não encontrado)`;
   };
 
@@ -151,10 +130,9 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
   const selectedColorBtn = document.querySelector(".color-btn.selected");
   const userColorChoice = selectedColorBtn?.dataset?.color;
 
-  const color =
-    !userColorChoice || userColorChoice === "aleatoria"
-      ? getRandomColor()
-      : userColorChoice;
+  const color = !userColorChoice || userColorChoice === "aleatoria"
+    ? getRandomColor()
+    : userColorChoice;
 
   if (userColorChoice === "aleatoria") {
     document.querySelectorAll(".color-btn").forEach(b => {
