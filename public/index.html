@@ -9,7 +9,7 @@
   <!-- Fonte Inter -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   
-  <!-- Favicon padrão (evita erro 404 no console) -->
+  <!-- Favicon padrão para evitar erro 404 -->
   <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
 
   <!-- Estilos -->
@@ -21,12 +21,12 @@
     <input type="text" id="themeInput" placeholder="Deixe em branco para gerar automaticamente..." />
 
     <div class="section-title">Cor de Fundo</div>
-    <div class="options" id="colorOptions">
-      <button type="button" class="color-btn selected" data-color="aleatoria">Cor Aleatória</button>
-      <button type="button" class="color-btn" data-color="azul">Azul</button>
-      <button type="button" class="color-btn" data-color="verde">Verde</button>
-      <button type="button" class="color-btn" data-color="preto">Preto</button>
-      <button type="button" class="color-btn" data-color="branco">Branco</button>
+    <div class="options" id="colorOptions" style="flex-wrap: nowrap; justify-content: space-between;">
+      <button type="button" class="color-btn-mini selected" data-color="aleatoria">🎨</button>
+      <button type="button" class="color-btn-mini" data-color="azul" title="Azul" style="background:#0f3efa;"></button>
+      <button type="button" class="color-btn-mini" data-color="verde" title="Verde" style="background:#17e30d;"></button>
+      <button type="button" class="color-btn-mini" data-color="preto" title="Preto" style="background:#1c1c1c;"></button>
+      <button type="button" class="color-btn-mini" data-color="branco" title="Branco" style="background:#ffffff; border: 1px solid #999;"></button>
     </div>
 
     <div class="section-title">Formato</div>
@@ -52,7 +52,7 @@
   </div>
 
   <div class="canvas-container">
-    <canvas id="postCanvas" width="1080" height="1350">
+    <canvas id="postCanvas" width="800" height="1000">
       Seu navegador não suporta canvas.
     </canvas>
   </div>
