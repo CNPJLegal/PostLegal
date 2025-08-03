@@ -1,4 +1,4 @@
-import cheerio from "cheerio";
+import * as cheerio from "cheerio";
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
@@ -6,37 +6,28 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Exemplo: buscar notícias do Sebrae
-    const response = await fetch("https://www.sebrae.com.br/sites/PortalSebrae/artigos", {
-      headers: { "User-Agent": "Mozilla/5.0" }
-    });
-
-    if (!response.ok) {
-      throw new Error("Erro ao acessar o site do Sebrae");
-    }
-
+    const response = await fetch("https://www.sebrae.com.br/sites/PortalSebrae/artigos");
     const html = await response.text();
+
     const $ = cheerio.load(html);
+    const temas = [];
 
-    const manchetes = [];
-
-    $("a.titulo-noticia, .card-title, h3").each((_, el) => {
-      const titulo = $(el).text().trim();
-      if (titulo && titulo.length > 10) {
-        manchetes.push(titulo);
+    $("a").each((i, el) => {
+      const texto = $(el).text().trim();
+      if (texto.length > 30 && !texto.includes("Saiba mais")) {
+        temas.push(texto);
       }
     });
 
-    if (!manchetes.length) {
-      return res.status(404).json({ error: "Nenhum tema encontrado nas fontes confiáveis" });
+    if (temas.length === 0) {
+      return res.status(404).json({ error: "Nenhum tema encontrado." });
     }
 
-    const tema = manchetes[Math.floor(Math.random() * manchetes.length)];
-
+    const tema = temas[Math.floor(Math.random() * temas.length)];
     return res.status(200).json({ tema });
 
   } catch (err) {
-    console.error("Erro ao buscar temas via scraping:", err.message);
-    return res.status(500).json({ error: "Erro ao buscar temas externos (ex: Sebrae)" });
+    console.error("Erro ao buscar tema do Sebrae:", err);
+    return res.status(500).json({ error: "Erro ao buscar tema do Sebrae" });
   }
 }
