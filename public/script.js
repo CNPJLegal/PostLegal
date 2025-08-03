@@ -25,9 +25,12 @@ let currentFormat = "post";
 let lastColor = null;
 let lastContent = null;
 
+// Altere aqui para sua chave pessoal
+const NEWSDATA_API_KEY = "SUA_CHAVE_AQUI";
+
 async function gerarTemaIA() {
   try {
-    const response = await fetch("https://newsdata.io/api/1/news?apikey=demo&q=MEI");
+    const response = await fetch(`https://newsdata.io/api/1/news?apikey=${NEWSDATA_API_KEY}&q=MEI&language=pt`);
     const data = await response.json();
     const headlines = data.results?.map(item => item.title).filter(Boolean);
     return headlines?.[Math.floor(Math.random() * headlines.length)] || "Empreendedorismo Legal";
