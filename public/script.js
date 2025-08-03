@@ -25,7 +25,6 @@ let currentFormat = "post";
 let lastColor = null;
 let lastContent = null;
 
-// 🎯 IA - chamada do endpoint
 async function chamarIA(prompt) {
   try {
     const res = await fetch("/api/gerar", {
@@ -41,24 +40,27 @@ async function chamarIA(prompt) {
   }
 }
 
-// 🎯 IA - gerar tema se vazio
 async function gerarTemaIA() {
-  const prompt = "Gere 5 temas criativos e atuais para posts sobre abrir CNPJ e empreendedorismo.";
+  const prompt = `
+Gere 5 temas criativos e atuais para posts no Instagram sobre:
+- abrir CNPJ
+- dúvidas fiscais
+- microempreendedores
+Responda somente com uma lista.`;
   const texto = await chamarIA(prompt);
-  const temas = texto.split("\n").map(l => l.replace(/^\d+[-*\.]?\s*/, "").trim()).filter(Boolean);
+  const temas = texto.split("\n").map(l => l.replace(/^[\d\-\*\.\s]+/, "").trim()).filter(Boolean);
   return temas[Math.floor(Math.random() * temas.length)] || "Empreendedorismo Legal";
 }
 
-// 🎯 IA - gerar conteúdo com headline, subheadline, mensagem
 async function gerarConteudoIA(tema) {
-  const prompt = `TEMA: ${tema}\nHEADLINE: título impactante\nSUBHEADLINE: reforço útil\nMENSAGEM: frase prática.`;
+  const prompt = `
+TEMA: ${tema}
+Crie para um post da marca CNPJ Legal:
+HEADLINE: título impactante
+SUBHEADLINE: reforço útil
+MENSAGEM: frase prática`;
   const texto = await chamarIA(prompt);
-
-  const extract = campo => {
-    const match = texto.match(new RegExp(`${campo}:\s*(.+)`, "i"));
-    return match?.[1]?.trim() || "";
-  };
-
+  const extract = campo => texto.match(new RegExp(`${campo}:\\s*(.+)`, "i"))?.[1]?.trim() || "";
   return {
     tema,
     headline: extract("HEADLINE"),
@@ -67,7 +69,16 @@ async function gerarConteudoIA(tema) {
   };
 }
 
-// 🎨 Desenho do post
+function carregarImagem(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
 async function drawPost({ tema, headline, subheadline, mensagem, format, color }) {
   const { width, height } = formats[format];
   canvas.width = width;
@@ -77,7 +88,18 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
-  // Texto
+  // Textura
+  try {
+    const texture = await carregarImagem("https://iili.io/FrLiI5P.png");
+    ctx.save();
+    ctx.globalCompositeOperation = "multiply";
+    ctx.drawImage(texture, 0, 0, width, height);
+    ctx.restore();
+  } catch (e) {
+    console.warn("Erro ao carregar textura:", e);
+  }
+
+  // Textos
   ctx.fillStyle = color === "branco" ? "#000" : "#fff";
   ctx.textAlign = "center";
 
@@ -96,29 +118,18 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
   ctx.font = "20px Inter";
   ctx.fillText(mensagem, width / 2, height / 2 + 30);
 
-  // Logotipo (centralizado na base)
-  const logo = await carregarLogo(logos[color]);
-  const logoWidth = 120;
-  const ratio = logo.height / logo.width;
-  const logoHeight = logoWidth * ratio;
-  const logoX = (width - logoWidth) / 2;
-  const logoY = height - logoHeight - 40;
-
-  ctx.drawImage(logo, logoX, logoY, logoWidth, logoHeight);
+  // Logo
+  try {
+    const logo = await carregarImagem(logos[color]);
+    const logoWidth = 120;
+    const logoHeight = logo.height * (logoWidth / logo.width);
+    ctx.drawImage(logo, (width - logoWidth) / 2, height - logoHeight - 40, logoWidth, logoHeight);
+  } catch (e) {
+    console.warn("Erro ao carregar logo:", e);
+  }
 }
 
-// 🖼️ Carregar imagem de logo externa
-function carregarLogo(src) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = src;
-  });
-}
-
-// 🎯 Botão GERAR
+// Botão GERAR
 document.getElementById("generateBtn").addEventListener("click", async () => {
   const themeInput = document.getElementById("themeInput").value.trim();
   const temaFinal = themeInput || await gerarTemaIA();
@@ -126,18 +137,17 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
   lastContent = conteudo;
 
   const format = currentFormat;
-  const color = getRandomColor(); // força cor nova
+  const color = lastColor || getRandomColor();
   lastColor = color;
 
   await drawPost({ ...conteudo, format, color });
 
-  // Marca botão selecionado
   document.querySelectorAll(".color-btn").forEach(btn => {
     btn.classList.toggle("selected", btn.dataset.color === color);
   });
 });
 
-// 🎯 Botão BAIXAR
+// Botão BAIXAR
 document.getElementById("downloadBtn").addEventListener("click", () => {
   const link = document.createElement("a");
   link.download = "post-cnpj-legal.png";
@@ -145,7 +155,7 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
   link.click();
 });
 
-// 🎯 Seleção de COR
+// Cor selecionada
 document.querySelectorAll(".color-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     lastColor = btn.dataset.color;
@@ -158,7 +168,7 @@ document.querySelectorAll(".color-btn").forEach(btn => {
   });
 });
 
-// 🎯 Seleção de FORMATO
+// Formato selecionado
 document.querySelectorAll(".dimension-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     currentFormat = btn.dataset.format;
@@ -171,7 +181,6 @@ document.querySelectorAll(".dimension-btn").forEach(btn => {
   });
 });
 
-// 💡 Gera cor aleatória diferente da última
 function getRandomColor() {
   const keys = Object.keys(colors).filter(k => k !== lastColor);
   return keys[Math.floor(Math.random() * keys.length)];
