@@ -1,29 +1,42 @@
+import cheerio from "cheerio";
+
 export default async function handler(req, res) {
-  // 🔒 Permite apenas requisições GET
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Método não permitido" });
   }
 
-  const apiKey = process.env.NEWSDATA_API_KEY;
-
-  // ⚠️ Verifica se a chave da API está definida nas variáveis de ambiente
-  if (!apiKey) {
-    return res.status(500).json({ error: "API KEY não configurada no ambiente" });
-  }
-
   try {
-    const response = await fetch(`https://newsdata.io/api/1/news?apikey=${apiKey}&q=MEI,CNPJ,empreendedorismo&language=pt`);
-    const data = await response.json();
+    // Exemplo: buscar notícias do Sebrae
+    const response = await fetch("https://www.sebrae.com.br/sites/PortalSebrae/artigos", {
+      headers: { "User-Agent": "Mozilla/5.0" }
+    });
 
-    // 🧠 Extrai títulos das notícias relevantes
-    const manchetes = data.results?.map(item => item.title).filter(Boolean);
+    if (!response.ok) {
+      throw new Error("Erro ao acessar o site do Sebrae");
+    }
 
-    // 🪂 Fallback em caso de lista vazia
-    const tema = manchetes?.[Math.floor(Math.random() * manchetes.length)] || "Como abrir seu CNPJ com segurança";
+    const html = await response.text();
+    const $ = cheerio.load(html);
+
+    const manchetes = [];
+
+    $("a.titulo-noticia, .card-title, h3").each((_, el) => {
+      const titulo = $(el).text().trim();
+      if (titulo && titulo.length > 10) {
+        manchetes.push(titulo);
+      }
+    });
+
+    if (!manchetes.length) {
+      return res.status(404).json({ error: "Nenhum tema encontrado nas fontes confiáveis" });
+    }
+
+    const tema = manchetes[Math.floor(Math.random() * manchetes.length)];
 
     return res.status(200).json({ tema });
+
   } catch (err) {
-    console.error("Erro ao buscar manchetes da NewsData:", err);
-    return res.status(500).json({ error: "Erro ao buscar dados externos" });
+    console.error("Erro ao buscar temas via scraping:", err.message);
+    return res.status(500).json({ error: "Erro ao buscar temas externos (ex: Sebrae)" });
   }
 }
