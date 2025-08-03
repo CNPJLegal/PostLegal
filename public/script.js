@@ -25,17 +25,14 @@ let currentFormat = "post";
 let lastColor = null;
 let lastContent = null;
 
-// Altere aqui para sua chave pessoal
-const NEWSDATA_API_KEY = "SUA_CHAVE_AQUI";
-
+// 🔐 Chamada segura para sua API protegida no backend
 async function gerarTemaIA() {
   try {
-    const response = await fetch(`https://newsdata.io/api/1/news?apikey=${NEWSDATA_API_KEY}&q=MEI&language=pt`);
-    const data = await response.json();
-    const headlines = data.results?.map(item => item.title).filter(Boolean);
-    return headlines?.[Math.floor(Math.random() * headlines.length)] || "Empreendedorismo Legal";
+    const res = await fetch("/api/gerarTema");
+    const data = await res.json();
+    return data.tema || "Empreendedorismo Legal";
   } catch (e) {
-    console.warn("⚠️ Falha ao obter tema via scraping:", e);
+    console.warn("⚠️ Falha ao buscar tema:", e);
     return "Empreendedorismo Legal";
   }
 }
