@@ -55,12 +55,29 @@ Responda somente com uma lista.`;
 async function gerarConteudoIA(tema) {
   const prompt = `
 TEMA: ${tema}
-Crie para um post da marca CNPJ Legal:
-HEADLINE: título impactante
-SUBHEADLINE: reforço útil
-MENSAGEM: frase prática`;
+Crie para um post da marca CNPJ Legal.
+
+O tema deve trazer algo novo e atual, seguir o calendário do MEI para garantir as informações corretas no tempo certo. Quando não tiver algo importante no calendário do MEI (que deve ser prioridade), pode trazer algum insight de empreendedorismo, algo sobre o dia a dia do MEI, algo divertido talvez...
+
+HEADLINE: (estilo bold)
+SUBHEADLINE: (estilo regular)
+MENSAGEM: (CTA, estilo thin)
+
+Utilize fonte Galano Classic, Gilroy ou Montserrat no design final.
+Responda no seguinte formato:
+
+HEADLINE: ...
+SUBHEADLINE: ...
+MENSAGEM: ...`;
+
   const texto = await chamarIA(prompt);
-  const extract = campo => texto.match(new RegExp(`${campo}:\\s*(.+)`, "i"))?.[1]?.trim() || "";
+  console.log("📩 IA respondeu:", texto);
+
+  const extract = campo => {
+    const match = texto.match(new RegExp(`${campo}:\\s*(.+)`, "i"));
+    return match?.[1]?.trim() || `(${campo} não encontrado)`;
+  };
+
   return {
     tema,
     headline: extract("HEADLINE"),
@@ -140,7 +157,6 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
       : userColorChoice;
 
   if (userColorChoice === "aleatoria") {
-    // Garante que nenhum botão fique marcado além do "aleatoria"
     document.querySelectorAll(".color-btn").forEach(b => {
       b.classList.toggle("selected", b.dataset.color === "aleatoria");
     });
