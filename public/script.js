@@ -45,7 +45,7 @@ applyZoom();
 // Geração de tema usando API local ou fallback
 async function gerarTemaIA() {
   try {
-    const res = await fetch("/api/gerarTema");
+    const res = await fetch("/api/gerarTema"); // ✅ CORRETO
     const data = await res.json();
     if (!data.tema) throw new Error("Tema não encontrado");
     return data.tema;
