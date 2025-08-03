@@ -25,43 +25,44 @@ let currentFormat = "post";
 let lastColor = null;
 let lastContent = null;
 
-async function chamarIA(prompt) {
-  try {
-    const res = await fetch("/api/gerar", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt })
-    });
-    const json = await res.json();
-    return json.result || "";
-  } catch (err) {
-    alert("Erro ao chamar IA.");
-    return "";
-  }
-}
-
 async function gerarTemaIA() {
-  const prompt = "gerar lista de temas para post sobre MEI";
-  const texto = await chamarIA(prompt);
-  const temas = texto.split("\n").map(l => l.replace(/^[\d\-\*\.\s]+/, "").trim()).filter(Boolean);
-  return temas[Math.floor(Math.random() * temas.length)] || "Empreendedorismo Legal";
+  const temas = [
+    "Dicas fiscais para MEI",
+    "Como abrir seu CNPJ sem erro",
+    "Parcelamento de dívidas do MEI",
+    "Obrigações mensais do MEI",
+    "Como emitir nota fiscal sendo MEI"
+  ];
+  return temas[Math.floor(Math.random() * temas.length)];
 }
 
 async function gerarConteudoIA(tema) {
-  const prompt = `gerar copy para: ${tema}`;
-  const texto = await chamarIA(prompt);
-  console.log("📩 IA respondeu:", texto);
-
-  const extract = campo => {
-    const match = texto.match(new RegExp(campo + ":\\s*(.+)", "i"));
-    return match?.[1]?.trim() || `(${campo} não encontrado)`;
-  };
-
+  const exemplos = [
+    {
+      headline: "Seu MEI está em dia?",
+      subheadline: "Evite multas e problemas fiscais!",
+      mensagem: "Confira suas obrigações do mês agora!"
+    },
+    {
+      headline: "Imposto atrasado?",
+      subheadline: "Dá pra parcelar e ficar regularizado!",
+      mensagem: "Clique para saber como resolver."
+    },
+    {
+      headline: "Já declarou o DASN?",
+      subheadline: "Prazo termina este mês!",
+      mensagem: "Não perca o prazo e evite dores de cabeça."
+    },
+    {
+      headline: "Você conhece o Simples Nacional?",
+      subheadline: "Entenda os benefícios para MEI",
+      mensagem: "Aproveite e economize mais."
+    }
+  ];
+  const escolhido = exemplos[Math.floor(Math.random() * exemplos.length)];
   return {
     tema,
-    headline: extract("HEADLINE"),
-    subheadline: extract("SUBHEADLINE"),
-    mensagem: extract("MENSAGEM")
+    ...escolhido
   };
 }
 
