@@ -143,7 +143,7 @@ body {
   background: #0c2bbd;
 }
 
-/* CANVAS COM EFEITO DE PAPEL AMASSADO */
+/* CANVAS */
 .canvas-container {
   flex: 1;
   display: flex;
@@ -158,6 +158,6 @@ canvas {
   transform: scale(0.35);
   transform-origin: top;
   border-radius: 10px;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
   background: white;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
 }
