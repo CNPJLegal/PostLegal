@@ -1,19 +1,111 @@
-let zoomLevel = 0.45;
-const canvasContainer = document.querySelector('.canvas-container');
-const canvasEl = document.getElementById('postCanvas');
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerador de Posts - CNPJ Legal</title>
 
-function applyZoom() {
-  canvasEl.style.transform = `scale(${zoomLevel})`;
-}
+  <!-- Fonte Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
 
-document.getElementById('zoomInBtn').addEventListener('click', () => {
-  zoomLevel = Math.min(zoomLevel + 0.05, 1);
-  applyZoom();
-});
+  <!-- Favicon padrão para evitar erro 404 -->
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
 
-document.getElementById('zoomOutBtn').addEventListener('click', () => {
-  zoomLevel = Math.max(zoomLevel - 0.05, 0.2);
-  applyZoom();
-});
+  <!-- Estilos -->
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .zoom-controls {
+      position: absolute;
+      right: 32px;
+      bottom: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
 
-applyZoom(); // Inicializa com zoom adequado
+    .zoom-controls button {
+      background: #1e1e1e;
+      color: #fff;
+      border: 1px solid #444;
+      border-radius: 6px;
+      width: 36px;
+      height: 36px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .zoom-controls button:hover {
+      background: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <div class="section-title">Tema do Post</div>
+    <input type="text" id="themeInput" placeholder="Deixe em branco para gerar automaticamente..." />
+
+    <div class="section-title">Cor de Fundo</div>
+    <div class="options" id="colorOptions">
+      <button type="button" class="color-btn selected" data-color="aleatoria">🎨 Aleatória</button>
+      <button type="button" class="color-btn" data-color="azul">Azul</button>
+      <button type="button" class="color-btn" data-color="verde">Verde</button>
+      <button type="button" class="color-btn" data-color="preto">Preto</button>
+      <button type="button" class="color-btn" data-color="branco">Branco</button>
+    </div>
+
+    <div class="section-title">Formato</div>
+    <div class="options" id="formatOptions">
+      <button type="button" class="dimension-btn" data-format="quadrado">
+        <svg viewBox="0 0 100 100"><rect x="15" y="15" width="70" height="70" rx="8" /></svg>
+        <span>Quadrado<br>(1080x1080)</span>
+      </button>
+      <button type="button" class="dimension-btn selected" data-format="post">
+        <svg viewBox="0 0 100 100"><rect x="25" y="10" width="50" height="80" rx="8" /></svg>
+        <span>Post<br>(1080x1350)</span>
+      </button>
+      <button type="button" class="dimension-btn" data-format="stories">
+        <svg viewBox="0 0 100 100"><rect x="30" y="5" width="40" height="90" rx="8" /></svg>
+        <span>Stories<br>(1080x1720)</span>
+      </button>
+    </div>
+
+    <div class="actions">
+      <button type="button" id="generateBtn">Gerar</button>
+      <button type="button" id="downloadBtn">Baixar</button>
+    </div>
+  </div>
+
+  <div class="canvas-container" style="position: relative;">
+    <canvas id="postCanvas" width="1080" height="1350">
+      Seu navegador não suporta canvas.
+    </canvas>
+
+    <!-- Controles de Zoom -->
+    <div class="zoom-controls">
+      <button id="zoomInBtn">+</button>
+      <button id="zoomOutBtn">−</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    let zoomLevel = 0.45;
+    const canvas = document.getElementById("postCanvas");
+
+    document.getElementById("zoomInBtn").addEventListener("click", () => {
+      zoomLevel = Math.min(zoomLevel + 0.05, 1);
+      canvas.style.transform = `scale(${zoomLevel})`;
+    });
+
+    document.getElementById("zoomOutBtn").addEventListener("click", () => {
+      zoomLevel = Math.max(zoomLevel - 0.05, 0.2);
+      canvas.style.transform = `scale(${zoomLevel})`;
+    });
+
+    // Aplicar zoom inicial
+    canvas.style.transform = `scale(${zoomLevel})`;
+    canvas.style.transformOrigin = "top";
+  </script>
+</body>
+</html>
