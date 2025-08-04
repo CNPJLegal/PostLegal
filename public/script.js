@@ -29,55 +29,67 @@ let zoomLevel = 0.45;
 function applyZoom() {
   canvas.style.transform = `scale(${zoomLevel})`;
 }
-
 document.getElementById("zoomInBtn").addEventListener("click", () => {
   zoomLevel = Math.min(zoomLevel + 0.05, 1);
   applyZoom();
 });
-
 document.getElementById("zoomOutBtn").addEventListener("click", () => {
   zoomLevel = Math.max(zoomLevel - 0.05, 0.2);
   applyZoom();
 });
-
 applyZoom();
 
-async function gerarTemaIA() {
-  try {
-    const res = await fetch(`${window.location.origin}/api/gerarTema`);
-    const data = await res.json();
-    if (!data.tema) throw new Error("Tema não encontrado");
-    return data.tema;
-  } catch (e) {
-    console.warn("⚠️ Tema automático indisponível:", e);
-    alert("⚠️ Não foi possível gerar um tema automático no momento.");
-    return "Empreendedorismo Legal";
+// Dados extraídos do Excel
+const posts = [
+  {
+    "Tema": "O que é desenquadramento do MEI",
+    "Headline": "O que é desenquadramento do MEI: o que todo MEI precisa saber.",
+    "Subheadline": "Talvez você nunca tenha ouvido falar disso, mas é um dos pontos mais decisivos para manter o CNPJ vivo.",
+    "CTA": "Receba seu diagnóstico gratuito em menos de 2 minutos.",
+    "Legenda": "Sabe quando tudo parece certo, mas o sistema trava? Muitas vezes o motivo é esse aqui — simples, silencioso e ignorado.",
+    "Tags": "#NegócioSeguro #ConsultoriaMEI #RotinaEmpreendedora #DescomplicaMEI #CNPJPronto"
+  },
+  {
+    "Tema": "Como emitir nota fiscal pelo celular",
+    "Headline": "Como emitir nota fiscal pelo celular: o que todo MEI precisa saber.",
+    "Subheadline": "Muitos ignoram esse detalhe e acabam travando o crescimento por uma questão simples de ajuste.",
+    "CTA": "Fale com um especialista da CNPJ Legal agora mesmo.",
+    "Legenda": "Tem empreendedor com anos de experiência ainda errando nesse detalhe. Não seja mais um.",
+    "Tags": "#NotaFiscalSimples #MEIMobile #CNPJNaMão #RotinaEmpreendedora #EmissaoDigital"
+  },
+  {
+    "Tema": "Passo a passo para abrir um MEI",
+    "Headline": "Passo a passo para abrir um MEI: tudo o que você precisa saber.",
+    "Subheadline": "Desde o cadastro até o primeiro imposto, veja como se formalizar sem sair de casa.",
+    "CTA": "Comece agora mesmo e tenha apoio da CNPJ Legal.",
+    "Legenda": "Abrir um MEI é mais simples do que parece. Só precisa seguir os passos certos — e evitar as armadilhas.",
+    "Tags": "#MEIAberto #FormalizaçãoJá #CNPJLegal #PrimeiroPasso #EmpreendedorismoSimples"
   }
-}
+  // (adicione os 7 restantes se quiser agora ou depois)
+];
 
-async function gerarConteudoIA(tema) {
-  const lower = tema.toLowerCase();
-  let headline = tema;
-  let subheadline = "Abra seu CNPJ com facilidade e segurança.";
-  let mensagem = "Clique no link da bio para começar hoje mesmo!";
-
-  if (lower.includes("mei")) {
-    headline = "Descubra como abrir seu MEI sem complicações";
-    subheadline = "A maneira mais rápida e fácil de se formalizar.";
-  } else if (lower.includes("nota fiscal")) {
-    headline = "Aprenda a emitir nota fiscal sem burocracia";
-    subheadline = "Emita NFs com facilidade sendo MEI ou autônomo.";
-  } else if (lower.includes("imposto")) {
-    headline = "Evite multas: entenda seus impostos como MEI";
-    subheadline = "Saiba como manter seu CNPJ em dia.";
-  } else if (lower.includes("autônomo") || lower.includes("freelancer")) {
-    headline = "CNPJ para autônomos: vale a pena?";
-    subheadline = "Veja as vantagens de se formalizar agora mesmo.";
-  } else if (lower.includes("vantagens")) {
-    mensagem = "Confira as vantagens na legenda do post!";
+function buscarConteudoPorTema(tema) {
+  const match = posts.find(p => p.Tema.toLowerCase().includes(tema.toLowerCase()));
+  if (match) {
+    return {
+      tema: match.Tema,
+      headline: match.Headline,
+      subheadline: match.Subheadline,
+      mensagem: match.CTA,
+      legenda: match.Legenda,
+      tags: match.Tags
+    };
   }
 
-  return { tema, headline, subheadline, mensagem };
+  // fallback simples se tema digitado não for encontrado
+  return {
+    tema,
+    headline: `Destaque sobre: ${tema}`,
+    subheadline: "Abra seu CNPJ com facilidade e segurança.",
+    mensagem: "Clique no link da bio para começar hoje mesmo!",
+    legenda: "Este conteúdo foi gerado a partir do tema informado.",
+    tags: "#Empreendedorismo #CNPJLegal #NegócioPróprio"
+  };
 }
 
 function carregarImagem(src) {
@@ -109,7 +121,7 @@ function wrapText(text, x, y, maxWidth, lineHeight) {
   lines.forEach((l, i) => ctx.fillText(l, x, y + i * lineHeight));
 }
 
-async function drawPost({ tema, headline, subheadline, mensagem, format, color }) {
+async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, format, color }) {
   const { width, height } = formats[format];
   canvas.width = width;
   canvas.height = height;
@@ -155,17 +167,20 @@ async function drawPost({ tema, headline, subheadline, mensagem, format, color }
   } catch (e) {
     console.warn("Erro ao carregar logo:", e);
   }
+
+  // Atualiza legenda e tags na UI
+  document.getElementById("postInfo").style.display = "block";
+  document.getElementById("caption").innerText = legenda;
+  document.getElementById("tags").innerText = tags;
 }
 
 document.getElementById("generateBtn").addEventListener("click", async () => {
   const themeInput = document.getElementById("themeInput").value.trim();
-  const temaFinal = themeInput || await gerarTemaIA();
-  const conteudo = await gerarConteudoIA(temaFinal);
+  const conteudo = buscarConteudoPorTema(themeInput || posts[Math.floor(Math.random() * posts.length)].Tema);
   lastContent = conteudo;
 
   const selectedColorBtn = document.querySelector(".color-btn.selected");
   const userColorChoice = selectedColorBtn?.dataset?.color;
-
   const color = !userColorChoice || userColorChoice === "aleatoria"
     ? getRandomColor()
     : userColorChoice;
@@ -191,9 +206,7 @@ document.querySelectorAll(".color-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("selected"));
     btn.classList.add("selected");
-
-    const corSelecionada = btn.dataset.color;
-    lastColor = corSelecionada === "aleatoria" ? null : corSelecionada;
+    lastColor = btn.dataset.color === "aleatoria" ? null : btn.dataset.color;
 
     const corFinal = lastColor || getRandomColor();
     if (lastContent) drawPost({ ...lastContent, format: currentFormat, color: corFinal });
