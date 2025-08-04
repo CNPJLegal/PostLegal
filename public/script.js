@@ -1,6 +1,8 @@
 const canvas = document.getElementById("postCanvas");
 const ctx = canvas.getContext("2d");
 
+const loader = document.getElementById("loader");
+
 const colors = {
   azul: "#0f3efa",
   verde: "#17e30d",
@@ -210,7 +212,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
 
 // Botão gerar
 document.getElementById("generateBtn").addEventListener("click", async () => {
-  document.getElementById("loader").style.display = "flex";
+  loader.style.display = "flex";
 
   const themeInput = document.getElementById("themeInput").value.trim();
   const conteudo = buscarConteudoPorTema(themeInput || random(posts).Tema);
@@ -231,7 +233,7 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
   lastColor = color;
   await drawPost({ ...conteudo, format: currentFormat, color });
 
-  setTimeout(() => document.getElementById("loader").style.display = "none", 200);
+  setTimeout(() => loader.style.display = "none", 200);
 });
 
 document.getElementById("downloadBtn").addEventListener("click", () => {
