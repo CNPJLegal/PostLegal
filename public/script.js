@@ -26,6 +26,23 @@ let lastColor = null;
 let lastContent = null;
 let zoomLevel = 0.45;
 
+const loader = document.createElement("div");
+loader.innerText = "Gerando...";
+loader.style.cssText = `
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 20px;
+  background: rgba(0,0,0,0.8);
+  padding: 12px 20px;
+  border-radius: 8px;
+  z-index: 999;
+  display: none;
+`;
+document.body.appendChild(loader);
+
 function applyZoom() {
   canvas.style.transform = `scale(${zoomLevel})`;
 }
@@ -39,34 +56,50 @@ document.getElementById("zoomOutBtn").addEventListener("click", () => {
 });
 applyZoom();
 
-// Dados extraídos do Excel
-const posts = [
-  {
-    "Tema": "O que é desenquadramento do MEI",
-    "Headline": "O que é desenquadramento do MEI: o que todo MEI precisa saber.",
-    "Subheadline": "Talvez você nunca tenha ouvido falar disso, mas é um dos pontos mais decisivos para manter o CNPJ vivo.",
-    "CTA": "Receba seu diagnóstico gratuito em menos de 2 minutos.",
-    "Legenda": "Sabe quando tudo parece certo, mas o sistema trava? Muitas vezes o motivo é esse aqui — simples, silencioso e ignorado.",
-    "Tags": "#NegócioSeguro #ConsultoriaMEI #RotinaEmpreendedora #DescomplicaMEI #CNPJPronto"
-  },
-  {
-    "Tema": "Como emitir nota fiscal pelo celular",
-    "Headline": "Como emitir nota fiscal pelo celular: o que todo MEI precisa saber.",
-    "Subheadline": "Muitos ignoram esse detalhe e acabam travando o crescimento por uma questão simples de ajuste.",
-    "CTA": "Fale com um especialista da CNPJ Legal agora mesmo.",
-    "Legenda": "Tem empreendedor com anos de experiência ainda errando nesse detalhe. Não seja mais um.",
-    "Tags": "#NotaFiscalSimples #MEIMobile #CNPJNaMão #RotinaEmpreendedora #EmissaoDigital"
-  },
-  {
-    "Tema": "Passo a passo para abrir um MEI",
-    "Headline": "Passo a passo para abrir um MEI: tudo o que você precisa saber.",
-    "Subheadline": "Desde o cadastro até o primeiro imposto, veja como se formalizar sem sair de casa.",
-    "CTA": "Comece agora mesmo e tenha apoio da CNPJ Legal.",
-    "Legenda": "Abrir um MEI é mais simples do que parece. Só precisa seguir os passos certos — e evitar as armadilhas.",
-    "Tags": "#MEIAberto #FormalizaçãoJá #CNPJLegal #PrimeiroPasso #EmpreendedorismoSimples"
-  }
-  // (adicione os 7 restantes se quiser agora ou depois)
-];
+// Dados fixos
+const posts = [/*... (os posts do seu Excel aqui) */];
+
+// Gera variação aleatória para tema digitado
+function gerarVariaçãoDeTema(temaBase) {
+  const headlines = [
+    `Tudo sobre ${temaBase} que ninguém te contou.`,
+    `${temaBase}: entenda como aplicar na sua rotina.`,
+    `${temaBase}: o que você precisa saber agora.`,
+    `${temaBase} explicado de forma simples.`,
+    `${temaBase} pode mudar seu negócio.`
+  ];
+  const subheadlines = [
+    "Descubra como isso impacta diretamente seu sucesso.",
+    "Entenda por que isso é crucial no seu dia a dia.",
+    "Evite os erros mais comuns com esse conhecimento.",
+    "Dê o primeiro passo com clareza e confiança.",
+    "Veja o que os especialistas recomendam sobre o tema."
+  ];
+  const mensagens = [
+    "Acesse agora e tenha um diagnóstico gratuito.",
+    "Conte com a CNPJ Legal para te ajudar.",
+    "Fale com um especialista em menos de 2 minutos.",
+    "Tire suas dúvidas com quem entende.",
+    "Descubra tudo com um clique."
+  ];
+  const legendas = [
+    "Este conteúdo foi gerado com base no seu tema. Legal, né?",
+    "Um bom tema rende bons insights. Aqui está o seu.",
+    "Seu post foi criado automaticamente. Experimente outros!",
+    "Quer ver mais? Troque o tema e gere de novo.",
+    "Cada clique, uma ideia. Aqui está mais uma!"
+  ];
+  const tags = "#CNPJLegal #MarketingMEI #EmpreenderComSegurança #PostInteligente #AutomaçãoCriativa";
+
+  return {
+    tema: temaBase,
+    headline: random(headlines),
+    subheadline: random(subheadlines),
+    mensagem: random(mensagens),
+    legenda: random(legendas),
+    tags
+  };
+}
 
 function buscarConteudoPorTema(tema) {
   const match = posts.find(p => p.Tema.toLowerCase().includes(tema.toLowerCase()));
@@ -80,16 +113,11 @@ function buscarConteudoPorTema(tema) {
       tags: match.Tags
     };
   }
+  return gerarVariaçãoDeTema(tema);
+}
 
-  // fallback simples se tema digitado não for encontrado
-  return {
-    tema,
-    headline: `Destaque sobre: ${tema}`,
-    subheadline: "Abra seu CNPJ com facilidade e segurança.",
-    mensagem: "Clique no link da bio para começar hoje mesmo!",
-    legenda: "Este conteúdo foi gerado a partir do tema informado.",
-    tags: "#Empreendedorismo #CNPJLegal #NegócioPróprio"
-  };
+function random(array) {
+  return array[Math.floor(Math.random() * array.length)];
 }
 
 function carregarImagem(src) {
@@ -168,15 +196,16 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     console.warn("Erro ao carregar logo:", e);
   }
 
-  // Atualiza legenda e tags na UI
   document.getElementById("postInfo").style.display = "block";
   document.getElementById("caption").innerText = legenda;
   document.getElementById("tags").innerText = tags;
 }
 
 document.getElementById("generateBtn").addEventListener("click", async () => {
+  loader.style.display = "block";
+
   const themeInput = document.getElementById("themeInput").value.trim();
-  const conteudo = buscarConteudoPorTema(themeInput || posts[Math.floor(Math.random() * posts.length)].Tema);
+  const conteudo = buscarConteudoPorTema(themeInput || random(posts).Tema);
   lastContent = conteudo;
 
   const selectedColorBtn = document.querySelector(".color-btn.selected");
@@ -193,6 +222,8 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
 
   lastColor = color;
   await drawPost({ ...conteudo, format: currentFormat, color });
+
+  setTimeout(() => loader.style.display = "none", 200); // Esconde loader
 });
 
 document.getElementById("downloadBtn").addEventListener("click", () => {
