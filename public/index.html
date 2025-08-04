@@ -73,7 +73,6 @@
       padding: 20px 30px;
       border-radius: 8px;
       font-size: 16px;
-      display: flex;
       align-items: center;
       gap: 10px;
       box-shadow: 0 0 20px rgba(0,0,0,0.4);
@@ -101,7 +100,7 @@
     <input type="text" id="themeInput" placeholder="Digite um tema ou deixe em branco para gerar automaticamente..." />
 
     <div class="section-title">Cor de Fundo</div>
-    <div class="options" id="colorOptions">
+    <div class="options" id="colorOptions" style="display: flex; flex-direction: row; gap: 6px; flex-wrap: wrap;">
       <button type="button" class="color-btn selected" data-color="aleatoria">Aleatória</button>
       <button type="button" class="color-btn" data-color="azul">Azul</button>
       <button type="button" class="color-btn" data-color="verde">Verde</button>
