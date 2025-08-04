@@ -200,3 +200,27 @@ canvas {
 .zoom-controls button:hover {
   background: #444;
 }
+
+/* INFO BOX */
+.info-box {
+  margin-top: 10px;
+  padding: 12px;
+  background: #2e2e2e;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #ccc;
+  line-height: 1.5;
+}
+
+.info-box strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #fff;
+}
+
+.info-box .tags {
+  margin-top: 6px;
+  color: #888;
+  font-size: 12px;
+  word-break: break-word;
+}
