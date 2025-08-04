@@ -6,10 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gerador de Posts - CNPJ Legal</title>
 
-  <!-- Fonte Inter -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-  <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
 
   <style>
     .zoom-controls {
@@ -20,7 +19,6 @@
       flex-direction: column;
       gap: 10px;
     }
-
     .zoom-controls button {
       background: #1e1e1e;
       color: #fff;
@@ -31,18 +29,15 @@
       font-size: 18px;
       cursor: pointer;
     }
-
     .zoom-controls button:hover {
       background: #333;
     }
-
     #colorOptions {
       display: flex;
       gap: 6px;
       flex-wrap: nowrap;
     }
-
-    #colorOptions .color-btn {
+    .color-btn {
       padding: 6px 10px;
       font-size: 12px;
       font-weight: 500;
@@ -53,22 +48,37 @@
       cursor: pointer;
       flex: 1 1 auto;
     }
-
-    .color-btn[data-color="azul"]      { background: #0f3efa; color: white; }
-    .color-btn[data-color="verde"]     { background: #17e30d; color: black; }
-    .color-btn[data-color="preto"]     { background: #1c1c1c; color: white; }
-    .color-btn[data-color="branco"]    { background: #ffffff; color: black; }
+    .color-btn[data-color="azul"] { background: #0f3efa; color: white; }
+    .color-btn[data-color="verde"] { background: #17e30d; color: black; }
+    .color-btn[data-color="preto"] { background: #1c1c1c; color: white; }
+    .color-btn[data-color="branco"] { background: #ffffff; color: black; }
     .color-btn[data-color="aleatoria"] { background: #444; color: white; }
-
     .color-btn.selected {
       outline: 2px solid #fff;
+    }
+    .info-box {
+      margin-top: 10px;
+      padding: 10px;
+      background: #f2f2f2;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .info-box strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #333;
+    }
+    .info-box .tags {
+      color: #666;
+      font-size: 13px;
+      margin-top: 4px;
     }
   </style>
 </head>
 <body>
   <div class="controls">
     <div class="section-title">Tema do Post</div>
-    <input type="text" id="themeInput" placeholder="Deixe em branco para gerar automaticamente..." />
+    <input type="text" id="themeInput" placeholder="Digite um tema ou deixe em branco para gerar automaticamente..." />
 
     <div class="section-title">Cor de Fundo</div>
     <div class="options" id="colorOptions">
@@ -98,6 +108,12 @@
     <div class="actions">
       <button type="button" id="generateBtn">Gerar</button>
       <button type="button" id="downloadBtn">Baixar</button>
+    </div>
+
+    <div class="info-box" id="postInfo" style="display: none;">
+      <strong>Legenda:</strong>
+      <div id="caption"></div>
+      <div class="tags" id="tags"></div>
     </div>
   </div>
 
