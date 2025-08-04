@@ -210,7 +210,6 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   document.getElementById("tags").innerText = tags;
 }
 
-// Botão gerar
 document.getElementById("generateBtn").addEventListener("click", async () => {
   loader.style.display = "flex";
 
@@ -233,7 +232,7 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
   lastColor = color;
   await drawPost({ ...conteudo, format: currentFormat, color });
 
-  setTimeout(() => loader.style.display = "none", 200);
+  loader.style.display = "none";
 });
 
 document.getElementById("downloadBtn").addEventListener("click", () => {
