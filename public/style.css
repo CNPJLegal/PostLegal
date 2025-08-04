@@ -47,7 +47,6 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  justify-content: space-between;
 }
 
 /* BOTÕES DE COR */
@@ -226,13 +225,36 @@ canvas {
   word-break: break-word;
 }
 
-/* LOADER ANIMAÇÃO */
-body > div[style*="Gerando"] {
-  animation: pulse 1.2s infinite;
+/* LOADER (inicialmente escondido, ativado via JS) */
+#loader {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #1e1e1e;
+  color: #fff;
+  padding: 20px 30px;
+  border-radius: 8px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 9999;
+  box-shadow: 0 0 20px rgba(0,0,0,0.4);
 }
 
-@keyframes pulse {
-  0% { opacity: 0.6; }
-  50% { opacity: 1; }
-  100% { opacity: 0.6; }
+#loader span {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 3px solid #fff;
+  border-top: 3px solid transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
