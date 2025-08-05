@@ -1,8 +1,6 @@
 const canvas = document.getElementById("postCanvas");
 const ctx = canvas.getContext("2d");
 
-const loader = document.getElementById("loader");
-
 const colors = {
   azul: "#0f3efa",
   verde: "#17e30d",
@@ -210,8 +208,43 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   document.getElementById("tags").innerText = tags;
 }
 
+function createLoader() {
+  const loader = document.createElement("div");
+  loader.id = "loader";
+  loader.innerHTML = `<span style="
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 3px solid #fff;
+    border-top: 3px solid transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;"></span> Gerando post...`;
+  Object.assign(loader.style, {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "20px 30px",
+    background: "#1e1e1e",
+    color: "#fff",
+    position: "fixed",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    zIndex: 9999,
+    borderRadius: "8px",
+    boxShadow: "0 0 20px rgba(0,0,0,0.4)",
+    fontSize: "16px"
+  });
+  document.body.appendChild(loader);
+}
+
+function removeLoader() {
+  const loader = document.getElementById("loader");
+  if (loader) loader.remove();
+}
+
 document.getElementById("generateBtn").addEventListener("click", async () => {
-  loader.style.display = "flex";
+  createLoader();
 
   const themeInput = document.getElementById("themeInput").value.trim();
   const conteudo = buscarConteudoPorTema(themeInput || random(posts).Tema);
@@ -232,7 +265,7 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
   lastColor = color;
   await drawPost({ ...conteudo, format: currentFormat, color });
 
-  loader.style.display = "none";
+  removeLoader();
 });
 
 document.getElementById("downloadBtn").addEventListener("click", () => {
