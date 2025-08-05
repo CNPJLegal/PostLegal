@@ -41,15 +41,86 @@ document.getElementById("zoomOutBtn").addEventListener("click", () => {
 applyZoom();
 
 const posts = [
-  // [mesmos 3 exemplos de posts...]
+  {
+    Tema: "O que é desenquadramento do MEI",
+    Headline: "O que é desenquadramento do MEI: o que todo MEI precisa saber.",
+    Subheadline: "Talvez você nunca tenha ouvido falar disso, mas é um dos pontos mais decisivos para manter o CNPJ vivo.",
+    CTA: "Receba seu diagnóstico gratuito em menos de 2 minutos.",
+    Legenda: "Sabe quando tudo parece certo, mas o sistema trava? Muitas vezes o motivo é esse aqui — simples, silencioso e ignorado.",
+    Tags: "#NegócioSeguro #ConsultoriaMEI #RotinaEmpreendedora #DescomplicaMEI #CNPJPronto"
+  },
+  {
+    Tema: "Como emitir nota fiscal pelo celular",
+    Headline: "Como emitir nota fiscal pelo celular: o que todo MEI precisa saber.",
+    Subheadline: "Muitos ignoram esse detalhe e acabam travando o crescimento por uma questão simples de ajuste.",
+    CTA: "Fale com um especialista da CNPJ Legal agora mesmo.",
+    Legenda: "Tem empreendedor com anos de experiência ainda errando nesse detalhe. Não seja mais um.",
+    Tags: "#NotaFiscalSimples #MEIMobile #CNPJNaMão #RotinaEmpreendedora #EmissaoDigital"
+  },
+  {
+    Tema: "Passo a passo para abrir um MEI",
+    Headline: "Passo a passo para abrir um MEI: tudo o que você precisa saber.",
+    Subheadline: "Desde o cadastro até o primeiro imposto, veja como se formalizar sem sair de casa.",
+    CTA: "Comece agora mesmo e tenha apoio da CNPJ Legal.",
+    Legenda: "Abrir um MEI é mais simples do que parece. Só precisa seguir os passos certos — e evitar as armadilhas.",
+    Tags: "#MEIAberto #FormalizaçãoJá #CNPJLegal #PrimeiroPasso #EmpreendedorismoSimples"
+  }
 ];
 
 function gerarVariaçãoDeTema(temaBase) {
-  // [mesma lógica do tema]
+  const headlines = [
+    `Tudo sobre ${temaBase} que ninguém te contou.`,
+    `${temaBase}: entenda como aplicar na sua rotina.`,
+    `${temaBase}: o que você precisa saber agora.`,
+    `${temaBase} explicado de forma simples.`,
+    `${temaBase} pode mudar seu negócio.`
+  ];
+  const subheadlines = [
+    "Descubra como isso impacta diretamente seu sucesso.",
+    "Entenda por que isso é crucial no seu dia a dia.",
+    "Evite os erros mais comuns com esse conhecimento.",
+    "Dê o primeiro passo com clareza e confiança.",
+    "Veja o que os especialistas recomendam sobre o tema."
+  ];
+  const mensagens = [
+    "Acesse agora e tenha um diagnóstico gratuito.",
+    "Conte com a CNPJ Legal para te ajudar.",
+    "Fale com um especialista em menos de 2 minutos.",
+    "Tire suas dúvidas com quem entende.",
+    "Descubra tudo com um clique."
+  ];
+  const legendas = [
+    "Este conteúdo foi gerado com base no seu tema. Legal, né?",
+    "Um bom tema rende bons insights. Aqui está o seu.",
+    "Seu post foi criado automaticamente. Experimente outros!",
+    "Quer ver mais? Troque o tema e gere de novo.",
+    "Cada clique, uma ideia. Aqui está mais uma!"
+  ];
+  const tags = "#CNPJLegal #MarketingMEI #EmpreenderComSegurança #PostInteligente #AutomaçãoCriativa";
+
+  return {
+    tema: temaBase,
+    headline: random(headlines),
+    subheadline: random(subheadlines),
+    mensagem: random(mensagens),
+    legenda: random(legendas),
+    tags
+  };
 }
 
 function buscarConteudoPorTema(tema) {
-  // [mesma lógica de buscar por tema]
+  const match = posts.find(p => p.Tema.toLowerCase().includes(tema.toLowerCase()));
+  if (match) {
+    return {
+      tema: match.Tema,
+      headline: match.Headline,
+      subheadline: match.Subheadline,
+      mensagem: match.CTA,
+      legenda: match.Legenda,
+      tags: match.Tags
+    };
+  }
+  return gerarVariaçãoDeTema(tema);
 }
 
 function random(arr) {
@@ -87,14 +158,9 @@ function wrapText(text, x, y, maxWidth, lineHeight) {
 
 async function getUnsplashImage(query) {
   const accessKey = window.UNSPLASH_ACCESS_KEY;
-  if (!accessKey) throw new Error("Unsplash Access Key não definida.");
-
-  const response = await fetch(
-    `https://api.unsplash.com/photos/random?query=${encodeURIComponent(query)}&orientation=landscape&client_id=${accessKey}`
-  );
-  if (!response.ok) throw new Error("Erro ao buscar imagem do Unsplash");
-
-  const data = await response.json();
+  if (!accessKey) throw new Error("Chave da API do Unsplash não definida.");
+  const res = await fetch(`https://api.unsplash.com/photos/random?query=${encodeURIComponent(query)}&orientation=landscape&client_id=${accessKey}`);
+  const data = await res.json();
   return data.urls.regular;
 }
 
@@ -106,10 +172,9 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
-  // 👉 imagem do Unsplash com borda arredondada
   try {
-    const imgUrl = await getUnsplashImage(tema);
-    const img = await carregarImagem(imgUrl);
+    const imageUrl = await getUnsplashImage(tema);
+    const img = await carregarImagem(imageUrl);
 
     const imgHeight = height * 0.35;
     const radius = 120;
@@ -229,3 +294,37 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
     removeLoader();
   }
 });
+
+document.getElementById("downloadBtn").addEventListener("click", () => {
+  const link = document.createElement("a");
+  link.download = "post-cnpj-legal.png";
+  link.href = canvas.toDataURL();
+  link.click();
+});
+
+document.querySelectorAll(".color-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("selected"));
+    btn.classList.add("selected");
+    lastColor = btn.dataset.color === "aleatoria" ? null : btn.dataset.color;
+
+    const corFinal = lastColor || getRandomColor();
+    if (lastContent) drawPost({ ...lastContent, format: currentFormat, color: corFinal });
+  });
+});
+
+document.querySelectorAll(".dimension-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".dimension-btn").forEach(b => b.classList.remove("selected"));
+    btn.classList.add("selected");
+
+    currentFormat = btn.dataset.format;
+    const corFinal = lastColor || getRandomColor();
+    if (lastContent) drawPost({ ...lastContent, format: currentFormat, color: corFinal });
+  });
+});
+
+function getRandomColor() {
+  const keys = Object.keys(colors);
+  return keys[Math.floor(Math.random() * keys.length)];
+}
