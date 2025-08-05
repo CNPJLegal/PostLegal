@@ -63,29 +63,13 @@
     </div>
   </div>
 
-  <!-- Aqui definimos a variável global para uso no script.js -->
+  <!-- ✅ Defina a variável da API Unsplash antes do script.js -->
   <script>
-    // ⚠️ Substitua pela variável do ambiente (Vercel) automaticamente em produção
-    window.UNSPLASH_ACCESS_KEY = 'SEU_ACCESS_KEY_AQUI';
+    // Em produção, o Vercel substituirá automaticamente essa variável se estiver no .env
+    window.UNSPLASH_ACCESS_KEY = 'SUA_CHAVE_AQUI';
   </script>
 
+  <!-- ✅ Carregue o script principal uma única vez -->
   <script src="script.js"></script>
-  <script>
-    let zoomLevel = 0.45;
-    const canvas = document.getElementById("postCanvas");
-
-    document.getElementById("zoomInBtn").addEventListener("click", () => {
-      zoomLevel = Math.min(zoomLevel + 0.05, 1);
-      canvas.style.transform = `scale(${zoomLevel})`;
-    });
-
-    document.getElementById("zoomOutBtn").addEventListener("click", () => {
-      zoomLevel = Math.max(zoomLevel - 0.05, 0.2);
-      canvas.style.transform = `scale(${zoomLevel})`;
-    });
-
-    canvas.style.transform = `scale(${zoomLevel})`;
-    canvas.style.transformOrigin = "top";
-  </script>
 </body>
 </html>
