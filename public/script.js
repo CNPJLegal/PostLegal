@@ -46,6 +46,7 @@ const graphics = {
   },
 };
 
+// 👇 Conteúdo fixo
 const posts = [
   {
     tema: "nota fiscal",
@@ -82,9 +83,30 @@ function loadImage(url) {
   });
 }
 
+function showLoading() {
+  const loading = document.createElement("div");
+  loading.id = "loadingOverlay";
+  loading.innerHTML = `<div class="loader"></div>`;
+  loading.style.position = "fixed";
+  loading.style.top = 0;
+  loading.style.left = 0;
+  loading.style.width = "100%";
+  loading.style.height = "100%";
+  loading.style.background = "rgba(0,0,0,0.5)";
+  loading.style.display = "flex";
+  loading.style.alignItems = "center";
+  loading.style.justifyContent = "center";
+  loading.style.zIndex = 9999;
+  document.body.appendChild(loading);
+}
+
+function hideLoading() {
+  const el = document.getElementById("loadingOverlay");
+  if (el) el.remove();
+}
+
 async function gerarPost() {
-  generateBtn.textContent = "Gerando...";
-  generateBtn.disabled = true;
+  showLoading();
 
   const tema = themeInput.value.trim();
   const format = formats[selectedFormat];
@@ -110,7 +132,7 @@ async function gerarPost() {
   const imgX = (canvas.width - imgW) / 2;
   const imgY = selectedFormat === "post" ? 80 : selectedFormat === "quadrado" ? 70 : 60;
 
-  // imagem do post
+  // Imagem com borda arredondada
   ctx.save();
   ctx.beginPath();
   ctx.roundRect(imgX, imgY, imgW, imgH, 50);
@@ -152,8 +174,7 @@ async function gerarPost() {
   tagsDiv.innerText = currentPost.tags.join(" ");
   document.getElementById("postInfo").style.display = "block";
 
-  generateBtn.textContent = "Gerar";
-  generateBtn.disabled = false;
+  hideLoading();
 }
 
 generateBtn.addEventListener("click", gerarPost);
