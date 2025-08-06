@@ -1,4 +1,3 @@
-// 👉 Começo do Código
 const canvas = document.getElementById("postCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -69,7 +68,32 @@ function carregarImagem(src) {
   });
 }
 
-const posts = [/* ... posts como no seu exemplo ... */];
+const posts = [
+  {
+    Tema: "O que é desenquadramento do MEI",
+    Headline: "O que é desenquadramento do MEI: o que todo MEI precisa saber.",
+    Subheadline: "Talvez você nunca tenha ouvido falar disso, mas é um dos pontos mais decisivos para manter o CNPJ vivo.",
+    CTA: "Receba seu diagnóstico gratuito em menos de 2 minutos.",
+    Legenda: "Sabe quando tudo parece certo, mas o sistema trava? Muitas vezes o motivo é esse aqui — simples, silencioso e ignorado.",
+    Tags: "#NegócioSeguro #ConsultoriaMEI #RotinaEmpreendedora #DescomplicaMEI #CNPJPronto"
+  },
+  {
+    Tema: "Como emitir nota fiscal pelo celular",
+    Headline: "Como emitir nota fiscal pelo celular: o que todo MEI precisa saber.",
+    Subheadline: "Muitos ignoram esse detalhe e acabam travando o crescimento por uma questão simples de ajuste.",
+    CTA: "Fale com um especialista da CNPJ Legal agora mesmo.",
+    Legenda: "Tem empreendedor com anos de experiência ainda errando nesse detalhe. Não seja mais um.",
+    Tags: "#NotaFiscalSimples #MEIMobile #CNPJNaMão #RotinaEmpreendedora #EmissaoDigital"
+  },
+  {
+    Tema: "Passo a passo para abrir um MEI",
+    Headline: "Passo a passo para abrir um MEI: tudo o que você precisa saber.",
+    Subheadline: "Desde o cadastro até o primeiro imposto, veja como se formalizar sem sair de casa.",
+    CTA: "Comece agora mesmo e tenha apoio da CNPJ Legal.",
+    Legenda: "Abrir um MEI é mais simples do que parece. Só precisa seguir os passos certos — e evitar as armadilhas.",
+    Tags: "#MEIAberto #FormalizaçãoJá #CNPJLegal #PrimeiroPasso #EmpreendedorismoSimples"
+  }
+];
 
 function gerarVariaçãoDeTema(temaBase) {
   const headlines = [/* ... */];
@@ -147,9 +171,10 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     ctx.clip();
     ctx.drawImage(img, imageX, imageY, imageWidth, imageHeight);
     ctx.restore();
-  } catch (e) { console.warn("Erro ao carregar imagem:", e); }
+  } catch (e) {
+    console.warn("Erro ao carregar imagem:", e);
+  }
 
-  // 🎯 Overlay
   try {
     const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
     ctx.save();
@@ -157,9 +182,10 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     ctx.globalCompositeOperation = "multiply";
     ctx.drawImage(overlay, 0, 0, width, height);
     ctx.restore();
-  } catch (e) { console.warn("Erro overlay:", e); }
+  } catch (e) {
+    console.warn("Erro overlay:", e);
+  }
 
-  // 🎯 Decorativos
   try {
     const elements = {
       azul: { topRight: "https://iili.io/FPeHOiP.png", bottomLeft: "https://iili.io/FPe2AHg.png" },
@@ -174,7 +200,9 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     ctx.drawImage(topRight, width - 60 - topRight.width, 90);
     const bottomYOffset = format === "quadrado" ? 80 : 143;
     ctx.drawImage(bottomLeft, 30, height - bottomYOffset - bottomLeft.height);
-  } catch (e) { console.warn("Erro decorativos:", e); }
+  } catch (e) {
+    console.warn("Erro decorativos:", e);
+  }
 
   const spacingY = format === "quadrado" ? 60 : format === "post" ? 90 : 120;
   const textStartY = imageBottomY + spacingY;
