@@ -69,7 +69,8 @@ function carregarImagem(src) {
   });
 }
 
-const posts = [
+// 👇 Adicione aqui os posts conforme seu conteúdo
+const posts = [ 
   {
     Tema: "O que é desenquadramento do MEI",
     Headline: "O que é desenquadramento do MEI: o que todo MEI precisa saber.",
@@ -94,7 +95,7 @@ const posts = [
     Legenda: "Abrir um MEI é mais simples do que parece. Só precisa seguir os passos certos — e evitar as armadilhas.",
     Tags: "#MEIAberto #FormalizaçãoJá #CNPJLegal #PrimeiroPasso #EmpreendedorismoSimples"
   }
-];
+ ];
 
 function gerarVariaçãoDeTema(temaBase) {
   const headlines = ["Aumente seu alcance com estratégia.", "Conteúdo que conecta.", "Sua marca merece destaque."];
@@ -145,7 +146,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
-  // 🎯 Decorativos
+  // Decorativos
   try {
     const elements = {
       azul: { topRight: "https://iili.io/FPeHOiP.png", bottomLeft: "https://iili.io/FPe2AHg.png" },
@@ -164,7 +165,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     console.warn("Erro decorativos:", e);
   }
 
-  // 📄 Overlay
+  // Overlay
   try {
     const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
     ctx.save();
@@ -176,7 +177,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     console.warn("Erro overlay:", e);
   }
 
-  // 🖼️ Imagem (DESENHADA POR ÚLTIMO!)
+  // Imagem
   let imageBottomY = 0;
   try {
     if (!cachedImage) {
@@ -213,7 +214,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     console.warn("Erro ao carregar imagem:", e);
   }
 
-  // 🎨 Texto
+  // Texto
   const spacingY = format === "quadrado" ? 60 : format === "post" ? 90 : 120;
   const textStartY = imageBottomY + spacingY;
   const textColor = (color === "branco" || color === "verde") ? "#000" : "#fff";
@@ -230,7 +231,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   ctx.font = "20px Inter";
   wrapText(mensagem, width / 2, textStartY + 180, width * 0.7, 28);
 
-  // ✅ Logo
+  // Logotipo
   try {
     const logo = await carregarImagem(logos[color]);
     const logoWidth = 200;
