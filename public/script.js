@@ -1,8 +1,6 @@
-// script.js completo e funcional
-
+// 👇 Aqui está o código completo atualizado do script.js
 const canvas = document.getElementById("postCanvas");
 const ctx = canvas.getContext("2d");
-const editableTextContainer = document.getElementById("editableTextContainer");
 
 const colors = {
   azul: "#0f3efa",
@@ -30,121 +28,61 @@ let lastContent = null;
 let zoomLevel = 0.45;
 let cachedImage = null;
 
-const textos = [
-  {
-    headline: "Empreenda com CNPJ Legal",
-    subheadline: "Cuidamos do seu CNPJ do início ao sucesso.",
-    mensagem: "Clique no link da bio e faça seu diagnóstico gratuito."
+const textos = {
+  headline: "Empreenda com CNPJ Legal",
+  subheadline: "Cuidamos do seu CNPJ do início ao sucesso",
+  cta: "Clique no link da bio e regularize já"
+};
+
+function resizeCanvas() {
+  const { width, height } = formats[currentFormat];
+  canvas.width = width;
+  canvas.height = height;
+  canvas.style.transform = `scale(${zoomLevel})`;
+  canvas.style.transformOrigin = "top left";
+}
+
+function drawPost(corSelecionada = "aleatoria") {
+  if (corSelecionada === "aleatoria") {
+    const corKeys = Object.keys(colors).filter(c => c !== lastColor);
+    corSelecionada = corKeys[Math.floor(Math.random() * corKeys.length)];
   }
-];
+  lastColor = corSelecionada;
+  const cor = colors[corSelecionada];
 
-function getRandomText() {
-  return textos[Math.floor(Math.random() * textos.length)];
-}
-
-function applyZoom() {
-  const container = canvas.parentElement;
-  container.style.transform = `scale(${zoomLevel})`;
-  container.style.transformOrigin = "top left";
-}
-
-function resizeCanvas(formatKey) {
-  currentFormat = formatKey;
-  const format = formats[formatKey];
-  canvas.width = format.width;
-  canvas.height = format.height;
-  applyZoom();
-  generatePost();
-}
-
-function drawText(text, x, y, size, color = "#000", weight = "normal") {
-  ctx.font = `${weight} ${size}px Inter`;
-  ctx.fillStyle = color;
-  ctx.fillText(text, x, y);
-}
-
-function wrapText(text, x, y, maxWidth, lineHeight, fontSize, color, weight) {
-  const words = text.split(" ");
-  let line = "";
-  for (let i = 0; i < words.length; i++) {
-    const testLine = line + words[i] + " ";
-    const metrics = ctx.measureText(testLine);
-    const testWidth = metrics.width;
-    if (testWidth > maxWidth && i > 0) {
-      drawText(line, x, y, fontSize, color, weight);
-      line = words[i] + " ";
-      y += lineHeight;
-    } else {
-      line = testLine;
-    }
-  }
-  drawText(line, x, y, fontSize, color, weight);
-}
-
-function generatePost() {
-  const color = document.querySelector(".color-btn.selected").dataset.color;
-  const format = formats[currentFormat];
-  const content = getRandomText();
-
-  lastColor = color;
-  lastContent = content;
-
-  const bgColor = color === "aleatoria" ? getRandomColor() : colors[color];
-
-  ctx.fillStyle = bgColor;
+  resizeCanvas();
+  ctx.fillStyle = cor;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   const logo = new Image();
   logo.crossOrigin = "anonymous";
-  logo.src = logos[color === "aleatoria" ? "azul" : color];
-
+  logo.src = logos[corSelecionada];
   logo.onload = () => {
-    ctx.drawImage(logo, canvas.width - 250, canvas.height - 250, 180, 180);
-    renderText(content);
+    const logoSize = 130;
+    ctx.drawImage(logo, canvas.width - logoSize - 40, 40, logoSize, logoSize);
   };
+
+  ctx.fillStyle = corSelecionada === "branco" ? "#000" : "#fff";
+  ctx.font = "bold 52px Inter";
+  ctx.textAlign = "center";
+  ctx.fillText(textos.headline, canvas.width / 2, formats[currentFormat].topOffset + 40);
+
+  ctx.font = "28px Inter";
+  ctx.fillText(textos.subheadline, canvas.width / 2, formats[currentFormat].topOffset + 100);
+
+  ctx.font = "italic 24px Inter";
+  ctx.fillText(textos.cta, canvas.width / 2, formats[currentFormat].topOffset + 160);
 }
 
-function renderText(content) {
-  const format = formats[currentFormat];
-  const x = 80;
-  let y = format.topOffset;
-
-  wrapText(content.headline, x, y, canvas.width - 160, 60, 60, "#fff", "bold");
-  y += 160;
-  wrapText(content.subheadline, x, y, canvas.width - 160, 50, 40, "#fff", "normal");
-  y += 120;
-  wrapText(content.mensagem, x, y, canvas.width - 160, 40, 32, "#fff", "normal");
-}
-
-function getRandomColor() {
-  const values = Object.values(colors);
-  return values[Math.floor(Math.random() * values.length)];
-}
-
-function downloadPost() {
-  const link = document.createElement("a");
-  link.download = "post-cnpj-legal.png";
-  link.href = canvas.toDataURL();
-  link.click();
-}
-
-// Eventos
-
-document.getElementById("generateBtn").addEventListener("click", generatePost);
-document.getElementById("downloadBtn").addEventListener("click", downloadPost);
-document.getElementById("zoomInBtn").addEventListener("click", () => {
-  zoomLevel += 0.05;
-  applyZoom();
-});
-document.getElementById("zoomOutBtn").addEventListener("click", () => {
-  zoomLevel -= 0.05;
-  applyZoom();
+document.getElementById("generateBtn").addEventListener("click", () => {
+  drawPost();
 });
 
 document.querySelectorAll(".color-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("selected"));
     btn.classList.add("selected");
+    drawPost(btn.dataset.color);
   });
 });
 
@@ -152,9 +90,26 @@ document.querySelectorAll(".dimension-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".dimension-btn").forEach(b => b.classList.remove("selected"));
     btn.classList.add("selected");
-    resizeCanvas(btn.dataset.format);
+    currentFormat = btn.dataset.format;
+    drawPost(lastColor || "aleatoria");
   });
 });
 
-// Inicialização
-resizeCanvas(currentFormat);
+document.getElementById("zoomInBtn").addEventListener("click", () => {
+  zoomLevel = Math.min(zoomLevel + 0.05, 1);
+  drawPost(lastColor || "aleatoria");
+});
+
+document.getElementById("zoomOutBtn").addEventListener("click", () => {
+  zoomLevel = Math.max(zoomLevel - 0.05, 0.2);
+  drawPost(lastColor || "aleatoria");
+});
+
+document.getElementById("downloadBtn").addEventListener("click", () => {
+  const link = document.createElement("a");
+  link.download = "post-cnpj-legal.png";
+  link.href = canvas.toDataURL();
+  link.click();
+});
+
+drawPost();
