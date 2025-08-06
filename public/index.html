@@ -12,6 +12,13 @@
 </head>
 <body>
   <div class="controls">
+
+    <!-- AÇÕES (TOPO) -->
+    <div class="actions" style="margin-bottom: 20px;">
+      <button type="button" id="generateBtn">Gerar</button>
+      <button type="button" id="downloadBtn">Baixar</button>
+    </div>
+
     <!-- COR DE FUNDO -->
     <div class="section-title">Cor de Fundo</div>
     <div id="colorOptions" class="color-options">
@@ -22,11 +29,12 @@
       <button type="button" class="color-btn" data-color="branco">Branco</button>
     </div>
 
-    <!-- EDIÇÃO DA IMAGEM -->
+    <!-- EDIÇÃO DE IMAGEM -->
     <div class="section-title">Imagem</div>
     <div class="image-controls" style="display: flex; gap: 8px; align-items: center;">
       <button type="button" id="changeImageBtn" style="border-radius: 999px;">Mudar Imagem</button>
-      <input type="file" id="uploadImageInput" accept="image/*" />
+      <label for="uploadImageInput" style="background-color:#444;color:#fff;padding:10px 14px;border-radius:999px;cursor:pointer;font-size:14px;">Escolher arquivo</label>
+      <input type="file" id="uploadImageInput" accept="image/*" style="display:none;" />
     </div>
 
     <!-- FORMATO -->
@@ -46,15 +54,12 @@
       </button>
     </div>
 
-    <!-- AÇÕES -->
-    <div class="actions" style="display: flex; flex-direction: column; gap: 8px;">
-      <button type="button" id="generateBtn">Gerar</button>
-      <button type="button" id="downloadBtn">Baixar</button>
-      <button type="button" id="resetBtn">Resetar Post</button>
-      <div style="display: flex; gap: 10px; justify-content: center;">
-        <button type="button" id="undoBtn">↺ Desfazer</button>
-        <button type="button" id="redoBtn">↻ Refazer</button>
-      </div>
+    <!-- AÇÕES DE EDIÇÃO -->
+    <div class="section-title">Edição</div>
+    <div class="image-controls" style="gap: 10px; display: flex;">
+      <button id="resetBtn">Resetar Post</button>
+      <button id="undoBtn">↺ Desfazer</button>
+      <button id="redoBtn">↻ Refazer</button>
     </div>
 
     <!-- LEGENDA E TAGS -->
