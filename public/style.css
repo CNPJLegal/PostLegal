@@ -26,6 +26,66 @@ body {
   overflow-y: auto;
 }
 
+/* AÇÕES NO TOPO */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Botões principais */
+#generateBtn,
+#downloadBtn {
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 32px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#generateBtn {
+  background: #17e30d;
+  color: black;
+}
+
+#generateBtn:hover {
+  background: #14c70a;
+}
+
+#downloadBtn {
+  background: #0f3efa;
+  color: white;
+}
+
+#downloadBtn:hover {
+  background: #0c2bbd;
+}
+
+/* RESET / UNDO / REDO */
+.extra-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.extra-actions button {
+  flex: 1;
+  background-color: #444;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.extra-actions button:hover {
+  background-color: #555;
+}
+
 .section-title {
   font-size: 14px;
   font-weight: 600;
@@ -85,16 +145,16 @@ body {
   outline: 2px solid #fff;
 }
 
-/* ✅ NOVA SEÇÃO - EDIÇÃO DE IMAGEM */
+/* SEÇÃO DE IMAGEM */
 .image-controls {
-  margin-top: 10px;
-  margin-bottom: 20px;
   display: flex;
   gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 20px;
 }
 
-.image-controls button,
-.image-controls input[type="file"] {
+.image-controls button {
   background-color: #444;
   color: #fff;
   border: none;
@@ -105,9 +165,9 @@ body {
 }
 
 .image-controls input[type="file"] {
-  background: none;
-  padding: 0;
+  color: #fff;
   font-size: 13px;
+  cursor: pointer;
 }
 
 /* BOTÕES DE FORMATO */
@@ -148,45 +208,6 @@ body {
 .dimension-btn.selected {
   background: #2e2e2e;
   border-color: #0f3efa;
-}
-
-/* BOTÕES DE AÇÃO */
-.actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-#generateBtn {
-  background: #17e30d;
-  color: black;
-  border: none;
-  padding: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  border-radius: 32px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-#generateBtn:hover {
-  background: #14c70a;
-}
-
-#downloadBtn {
-  background: #0f3efa;
-  color: white;
-  border: none;
-  padding: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  border-radius: 32px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-#downloadBtn:hover {
-  background: #0c2bbd;
 }
 
 /* CANVAS */
