@@ -12,13 +12,11 @@
 </head>
 <body>
   <div class="controls">
-    <!-- AÇÕES (TOPO) -->
     <div class="actions" style="margin-bottom: 20px;">
       <button type="button" id="generateBtn">Gerar</button>
       <button type="button" id="downloadBtn">Baixar</button>
     </div>
 
-    <!-- COR DE FUNDO -->
     <div class="section-title">Cor de Fundo</div>
     <div id="colorOptions" class="color-options">
       <button type="button" class="color-btn selected" data-color="aleatoria">Aleatória</button>
@@ -28,7 +26,6 @@
       <button type="button" class="color-btn" data-color="branco">Branco</button>
     </div>
 
-    <!-- EDIÇÃO DE IMAGEM -->
     <div class="section-title">Imagem</div>
     <div class="image-controls" style="display: flex; gap: 8px; align-items: center;">
       <button type="button" id="changeImageBtn" style="border-radius: 999px;">Mudar Imagem</button>
@@ -36,7 +33,6 @@
       <input type="file" id="uploadImageInput" accept="image/*" style="display:none;" />
     </div>
 
-    <!-- FORMATO -->
     <div class="section-title">Formato</div>
     <div class="options" id="formatOptions">
       <button type="button" class="dimension-btn" data-format="quadrado">
@@ -53,7 +49,6 @@
       </button>
     </div>
 
-    <!-- AÇÕES DE EDIÇÃO -->
     <div class="section-title">Edição</div>
     <div class="image-controls" style="gap: 10px; display: flex;">
       <button id="resetBtn">Resetar Post</button>
@@ -61,7 +56,6 @@
       <button id="redoBtn">↻ Refazer</button>
     </div>
 
-    <!-- LEGENDA E TAGS -->
     <div class="info-box" id="postInfo" style="display: none;">
       <strong>Legenda:</strong>
       <div id="caption"></div>
@@ -69,32 +63,26 @@
     </div>
   </div>
 
-  <!-- CANVAS DO POST -->
   <div class="canvas-container" style="position: relative;">
     <canvas id="postCanvas" width="1080" height="1350">
       Seu navegador não suporta canvas.
     </canvas>
 
-    <!-- TEXTOS EDITÁVEIS SOBRE O CANVAS -->
     <div id="editableTextContainer">
       <div id="editableHeadline" contenteditable="true" class="editable-text headline">Título aqui</div>
       <div id="editableSubheadline" contenteditable="true" class="editable-text subheadline">Subtítulo aqui</div>
       <div id="editableCTA" contenteditable="true" class="editable-text cta">Chamada para ação</div>
     </div>
 
-    <!-- ZOOM -->
     <div class="zoom-controls">
       <button id="zoomInBtn">+</button>
       <button id="zoomOutBtn">−</button>
     </div>
   </div>
 
-  <!-- VARIÁVEL DE AMBIENTE COM A CHAVE DA API -->
   <script>
     window.UNSPLASH_ACCESS_KEY = 'SUA_CHAVE_AQUI';
   </script>
-
-  <!-- SCRIPT PRINCIPAL -->
   <script src="script.js"></script>
 </body>
 </html>
