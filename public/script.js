@@ -17,12 +17,12 @@ const logos = {
 
 const decorativos = {
   escuro: {
-    topRight: "https://iili.io/FPeHOiP.png",
-    bottomLeft: "https://iili.io/FPe2AHg.png"
+    topRight: "https://iili.io/FPeHOiP.png", // "+" claro
+    bottomLeft: "https://iili.io/FPe2AHg.png" // seta clara
   },
   claro: {
-    topRight: "https://iili.io/FPeFE9n.png",
-    bottomLeft: "https://iili.io/FPeKPzG.png"
+    topRight: "https://iili.io/FPeFE9n.png", // "+" escuro
+    bottomLeft: "https://iili.io/FPeKPzG.png" // seta escura
   }
 };
 
@@ -97,7 +97,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
-  // Overlay multiplicado (2 camadas)
+  // Overlay efeito multiply (2x)
   try {
     const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
     for (let i = 0; i < 2; i++) {
@@ -111,18 +111,25 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     console.warn("Erro ao aplicar overlay:", e);
   }
 
-  // Elementos decorativos
+  // Elementos gráficos + e seta (sem distorção)
   try {
     const isClaro = (color === "verde" || color === "branco");
     const set = isClaro ? decorativos.claro : decorativos.escuro;
 
-    const decoTopRight = await carregarImagem(set.topRight);
-    const decoBottomLeft = await carregarImagem(set.bottomLeft);
+    const topRightImg = await carregarImagem(set.topRight);
+    const bottomLeftImg = await carregarImagem(set.bottomLeft);
 
-    ctx.drawImage(decoTopRight, width - 220, 20, 200, 200);
-    ctx.drawImage(decoBottomLeft, 0, height - 200, 180, 180);
+    // Desenhar "+" no topo direito (sem distorcer)
+    const topRightWidth = topRightImg.width;
+    const topRightHeight = topRightImg.height;
+    ctx.drawImage(topRightImg, width - topRightWidth - 85, 93, topRightWidth, topRightHeight);
+
+    // Desenhar seta no canto inferior esquerdo (sem distorcer)
+    const bottomLeftWidth = bottomLeftImg.width;
+    const bottomLeftHeight = bottomLeftImg.height;
+    ctx.drawImage(bottomLeftImg, 27, height - bottomLeftHeight - 143, bottomLeftWidth, bottomLeftHeight);
   } catch (e) {
-    console.warn("Erro ao carregar elementos gráficos:", e);
+    console.warn("Erro ao carregar elementos decorativos:", e);
   }
 
   // Imagem principal com bordas
@@ -217,7 +224,7 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
 
     lastColor = color;
 
-    // 🎯 IMAGEM APENAS NA GERAÇÃO
+    // imagem nova apenas ao gerar tema
     const imageUrl = await getUnsplashImage(conteudo.tema);
     lastImageDataUrl = imageUrl;
 
@@ -298,85 +305,4 @@ function random(array) {
   return array[Math.floor(Math.random() * array.length)];
 }
 
-function buscarConteudoPorTema(tema) {
-  const match = posts.find(p => p.Tema.toLowerCase().includes(tema.toLowerCase()));
-  if (match) {
-    return {
-      tema: match.Tema,
-      headline: match.Headline,
-      subheadline: match.Subheadline,
-      mensagem: match.CTA,
-      legenda: match.Legenda,
-      tags: match.Tags
-    };
-  }
-  return gerarVariaçãoDeTema(tema);
-}
-
-function gerarVariaçãoDeTema(temaBase) {
-  const headlines = [
-    `Tudo sobre ${temaBase} que ninguém te contou.`,
-    `${temaBase}: entenda como aplicar na sua rotina.`,
-    `${temaBase}: o que você precisa saber agora.`,
-    `${temaBase} explicado de forma simples.`,
-    `${temaBase} pode mudar seu negócio.`
-  ];
-  const subheadlines = [
-    "Descubra como isso impacta diretamente seu sucesso.",
-    "Entenda por que isso é crucial no seu dia a dia.",
-    "Evite os erros mais comuns com esse conhecimento.",
-    "Dê o primeiro passo com clareza e confiança.",
-    "Veja o que os especialistas recomendam sobre o tema."
-  ];
-  const mensagens = [
-    "Acesse agora e tenha um diagnóstico gratuito.",
-    "Conte com a CNPJ Legal para te ajudar.",
-    "Fale com um especialista em menos de 2 minutos.",
-    "Tire suas dúvidas com quem entende.",
-    "Descubra tudo com um clique."
-  ];
-  const legendas = [
-    "Este conteúdo foi gerado com base no seu tema. Legal, né?",
-    "Um bom tema rende bons insights. Aqui está o seu.",
-    "Seu post foi criado automaticamente. Experimente outros!",
-    "Quer ver mais? Troque o tema e gere de novo.",
-    "Cada clique, uma ideia. Aqui está mais uma!"
-  ];
-  const tags = "#CNPJLegal #MarketingMEI #EmpreenderComSegurança #PostInteligente #AutomaçãoCriativa";
-
-  return {
-    tema: temaBase,
-    headline: random(headlines),
-    subheadline: random(subheadlines),
-    mensagem: random(mensagens),
-    legenda: random(legendas),
-    tags
-  };
-}
-
-const posts = [
-  {
-    Tema: "O que é desenquadramento do MEI",
-    Headline: "O que é desenquadramento do MEI: o que todo MEI precisa saber.",
-    Subheadline: "Talvez você nunca tenha ouvido falar disso, mas é um dos pontos mais decisivos para manter o CNPJ vivo.",
-    CTA: "Receba seu diagnóstico gratuito em menos de 2 minutos.",
-    Legenda: "Sabe quando tudo parece certo, mas o sistema trava? Muitas vezes o motivo é esse aqui — simples, silencioso e ignorado.",
-    Tags: "#NegócioSeguro #ConsultoriaMEI #RotinaEmpreendedora #DescomplicaMEI #CNPJPronto"
-  },
-  {
-    Tema: "Como emitir nota fiscal pelo celular",
-    Headline: "Como emitir nota fiscal pelo celular: o que todo MEI precisa saber.",
-    Subheadline: "Muitos ignoram esse detalhe e acabam travando o crescimento por uma questão simples de ajuste.",
-    CTA: "Fale com um especialista da CNPJ Legal agora mesmo.",
-    Legenda: "Tem empreendedor com anos de experiência ainda errando nesse detalhe. Não seja mais um.",
-    Tags: "#NotaFiscalSimples #MEIMobile #CNPJNaMão #RotinaEmpreendedora #EmissaoDigital"
-  },
-  {
-    Tema: "Passo a passo para abrir um MEI",
-    Headline: "Passo a passo para abrir um MEI: tudo o que você precisa saber.",
-    Subheadline: "Desde o cadastro até o primeiro imposto, veja como se formalizar sem sair de casa.",
-    CTA: "Comece agora mesmo e tenha apoio da CNPJ Legal.",
-    Legenda: "Abrir um MEI é mais simples do que parece. Só precisa seguir os passos certos — e evitar as armadilhas.",
-    Tags: "#MEIAberto #FormalizaçãoJá #CNPJLegal #PrimeiroPasso #EmpreendedorismoSimples"
-  }
-];
+// buscarConteudoPorTema e gerarVariaçãoDeTema você já tem ✅
