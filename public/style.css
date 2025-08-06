@@ -312,3 +312,48 @@ canvas {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* TEXTOS EDITÁVEIS SOBRE O CANVAS */
+#editableTextContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1080px;
+  height: 100%;
+  pointer-events: none; /* impede clique fora dos textos */
+  z-index: 10;
+}
+
+.editable-text {
+  position: absolute;
+  pointer-events: auto; /* ativa edição */
+  color: #000;
+  font-family: 'Inter', sans-serif;
+  text-align: center;
+  width: 100%;
+  padding: 0 40px;
+  outline: none;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+#editableHeadline {
+  top: 600px;
+  font-size: 46px;
+  font-weight: 700;
+  color: #0f3efa;
+}
+
+#editableSubheadline {
+  top: 710px;
+  font-size: 28px;
+  color: #000;
+  font-weight: 400;
+}
+
+#editableCTA {
+  top: 780px;
+  font-size: 20px;
+  color: #000;
+  font-weight: 400;
+}
