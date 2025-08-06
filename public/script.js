@@ -15,10 +15,21 @@ const logos = {
   verde: "https://iili.io/FryqWHG.png"
 };
 
+const decorativos = {
+  escuro: {
+    topRight: "https://iili.io/FPeHOiP.png",
+    bottomLeft: "https://iili.io/FPe2AHg.png"
+  },
+  claro: {
+    topRight: "https://iili.io/FPeFE9n.png",
+    bottomLeft: "https://iili.io/FPeKPzG.png"
+  }
+};
+
 const formats = {
-  quadrado: { width: 1080, height: 1080, topOffset: 80 },
-  post: { width: 1080, height: 1350, topOffset: 120 },
-  stories: { width: 1080, height: 1720, topOffset: 260 }
+  quadrado: { width: 1080, height: 1080, topOffset: 80, spacingExtra: 50 },
+  post: { width: 1080, height: 1350, topOffset: 120, spacingExtra: 50 },
+  stories: { width: 1080, height: 1720, topOffset: 260, spacingExtra: 0 }
 };
 
 let currentFormat = "post";
@@ -78,7 +89,7 @@ async function getUnsplashImage(query) {
 }
 
 async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, format, color }) {
-  const { width, height, topOffset } = formats[format];
+  const { width, height, topOffset, spacingExtra } = formats[format];
   canvas.width = width;
   canvas.height = height;
 
@@ -86,7 +97,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
-  // Overlay de textura (efeito multiply, 2x)
+  // Overlay multiplicado (2 camadas)
   try {
     const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
     for (let i = 0; i < 2; i++) {
@@ -97,10 +108,24 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
       ctx.restore();
     }
   } catch (e) {
-    console.warn("Erro ao carregar overlay:", e);
+    console.warn("Erro ao aplicar overlay:", e);
   }
 
-  // Imagem de fundo com bordas arredondadas
+  // Elementos decorativos
+  try {
+    const isClaro = (color === "verde" || color === "branco");
+    const set = isClaro ? decorativos.claro : decorativos.escuro;
+
+    const decoTopRight = await carregarImagem(set.topRight);
+    const decoBottomLeft = await carregarImagem(set.bottomLeft);
+
+    ctx.drawImage(decoTopRight, width - 220, 20, 200, 200);
+    ctx.drawImage(decoBottomLeft, 0, height - 200, 180, 180);
+  } catch (e) {
+    console.warn("Erro ao carregar elementos gráficos:", e);
+  }
+
+  // Imagem principal com bordas
   let imageBottomY = 0;
   try {
     const img = await carregarImagem(lastImageDataUrl);
@@ -128,10 +153,10 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     ctx.drawImage(img, imageX, imageY, imageWidth, imageHeight);
     ctx.restore();
   } catch (e) {
-    console.warn("Erro ao carregar imagem:", e);
+    console.warn("Erro ao carregar imagem principal:", e);
   }
 
-  // Gradiente leve
+  // Gradiente superior
   const gradient = ctx.createRadialGradient(width / 2, 0, 100, width / 2, height / 2, height);
   gradient.addColorStop(0, "rgba(0,0,0,0.15)");
   gradient.addColorStop(1, "rgba(0,0,0,0)");
@@ -139,7 +164,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   ctx.fillRect(0, 0, width, height);
 
   // Textos
-  const baseY = format === "stories" ? imageBottomY + 90 : imageBottomY + 40;
+  const baseY = imageBottomY + 40 + spacingExtra;
   ctx.textAlign = "center";
   const textColor = (color === "branco" || color === "verde") ? "#000" : "#fff";
 
@@ -154,7 +179,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   ctx.font = "20px Inter";
   wrapText(mensagem, width / 2, baseY + 180, width * 0.7, 28);
 
-  // Logo
+  // Logotipo
   try {
     const logo = await carregarImagem(logos[color]);
     const logoWidth = 200;
@@ -192,7 +217,7 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
 
     lastColor = color;
 
-    // 🖼️ Carrega imagem apenas ao gerar
+    // 🎯 IMAGEM APENAS NA GERAÇÃO
     const imageUrl = await getUnsplashImage(conteudo.tema);
     lastImageDataUrl = imageUrl;
 
