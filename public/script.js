@@ -1,158 +1,3 @@
-const canvas = document.getElementById("postCanvas");
-const ctx = canvas.getContext("2d");
-
-const colors = {
-  azul: "#0f3efa",
-  verde: "#17e30d",
-  preto: "#1c1c1c",
-  branco: "#ffffff"
-};
-
-const logos = {
-  azul: "https://iili.io/Frik9yl.png",
-  preto: "https://iili.io/Frik9yl.png",
-  branco: "https://iili.io/Fri8NTl.png",
-  verde: "https://iili.io/FryqWHG.png"
-};
-
-const formats = {
-  quadrado: { width: 1080, height: 1080, topOffset: 120 },
-  post: { width: 1080, height: 1350, topOffset: 120 },
-  stories: { width: 1080, height: 1720, topOffset: 236 }
-};
-
-let currentFormat = "post";
-let lastColor = null;
-let lastContent = null;
-let zoomLevel = 0.45;
-let cachedImage = null;
-
-function applyZoom() {
-  canvas.style.transform = `scale(${zoomLevel})`;
-  canvas.style.transformOrigin = "top";
-}
-document.getElementById("zoomInBtn").addEventListener("click", () => {
-  zoomLevel = Math.min(zoomLevel + 0.05, 1);
-  applyZoom();
-});
-document.getElementById("zoomOutBtn").addEventListener("click", () => {
-  zoomLevel = Math.max(zoomLevel - 0.05, 0.2);
-  applyZoom();
-});
-applyZoom();
-
-const posts = [
-  {
-    Tema: "O que é desenquadramento do MEI",
-    Headline: "O que é desenquadramento do MEI: o que todo MEI precisa saber.",
-    Subheadline: "Talvez você nunca tenha ouvido falar disso, mas é um dos pontos mais decisivos para manter o CNPJ vivo.",
-    CTA: "Receba seu diagnóstico gratuito em menos de 2 minutos.",
-    Legenda: "Sabe quando tudo parece certo, mas o sistema trava? Muitas vezes o motivo é esse aqui — simples, silencioso e ignorado.",
-    Tags: "#NegócioSeguro #ConsultoriaMEI #RotinaEmpreendedora #DescomplicaMEI #CNPJPronto"
-  },
-  {
-    Tema: "Como emitir nota fiscal pelo celular",
-    Headline: "Como emitir nota fiscal pelo celular: o que todo MEI precisa saber.",
-    Subheadline: "Muitos ignoram esse detalhe e acabam travando o crescimento por uma questão simples de ajuste.",
-    CTA: "Fale com um especialista da CNPJ Legal agora mesmo.",
-    Legenda: "Tem empreendedor com anos de experiência ainda errando nesse detalhe. Não seja mais um.",
-    Tags: "#NotaFiscalSimples #MEIMobile #CNPJNaMão #RotinaEmpreendedora #EmissaoDigital"
-  },
-  {
-    Tema: "Passo a passo para abrir um MEI",
-    Headline: "Passo a passo para abrir um MEI: tudo o que você precisa saber.",
-    Subheadline: "Desde o cadastro até o primeiro imposto, veja como se formalizar sem sair de casa.",
-    CTA: "Comece agora mesmo e tenha apoio da CNPJ Legal.",
-    Legenda: "Abrir um MEI é mais simples do que parece. Só precisa seguir os passos certos — e evitar as armadilhas.",
-    Tags: "#MEIAberto #FormalizaçãoJá #CNPJLegal #PrimeiroPasso #EmpreendedorismoSimples"
-  }
-];
-
-function gerarVariaçãoDeTema(temaBase) {
-  const headlines = [
-    `Tudo sobre ${temaBase} que ninguém te contou.`,
-    `${temaBase}: entenda como aplicar na sua rotina.`,
-    `${temaBase}: o que você precisa saber agora.`,
-    `${temaBase} explicado de forma simples.`,
-    `${temaBase} pode mudar seu negócio.`
-  ];
-  const subheadlines = [
-    "Descubra como isso impacta diretamente seu sucesso.",
-    "Entenda por que isso é crucial no seu dia a dia.",
-    "Evite os erros mais comuns com esse conhecimento.",
-    "Dê o primeiro passo com clareza e confiança.",
-    "Veja o que os especialistas recomendam sobre o tema."
-  ];
-  const mensagens = [
-    "Acesse agora e tenha um diagnóstico gratuito.",
-    "Conte com a CNPJ Legal para te ajudar.",
-    "Fale com um especialista em menos de 2 minutos.",
-    "Tire suas dúvidas com quem entende.",
-    "Descubra tudo com um clique."
-  ];
-  const legendas = [
-    "Este conteúdo foi gerado com base no seu tema. Legal, né?",
-    "Um bom tema rende bons insights. Aqui está o seu.",
-    "Seu post foi criado automaticamente. Experimente outros!",
-    "Quer ver mais? Troque o tema e gere de novo.",
-    "Cada clique, uma ideia. Aqui está mais uma!"
-  ];
-  const tags = "#CNPJLegal #MarketingMEI #EmpreenderComSegurança #PostInteligente #AutomaçãoCriativa";
-
-  return {
-    tema: temaBase,
-    headline: random(headlines),
-    subheadline: random(subheadlines),
-    mensagem: random(mensagens),
-    legenda: random(legendas),
-    tags
-  };
-}
-
-function buscarConteudoPorTema(tema) {
-  const match = posts.find(p => p.Tema.toLowerCase().includes(tema.toLowerCase()));
-  if (match) {
-    return {
-      tema: match.Tema,
-      headline: match.Headline,
-      subheadline: match.Subheadline,
-      mensagem: match.CTA,
-      legenda: match.Legenda,
-      tags: match.Tags
-    };
-  }
-  return gerarVariaçãoDeTema(tema);
-}
-
-function wrapText(text, x, y, maxWidth, lineHeight) {
-  const words = text.split(" ");
-  let lines = [];
-  let line = "";
-
-  for (let i = 0; i < words.length; i++) {
-    const testLine = line + words[i] + " ";
-    const metrics = ctx.measureText(testLine);
-    if (metrics.width > maxWidth && i > 0) {
-      lines.push(line.trim());
-      line = words[i] + " ";
-    } else {
-      line = testLine;
-    }
-  }
-  lines.push(line.trim());
-  lines.forEach((l, i) => ctx.fillText(l, x, y + i * lineHeight));
-}
-
-function carregarImagem(src) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = src;
-  });
-}
-
 async function getUnsplashImage(query) {
   const res = await fetch(`/api/unsplash?query=${encodeURIComponent(query)}`);
   const data = await res.json();
@@ -169,60 +14,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
-  let imageBottomY = 0;
-  try {
-    if (!cachedImage) {
-      const imageUrl = await getUnsplashImage(tema);
-      cachedImage = await carregarImagem(imageUrl);
-    }
-    const img = cachedImage;
-
-    const imageWidth = 835;
-    let imageHeight = (img.height / img.width) * imageWidth;
-
-    // 👇 ajuste exclusivo para formato quadrado (imagem mais baixa)
-    if (format === "quadrado") {
-      imageHeight *= 0.85;
-    }
-
-    const imageX = (width - imageWidth) / 2;
-    const imageY = topOffset;
-    imageBottomY = imageY + imageHeight;
-
-    const radius = 80;
-    ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(imageX + radius, imageY);
-    ctx.lineTo(imageX + imageWidth - radius, imageY);
-    ctx.quadraticCurveTo(imageX + imageWidth, imageY, imageX + imageWidth, imageY + radius);
-    ctx.lineTo(imageX + imageWidth, imageY + imageHeight - radius);
-    ctx.quadraticCurveTo(imageX + imageWidth, imageY + imageHeight, imageX + imageWidth - radius, imageY + imageHeight);
-    ctx.lineTo(imageX + radius, imageY + imageHeight);
-    ctx.quadraticCurveTo(imageX, imageY + imageHeight, imageX, imageY + imageHeight - radius);
-    ctx.lineTo(imageX, imageY + radius);
-    ctx.quadraticCurveTo(imageX, imageY, imageX + radius, imageY);
-    ctx.closePath();
-    ctx.clip();
-    ctx.drawImage(img, imageX, imageY, imageWidth, imageHeight);
-    ctx.restore();
-  } catch (e) {
-    console.warn("Erro ao carregar imagem:", e);
-  }
-
-  // 🔥 Overlay com efeito multiply e dupla camada
-  try {
-    const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
-    ctx.save();
-    ctx.globalAlpha = 0.4;
-    ctx.globalCompositeOperation = "multiply";
-    ctx.drawImage(overlay, 0, 0, width, height);
-    ctx.drawImage(overlay, 0, 0, width, height);
-    ctx.restore();
-  } catch (e) {
-    console.warn("Erro ao carregar overlay:", e);
-  }
-
-  // Elementos visuais DEPOIS do overlay
+  // Elementos gráficos de seta e "+" (ANTES DO OVERLAY DE PAPEL)
   try {
     const elements = {
       azul: {
@@ -246,19 +38,67 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     const topRight = await carregarImagem(deco.topRight);
     const bottomLeft = await carregarImagem(deco.bottomLeft);
 
-    // canto superior direito
     ctx.drawImage(topRight, width - 85 - topRight.width, 93, topRight.width, topRight.height);
-
-    // canto inferior esquerdo (⬇ mais abaixo se for quadrado)
-    const bottomYOffset = format === "quadrado" ? 80 : 143;
-    ctx.drawImage(bottomLeft, 27, height - bottomYOffset - bottomLeft.height, bottomLeft.width, bottomLeft.height);
+    ctx.drawImage(bottomLeft, 27, height - 143 - bottomLeft.height, bottomLeft.width, bottomLeft.height);
   } catch (e) {
     console.warn("Erro ao carregar elementos decorativos:", e);
   }
 
+  // Textura de papel amassado (após gráfico)
+  try {
+    const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
+    for (let i = 0; i < 2; i++) {
+      ctx.save();
+      ctx.globalAlpha = 0.3;
+      ctx.globalCompositeOperation = "multiply";
+      ctx.drawImage(overlay, 0, 0, width, height);
+      ctx.restore();
+    }
+  } catch (e) {
+    console.warn("Erro ao carregar overlay:", e);
+  }
+
+  // Imagem principal
+  let imageBottomY = 0;
+  try {
+    if (!cachedImage) {
+      const imageUrl = await getUnsplashImage(tema);
+      cachedImage = await carregarImagem(imageUrl);
+    }
+    const img = cachedImage;
+    const imageWidth = 835;
+    const imageHeight = format === "quadrado"
+      ? (img.height / img.width) * imageWidth * 0.85
+      : (img.height / img.width) * imageWidth;
+    const imageX = (width - imageWidth) / 2;
+    const imageY = topOffset;
+    imageBottomY = imageY + imageHeight;
+
+    const radius = 80;
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(imageX + radius, imageY);
+    ctx.lineTo(imageX + imageWidth - radius, imageY);
+    ctx.quadraticCurveTo(imageX + imageWidth, imageY, imageX + imageWidth, imageY + radius);
+    ctx.lineTo(imageX + imageWidth, imageY + imageHeight - radius);
+    ctx.quadraticCurveTo(imageX + imageWidth, imageY + imageHeight, imageX + imageWidth - radius, imageY + imageHeight);
+    ctx.lineTo(imageX + radius, imageY + imageHeight);
+    ctx.quadraticCurveTo(imageX, imageY + imageHeight, imageX, imageY + imageHeight - radius);
+    ctx.lineTo(imageX, imageY + radius);
+    ctx.quadraticCurveTo(imageX, imageY, imageX + radius, imageY);
+    ctx.closePath();
+    ctx.clip();
+
+    ctx.drawImage(img, imageX, imageY, imageWidth, imageHeight);
+    ctx.restore();
+  } catch (e) {
+    console.warn("Erro ao carregar imagem:", e);
+  }
+
   // Textos
-  const spacingY = (format === "post" || format === "quadrado") ? 60 : 40;
+  const spacingY = (format === "post") ? 100 : (format === "stories") ? 120 : 60;
   const textStartY = imageBottomY + spacingY;
+
   ctx.textAlign = "center";
   const textColor = (color === "branco" || color === "verde") ? "#000" : "#fff";
 
@@ -288,6 +128,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   document.getElementById("tags").innerText = tags;
 }
 
+// BOTÕES E EVENTOS
 document.getElementById("generateBtn").addEventListener("click", async () => {
   try {
     createLoader();
@@ -371,13 +212,4 @@ function createLoader() {
 function removeLoader() {
   const loader = document.getElementById("loader");
   if (loader) loader.remove();
-}
-
-function getRandomColor() {
-  const keys = Object.keys(colors);
-  return keys[Math.floor(Math.random() * keys.length)];
-}
-
-function random(array) {
-  return array[Math.floor(Math.random() * array.length)];
 }
