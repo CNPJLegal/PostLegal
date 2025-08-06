@@ -11,6 +11,7 @@ const dimensionButtons = document.querySelectorAll(".dimension-btn");
 let selectedColor = "aleatoria";
 let selectedFormat = "post";
 let currentImage = null;
+let currentTema = "";
 let currentPost = null;
 
 const formats = {
@@ -67,10 +68,9 @@ function getRandomColor() {
   return colors[keys[Math.floor(Math.random() * keys.length)]];
 }
 
-function selectPost(tema) {
+function buscarConteudoPorTema(tema) {
   if (!tema) return posts[Math.floor(Math.random() * posts.length)];
-  const found = posts.find(p => p.tema.toLowerCase().includes(tema.toLowerCase()));
-  return found || posts[0];
+  return posts.find(p => p.tema.toLowerCase().includes(tema.toLowerCase())) || posts[0];
 }
 
 function loadImage(url) {
@@ -82,7 +82,8 @@ function loadImage(url) {
   });
 }
 
-async function generatePost() {
+async function gerarPost() {
+  generateBtn.textContent = "Gerando...";
   generateBtn.disabled = true;
 
   const tema = themeInput.value.trim();
@@ -90,16 +91,15 @@ async function generatePost() {
   canvas.width = format.width;
   canvas.height = format.height;
 
-  currentPost = selectPost(tema);
-
-  const bgColor = selectedColor === "aleatoria" ? getRandomColor() : colors[selectedColor];
-  ctx.fillStyle = bgColor;
+  const corBase = selectedColor === "aleatoria" ? getRandomColor() : colors[selectedColor];
+  ctx.fillStyle = corBase;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // fetch image once per theme only
-  if (!currentImage || tema !== currentPost.tema) {
-    const query = encodeURIComponent(currentPost.tema);
-    const res = await fetch(`https://api.unsplash.com/photos/random?query=${query}&orientation=portrait&client_id=${window.UNSPLASH_ACCESS_KEY}`);
+  currentPost = buscarConteudoPorTema(tema);
+
+  if (!currentImage || tema !== currentTema) {
+    currentTema = tema;
+    const res = await fetch(`https://api.unsplash.com/photos/random?query=${encodeURIComponent(currentPost.tema)}&orientation=portrait&client_id=${window.UNSPLASH_ACCESS_KEY}`);
     const data = await res.json();
     currentImage = await loadImage(data.urls.regular);
   }
@@ -108,8 +108,9 @@ async function generatePost() {
   const scale = imgW / currentImage.width;
   const imgH = currentImage.height * scale;
   const imgX = (canvas.width - imgW) / 2;
-  const imgY = selectedFormat === "post" ? 70 : selectedFormat === "quadrado" ? 50 : 60;
+  const imgY = selectedFormat === "post" ? 80 : selectedFormat === "quadrado" ? 70 : 60;
 
+  // imagem do post
   ctx.save();
   ctx.beginPath();
   ctx.roundRect(imgX, imgY, imgW, imgH, 50);
@@ -117,43 +118,45 @@ async function generatePost() {
   ctx.drawImage(currentImage, imgX, imgY, imgW, imgH);
   ctx.restore();
 
-  // elementos visuais abaixo da imagem
+  // elementos gráficos (após imagem!)
   const corChave = selectedColor === "aleatoria" ? "azul" : selectedColor;
   const elementos = graphics[corChave];
 
   const topRight = await loadImage(elementos.topRight);
   const bottomLeft = await loadImage(elementos.bottomLeft);
 
-  // topo direito: 85px da direita, 93px do topo
   const topX = canvas.width - topRight.width - 85;
   const topY = 93;
   ctx.drawImage(topRight, topX, topY);
 
-  // base esquerda: 27px da esquerda, 143px do fim para post; +50px para quadrado
   let bottomY = canvas.height - 143;
-  if (selectedFormat === "quadrado") bottomY = canvas.height - 93;
+  if (selectedFormat === "quadrado") bottomY += 20;
   ctx.drawImage(bottomLeft, 27, bottomY);
 
-  // texto (headline + texto + CTA)
-  ctx.fillStyle = corChave === "branco" ? "#000" : corChave === "preto" ? "#fff" : corChave;
+  // textos
+  const headlineColor = corChave === "branco" ? "#000" : corChave === "preto" ? "#fff" : corChave;
+
+  ctx.fillStyle = headlineColor;
   ctx.font = "bold 40px Inter";
   ctx.textAlign = "center";
-  ctx.fillText(currentPost.titulo, canvas.width / 2, imgY + imgH + 70);
+  ctx.fillText(currentPost.titulo, canvas.width / 2, imgY + imgH + 80);
 
   ctx.fillStyle = "#000";
   ctx.font = "24px Inter";
-  ctx.fillText(currentPost.texto, canvas.width / 2, imgY + imgH + 120);
+  ctx.fillText(currentPost.texto, canvas.width / 2, imgY + imgH + 130);
+
   ctx.font = "18px Inter";
-  ctx.fillText("Fale com um especialista da CNPJ Legal agora mesmo.", canvas.width / 2, imgY + imgH + 160);
+  ctx.fillText("Fale com um especialista da CNPJ Legal agora mesmo.", canvas.width / 2, imgY + imgH + 170);
 
   captionDiv.innerText = currentPost.legenda;
   tagsDiv.innerText = currentPost.tags.join(" ");
   document.getElementById("postInfo").style.display = "block";
 
+  generateBtn.textContent = "Gerar";
   generateBtn.disabled = false;
 }
 
-generateBtn.addEventListener("click", generatePost);
+generateBtn.addEventListener("click", gerarPost);
 
 downloadBtn.addEventListener("click", () => {
   const link = document.createElement("a");
