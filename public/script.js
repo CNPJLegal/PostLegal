@@ -157,11 +157,10 @@ function wrapText(text, x, y, maxWidth, lineHeight) {
 }
 
 async function getUnsplashImage(query) {
-  const accessKey = window.UNSPLASH_ACCESS_KEY;
-  if (!accessKey) throw new Error("Chave da API do Unsplash não definida.");
-  const res = await fetch(`https://api.unsplash.com/photos/random?query=${encodeURIComponent(query)}&orientation=landscape&client_id=${accessKey}`);
+  const res = await fetch(`/api/unsplash?query=${encodeURIComponent(query)}`);
   const data = await res.json();
-  return data.urls.regular;
+  if (!data.url) throw new Error(data.error || "Erro ao obter imagem da API.");
+  return data.url;
 }
 
 async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, format, color }) {
