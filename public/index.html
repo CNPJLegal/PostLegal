@@ -12,10 +12,6 @@
 </head>
 <body>
   <div class="controls">
-    <!-- TEMA -->
-    <div class="section-title">Tema do Post</div>
-    <input type="text" id="themeInput" placeholder="Digite um tema ou deixe em branco para gerar automaticamente..." />
-
     <!-- COR DE FUNDO -->
     <div class="section-title">Cor de Fundo</div>
     <div id="colorOptions" class="color-options">
@@ -27,9 +23,10 @@
     </div>
 
     <!-- EDIÇÃO DA IMAGEM -->
-    <div class="section-title">Edição da Imagem</div>
-    <div class="image-controls">
-      <button type="button" id="changeImageBtn">Mudar Imagem</button>
+    <div class="section-title">Imagem</div>
+    <div class="image-controls" style="display: flex; gap: 8px; align-items: center;">
+      <button type="button" id="changeImageBtn" style="border-radius: 999px;">Mudar Imagem</button>
+      <input type="file" id="uploadImageInput" accept="image/*" />
     </div>
 
     <!-- FORMATO -->
@@ -50,9 +47,14 @@
     </div>
 
     <!-- AÇÕES -->
-    <div class="actions">
+    <div class="actions" style="display: flex; flex-direction: column; gap: 8px;">
       <button type="button" id="generateBtn">Gerar</button>
       <button type="button" id="downloadBtn">Baixar</button>
+      <button type="button" id="resetBtn">Resetar Post</button>
+      <div style="display: flex; gap: 10px; justify-content: center;">
+        <button type="button" id="undoBtn">↺ Desfazer</button>
+        <button type="button" id="redoBtn">↻ Refazer</button>
+      </div>
     </div>
 
     <!-- LEGENDA E TAGS -->
