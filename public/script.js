@@ -1,7 +1,8 @@
-// script.js COMPLETO ATUALIZADO
+// script.js completo e funcional
 
 const canvas = document.getElementById("postCanvas");
 const ctx = canvas.getContext("2d");
+const editableTextContainer = document.getElementById("editableTextContainer");
 
 const colors = {
   azul: "#0f3efa",
@@ -27,144 +28,133 @@ let currentFormat = "post";
 let lastColor = null;
 let lastContent = null;
 let zoomLevel = 0.45;
-let backgroundImage = null;
+let cachedImage = null;
 
-function generateContent() {
-  return {
+const textos = [
+  {
     headline: "Empreenda com CNPJ Legal",
-    subheadline: "Cuidamos do seu CNPJ do início ao sucesso",
-    mensagem: "Clique no link da bio e regularize agora mesmo!"
-  };
+    subheadline: "Cuidamos do seu CNPJ do início ao sucesso.",
+    mensagem: "Clique no link da bio e faça seu diagnóstico gratuito."
+  }
+];
+
+function getRandomText() {
+  return textos[Math.floor(Math.random() * textos.length)];
 }
 
 function applyZoom() {
   const container = canvas.parentElement;
-  canvas.style.transform = `scale(${zoomLevel})`;
-  canvas.style.transformOrigin = "top left";
-  container.style.height = `${canvas.height * zoomLevel}px`;
-  container.style.width = `${canvas.width * zoomLevel}px`;
+  container.style.transform = `scale(${zoomLevel})`;
+  container.style.transformOrigin = "top left";
 }
 
-function drawPost() {
-  const { width, height, topOffset } = formats[currentFormat];
-  canvas.width = width;
-  canvas.height = height;
-  
-  const selectedColor = lastColor || Object.keys(colors)[Math.floor(Math.random() * Object.keys(colors).length)];
-  const bgColor = colors[selectedColor];
-  const logo = logos[selectedColor];
+function resizeCanvas(formatKey) {
+  currentFormat = formatKey;
+  const format = formats[formatKey];
+  canvas.width = format.width;
+  canvas.height = format.height;
+  applyZoom();
+  generatePost();
+}
+
+function drawText(text, x, y, size, color = "#000", weight = "normal") {
+  ctx.font = `${weight} ${size}px Inter`;
+  ctx.fillStyle = color;
+  ctx.fillText(text, x, y);
+}
+
+function wrapText(text, x, y, maxWidth, lineHeight, fontSize, color, weight) {
+  const words = text.split(" ");
+  let line = "";
+  for (let i = 0; i < words.length; i++) {
+    const testLine = line + words[i] + " ";
+    const metrics = ctx.measureText(testLine);
+    const testWidth = metrics.width;
+    if (testWidth > maxWidth && i > 0) {
+      drawText(line, x, y, fontSize, color, weight);
+      line = words[i] + " ";
+      y += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  drawText(line, x, y, fontSize, color, weight);
+}
+
+function generatePost() {
+  const color = document.querySelector(".color-btn.selected").dataset.color;
+  const format = formats[currentFormat];
+  const content = getRandomText();
+
+  lastColor = color;
+  lastContent = content;
+
+  const bgColor = color === "aleatoria" ? getRandomColor() : colors[color];
 
   ctx.fillStyle = bgColor;
-  ctx.fillRect(0, 0, width, height);
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  if (backgroundImage) {
-    ctx.globalAlpha = 0.15;
-    ctx.drawImage(backgroundImage, 0, 0, width, height);
-    ctx.globalAlpha = 1;
-  }
+  const logo = new Image();
+  logo.crossOrigin = "anonymous";
+  logo.src = logos[color === "aleatoria" ? "azul" : color];
 
-  const content = lastContent || generateContent();
-
-  ctx.fillStyle = selectedColor === 'branco' ? '#000' : '#fff';
-  ctx.font = "bold 48px Inter";
-  ctx.textAlign = "center";
-  ctx.fillText(content.headline, width / 2, topOffset + 50);
-
-  ctx.font = "24px Inter";
-  ctx.fillText(content.subheadline, width / 2, topOffset + 110);
-
-  ctx.font = "20px Inter";
-  ctx.fillText(content.mensagem, width / 2, topOffset + 170);
-
-  const img = new Image();
-  img.onload = () => {
-    ctx.drawImage(img, width - 300, height - 150, 250, 80);
+  logo.onload = () => {
+    ctx.drawImage(logo, canvas.width - 250, canvas.height - 250, 180, 180);
+    renderText(content);
   };
-  img.src = logo;
-
-  lastColor = selectedColor;
-  lastContent = content;
 }
 
-function handleGenerateClick() {
-  lastContent = generateContent();
-  drawPost();
+function renderText(content) {
+  const format = formats[currentFormat];
+  const x = 80;
+  let y = format.topOffset;
+
+  wrapText(content.headline, x, y, canvas.width - 160, 60, 60, "#fff", "bold");
+  y += 160;
+  wrapText(content.subheadline, x, y, canvas.width - 160, 50, 40, "#fff", "normal");
+  y += 120;
+  wrapText(content.mensagem, x, y, canvas.width - 160, 40, 32, "#fff", "normal");
 }
 
-function handleFormatChange(format) {
-  currentFormat = format;
-  drawPost();
+function getRandomColor() {
+  const values = Object.values(colors);
+  return values[Math.floor(Math.random() * values.length)];
 }
 
-document.getElementById("generateBtn").addEventListener("click", handleGenerateClick);
-document.getElementById("downloadBtn").addEventListener("click", () => {
+function downloadPost() {
   const link = document.createElement("a");
   link.download = "post-cnpj-legal.png";
   link.href = canvas.toDataURL();
   link.click();
-});
+}
 
+// Eventos
+
+document.getElementById("generateBtn").addEventListener("click", generatePost);
+document.getElementById("downloadBtn").addEventListener("click", downloadPost);
 document.getElementById("zoomInBtn").addEventListener("click", () => {
-  zoomLevel = Math.min(1, zoomLevel + 0.05);
+  zoomLevel += 0.05;
   applyZoom();
 });
-
 document.getElementById("zoomOutBtn").addEventListener("click", () => {
-  zoomLevel = Math.max(0.1, zoomLevel - 0.05);
+  zoomLevel -= 0.05;
   applyZoom();
 });
 
-Array.from(document.querySelectorAll(".color-btn")).forEach(btn => {
+document.querySelectorAll(".color-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("selected"));
     btn.classList.add("selected");
-    lastColor = btn.dataset.color === "aleatoria" ? null : btn.dataset.color;
-    drawPost();
   });
 });
 
-Array.from(document.querySelectorAll(".dimension-btn")).forEach(btn => {
+document.querySelectorAll(".dimension-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".dimension-btn").forEach(b => b.classList.remove("selected"));
     btn.classList.add("selected");
-    handleFormatChange(btn.dataset.format);
+    resizeCanvas(btn.dataset.format);
   });
 });
 
-document.getElementById("changeImageBtn").addEventListener("click", () => {
-  backgroundImage = null;
-  drawPost();
-});
-
-document.getElementById("uploadImageInput").addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function (event) {
-    const img = new Image();
-    img.onload = () => {
-      backgroundImage = img;
-      drawPost();
-    };
-    img.src = event.target.result;
-  };
-  reader.readAsDataURL(file);
-});
-
-document.getElementById("resetBtn").addEventListener("click", () => {
-  lastContent = null;
-  lastColor = null;
-  backgroundImage = null;
-  drawPost();
-});
-
-document.getElementById("undoBtn").addEventListener("click", () => {
-  // futuro: histórico de estados
-});
-
-document.getElementById("redoBtn").addEventListener("click", () => {
-  // futuro: refazer último
-});
-
-drawPost();
-applyZoom();
+// Inicialização
+resizeCanvas(currentFormat);
