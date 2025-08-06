@@ -164,21 +164,9 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   canvas.width = width;
   canvas.height = height;
 
-  // Fundo fixo (sólido)
   ctx.globalAlpha = 1;
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
-
-  // Overlay de textura antes da imagem
-  try {
-    const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
-    ctx.save();
-    ctx.globalAlpha = 0.35;
-    ctx.drawImage(overlay, 0, 0, width, height);
-    ctx.restore();
-  } catch (e) {
-    console.warn("Erro ao carregar overlay:", e);
-  }
 
   // Imagem com bordas arredondadas
   let imageBottomY = 0;
@@ -212,6 +200,17 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     console.warn("Erro ao carregar imagem:", e);
   }
 
+  // Overlay de textura (por cima da cor de fundo, mas abaixo da imagem e textos)
+  try {
+    const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
+    ctx.save();
+    ctx.globalAlpha = 0.35;
+    ctx.drawImage(overlay, 0, 0, width, height);
+    ctx.restore();
+  } catch (e) {
+    console.warn("Erro ao carregar overlay:", e);
+  }
+
   // Gradiente leve no topo
   const gradient = ctx.createRadialGradient(width / 2, 0, 100, width / 2, height / 2, height);
   gradient.addColorStop(0, "rgba(0,0,0,0.15)");
@@ -219,10 +218,10 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width, height);
 
-  // Textos posicionados logo abaixo da imagem
+  // Textos
   const textStartY = imageBottomY + 40;
   ctx.textAlign = "center";
-  let textColor = (color === "branco" || color === "verde") ? "#000" : "#fff";
+  const textColor = (color === "branco" || color === "verde") ? "#000" : "#fff";
 
   ctx.font = "bold 46px Inter";
   ctx.fillStyle = (color === "verde") ? "#000" : (color === "branco") ? "#0f3efa" : "#17e30d";
@@ -235,7 +234,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   ctx.font = "20px Inter";
   wrapText(mensagem, width / 2, textStartY + 180, width * 0.7, 28);
 
-  // Logo fixo
+  // Logotipo
   try {
     const logo = await carregarImagem(logos[color]);
     const logoWidth = 200;
@@ -337,4 +336,8 @@ function removeLoader() {
 function getRandomColor() {
   const keys = Object.keys(colors);
   return keys[Math.floor(Math.random() * keys.length)];
+}
+
+function random(array) {
+  return array[Math.floor(Math.random() * array.length)];
 }
