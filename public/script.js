@@ -230,13 +230,16 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   wrapText(mensagem, width / 2, textStartY + 180, width * 0.7, 28);
 
   try {
-    const logo = await carregarImagem(logos[color]);
-    const logoWidth = 140;
-    const logoHeight = logo.height * (logoWidth / logo.width);
-    ctx.drawImage(logo, (width - logoWidth) / 2, height - logoHeight - 40, logoWidth, logoHeight);
-  } catch (e) {
-    console.warn("Erro ao carregar logo:", e);
-  }
+  const logo = await carregarImagem(logos[color]);
+  const logoWidth = 200; // AUMENTADO! (era 140)
+  const logoHeight = logo.height * (logoWidth / logo.width);
+  const marginBottom = 40;
+  const logoX = (width - logoWidth) / 2;
+  const logoY = height - logoHeight - marginBottom;
+  ctx.drawImage(logo, logoX, logoY, logoWidth, logoHeight);
+} catch (e) {
+  console.warn("Erro ao carregar logo:", e);
+}
 
   document.getElementById("postInfo").style.display = "block";
   document.getElementById("caption").innerText = legenda;
