@@ -27,6 +27,13 @@ let lastColor = null;
 let zoomLevel = 0.45;
 let cachedImage = null;
 
+// 🔤 Atualiza os textos no canvas ao gerar o post
+function syncTextInputs(headline, subheadline, mensagem) {
+  document.getElementById("editableHeadline").innerText = headline;
+  document.getElementById("editableSubheadline").innerText = subheadline;
+  document.getElementById("editableCTA").innerText = mensagem;
+}
+
 function wrapText(text, x, y, maxWidth, lineHeight) {
   const words = text.split(" ");
   let lines = [], line = "";
@@ -231,6 +238,7 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
     cachedImage = null;
 
     await drawPost({ headline, subheadline, mensagem, format: currentFormat, color });
+    syncTextInputs(headline, subheadline, mensagem);
   } catch (error) {
     alert("Erro ao gerar post: " + error.message);
   } finally {
