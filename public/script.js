@@ -27,7 +27,6 @@ let lastContent = null;
 let zoomLevel = 0.45;
 let cachedImage = null;
 
-// 🔍 Zoom
 function applyZoom() {
   canvas.style.transform = `scale(${zoomLevel})`;
   canvas.style.transformOrigin = "top";
@@ -42,7 +41,6 @@ document.getElementById("zoomOutBtn").addEventListener("click", () => {
 });
 applyZoom();
 
-// 🧠 Texto automático com quebra
 function wrapText(text, x, y, maxWidth, lineHeight) {
   const words = text.split(" ");
   let lines = [];
@@ -62,7 +60,6 @@ function wrapText(text, x, y, maxWidth, lineHeight) {
   lines.forEach((l, i) => ctx.fillText(l, x, y + i * lineHeight));
 }
 
-// 🖼️ Carregamento de imagem
 function carregarImagem(src) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -73,7 +70,6 @@ function carregarImagem(src) {
   });
 }
 
-// 📚 Base de posts
 const posts = [
   {
     Tema: "O que é desenquadramento do MEI",
@@ -101,7 +97,6 @@ const posts = [
   }
 ];
 
-// 🧠 Geração aleatória para temas fora do banco
 function gerarVariaçãoDeTema(temaBase) {
   const headlines = [
     `Tudo sobre ${temaBase} que ninguém te contou.`,
@@ -143,7 +138,6 @@ function gerarVariaçãoDeTema(temaBase) {
   };
 }
 
-// 🔍 Buscar conteúdo por tema
 function buscarConteudoPorTema(tema) {
   const match = posts.find(p => p.Tema.toLowerCase().includes(tema.toLowerCase()));
   if (match) {
@@ -175,7 +169,6 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
-  let imageBottomY = 0;
   try {
     if (!cachedImage) {
       const imageUrl = await getUnsplashImage(tema);
@@ -190,7 +183,6 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
 
     const imageX = (width - imageWidth) / 2;
     const imageY = topOffset;
-    imageBottomY = imageY + imageHeight;
 
     const radius = 80;
     ctx.save();
@@ -212,7 +204,6 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     console.warn("Erro ao carregar imagem:", e);
   }
 
-  // 🎨 Overlay decorativo
   try {
     const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
     ctx.save();
@@ -247,7 +238,6 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     const topRight = await carregarImagem(deco.topRight);
     const bottomLeft = await carregarImagem(deco.bottomLeft);
 
-    // Ajustes posicionais
     ctx.drawImage(topRight, width - 60 - topRight.width, 90);
     const bottomYOffset = format === "quadrado" ? 80 : 143;
     ctx.drawImage(bottomLeft, 30, height - bottomYOffset - bottomLeft.height);
@@ -255,9 +245,9 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     console.warn("Erro ao carregar decorativos:", e);
   }
 
-  // 📝 Texto
-  const spacingY = format === "quadrado" ? 60 : format === "post" ? 90 : 120;
-  const textStartY = imageBottomY + spacingY;
+  // 📝 Texto fixo no rodapé, acima do logo
+  const textPaddingBottom = 180;
+  const textStartY = height - textPaddingBottom;
   ctx.textAlign = "center";
   const textColor = (color === "branco" || color === "verde") ? "#000" : "#fff";
 
@@ -272,6 +262,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   ctx.font = "20px Inter";
   wrapText(mensagem, width / 2, textStartY + 180, width * 0.7, 28);
 
+  // 👇 Logo centralizado
   try {
     const logo = await carregarImagem(logos[color]);
     const logoWidth = 200;
@@ -281,119 +272,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     console.warn("Erro ao carregar logo:", e);
   }
 
-  // 🔽 Legenda
   document.getElementById("postInfo").style.display = "block";
   document.getElementById("caption").innerText = legenda;
   document.getElementById("tags").innerText = tags;
-}
-
-// Eventos
-document.getElementById("generateBtn").addEventListener("click", async () => {
-  try {
-    createLoader();
-    const themeInput = document.getElementById("themeInput").value.trim();
-    const conteudo = buscarConteudoPorTema(themeInput || random(posts).Tema);
-    lastContent = conteudo;
-    cachedImage = null;
-
-    const selectedColorBtn = document.querySelector(".color-btn.selected");
-    const userColorChoice = selectedColorBtn?.dataset?.color;
-    const color = !userColorChoice || userColorChoice === "aleatoria"
-      ? getRandomColor()
-      : userColorChoice;
-
-    if (userColorChoice === "aleatoria") {
-      document.querySelectorAll(".color-btn").forEach(b => {
-        b.classList.toggle("selected", b.dataset.color === "aleatoria");
-      });
-    }
-
-    lastColor = color;
-    await drawPost({ ...conteudo, format: currentFormat, color });
-  } catch (error) {
-    alert("Erro ao gerar post: " + error.message);
-    console.error(error);
-  } finally {
-    removeLoader();
-  }
-});
-
-document.getElementById("downloadBtn").addEventListener("click", () => {
-  const link = document.createElement("a");
-  link.download = "post-cnpj-legal.png";
-  link.href = canvas.toDataURL();
-  link.click();
-});
-
-document.querySelectorAll(".color-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("selected"));
-    btn.classList.add("selected");
-    lastColor = btn.dataset.color === "aleatoria" ? null : btn.dataset.color;
-    const corFinal = lastColor || getRandomColor();
-    if (lastContent) drawPost({ ...lastContent, format: currentFormat, color: corFinal });
-  });
-});
-
-document.querySelectorAll(".dimension-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".dimension-btn").forEach(b => b.classList.remove("selected"));
-    btn.classList.add("selected");
-    currentFormat = btn.dataset.format;
-    const corFinal = lastColor || getRandomColor();
-    if (lastContent) drawPost({ ...lastContent, format: currentFormat, color: corFinal });
-  });
-});
-
-document.getElementById("changeImageBtn")?.addEventListener("click", async () => {
-  try {
-    createLoader();
-    cachedImage = null;
-    if (lastContent && lastColor) {
-      await drawPost({ ...lastContent, format: currentFormat, color: lastColor });
-    }
-  } catch (e) {
-    alert("Erro ao trocar imagem: " + e.message);
-    console.error(e);
-  } finally {
-    removeLoader();
-  }
-});
-
-// Loader
-function createLoader() {
-  const loader = document.createElement("div");
-  loader.id = "loader";
-  loader.innerHTML = `<span style="display:inline-block;width:16px;height:16px;border:3px solid #fff;border-top:3px solid transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></span> Gerando post...`;
-  Object.assign(loader.style, {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    padding: "20px 30px",
-    background: "#1e1e1e",
-    color: "#fff",
-    position: "fixed",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    zIndex: 9999,
-    borderRadius: "8px",
-    boxShadow: "0 0 20px rgba(0,0,0,0.4)",
-    fontSize: "16px"
-  });
-  document.body.appendChild(loader);
-}
-
-function removeLoader() {
-  const loader = document.getElementById("loader");
-  if (loader) loader.remove();
-}
-
-function getRandomColor() {
-  const keys = Object.keys(colors);
-  return keys[Math.floor(Math.random() * keys.length)];
-}
-
-function random(array) {
-  return array[Math.floor(Math.random() * array.length)];
 }
