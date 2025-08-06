@@ -16,7 +16,7 @@
     <div class="section-title">Tema do Post</div>
     <input type="text" id="themeInput" placeholder="Digite um tema ou deixe em branco para gerar automaticamente..." />
 
-    <!-- COR -->
+    <!-- COR DE FUNDO -->
     <div class="section-title">Cor de Fundo</div>
     <div id="colorOptions" class="color-options">
       <button type="button" class="color-btn selected" data-color="aleatoria">Aleatória</button>
@@ -26,7 +26,7 @@
       <button type="button" class="color-btn" data-color="branco">Branco</button>
     </div>
 
-    <!-- ✅ NOVA SESSÃO: EDIÇÃO DE IMAGEM -->
+    <!-- EDIÇÃO DA IMAGEM -->
     <div class="section-title">Edição da Imagem</div>
     <div class="image-controls">
       <button type="button" id="changeImageBtn">Mudar Imagem</button>
@@ -55,7 +55,7 @@
       <button type="button" id="downloadBtn">Baixar</button>
     </div>
 
-    <!-- LEGENDA -->
+    <!-- LEGENDA E TAGS -->
     <div class="info-box" id="postInfo" style="display: none;">
       <strong>Legenda:</strong>
       <div id="caption"></div>
@@ -69,19 +69,19 @@
       Seu navegador não suporta canvas.
     </canvas>
 
-    <!-- 🔍 ZOOM CONTROLS PERMANECEM AQUI -->
+    <!-- ZOOM -->
     <div class="zoom-controls">
       <button id="zoomInBtn">+</button>
       <button id="zoomOutBtn">−</button>
     </div>
   </div>
 
-  <!-- ✅ CHAVE DA API -->
+  <!-- VARIÁVEL DE AMBIENTE COM A CHAVE DA API -->
   <script>
     window.UNSPLASH_ACCESS_KEY = 'SUA_CHAVE_AQUI';
   </script>
 
-  <!-- ✅ SCRIPT PRINCIPAL -->
+  <!-- SCRIPT PRINCIPAL -->
   <script src="script.js"></script>
 </body>
 </html>
