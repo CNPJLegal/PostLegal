@@ -12,9 +12,11 @@
 </head>
 <body>
   <div class="controls">
+    <!-- TEMA -->
     <div class="section-title">Tema do Post</div>
     <input type="text" id="themeInput" placeholder="Digite um tema ou deixe em branco para gerar automaticamente..." />
 
+    <!-- COR -->
     <div class="section-title">Cor de Fundo</div>
     <div id="colorOptions" class="color-options">
       <button type="button" class="color-btn selected" data-color="aleatoria">Aleatória</button>
@@ -24,6 +26,13 @@
       <button type="button" class="color-btn" data-color="branco">Branco</button>
     </div>
 
+    <!-- ✅ NOVA SESSÃO: EDIÇÃO DE IMAGEM -->
+    <div class="section-title">Edição da Imagem</div>
+    <div class="image-controls">
+      <button type="button" id="changeImageBtn">Mudar Imagem</button>
+    </div>
+
+    <!-- FORMATO -->
     <div class="section-title">Formato</div>
     <div class="options" id="formatOptions">
       <button type="button" class="dimension-btn" data-format="quadrado">
@@ -40,11 +49,13 @@
       </button>
     </div>
 
+    <!-- AÇÕES -->
     <div class="actions">
       <button type="button" id="generateBtn">Gerar</button>
       <button type="button" id="downloadBtn">Baixar</button>
     </div>
 
+    <!-- LEGENDA -->
     <div class="info-box" id="postInfo" style="display: none;">
       <strong>Legenda:</strong>
       <div id="caption"></div>
@@ -52,24 +63,25 @@
     </div>
   </div>
 
+  <!-- CANVAS DO POST -->
   <div class="canvas-container" style="position: relative;">
     <canvas id="postCanvas" width="1080" height="1350">
       Seu navegador não suporta canvas.
     </canvas>
 
+    <!-- 🔍 ZOOM CONTROLS PERMANECEM AQUI -->
     <div class="zoom-controls">
       <button id="zoomInBtn">+</button>
       <button id="zoomOutBtn">−</button>
     </div>
   </div>
 
-  <!-- ✅ Defina a variável da API Unsplash antes do script.js -->
+  <!-- ✅ CHAVE DA API -->
   <script>
-    // Em produção, o Vercel substituirá automaticamente essa variável se estiver no .env
     window.UNSPLASH_ACCESS_KEY = 'SUA_CHAVE_AQUI';
   </script>
 
-  <!-- ✅ Carregue o script principal uma única vez -->
+  <!-- ✅ SCRIPT PRINCIPAL -->
   <script src="script.js"></script>
 </body>
 </html>
