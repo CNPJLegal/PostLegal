@@ -12,15 +12,6 @@
 </head>
 <body>
   <div class="controls">
-
-    <!-- CAMPO DE TEMA DO POST -->
-    <input
-      type="text"
-      id="themeInput"
-      placeholder="Digite o tema do post"
-      style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ccc"
-    />
-
     <!-- AÇÕES (TOPO) -->
     <div class="actions" style="margin-bottom: 20px;">
       <button type="button" id="generateBtn">Gerar</button>
@@ -83,6 +74,13 @@
     <canvas id="postCanvas" width="1080" height="1350">
       Seu navegador não suporta canvas.
     </canvas>
+
+    <!-- TEXTOS EDITÁVEIS SOBRE O CANVAS -->
+    <div id="editableTextContainer">
+      <div id="editableHeadline" contenteditable="true" class="editable-text headline">Título aqui</div>
+      <div id="editableSubheadline" contenteditable="true" class="editable-text subheadline">Subtítulo aqui</div>
+      <div id="editableCTA" contenteditable="true" class="editable-text cta">Chamada para ação</div>
+    </div>
 
     <!-- ZOOM -->
     <div class="zoom-controls">
