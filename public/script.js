@@ -5,27 +5,27 @@ const colors = {
   azul: "#0f3efa",
   verde: "#17e30d",
   preto: "#1c1c1c",
-  branco: "#ffffff"
+  branco: "#ffffff",
 };
 
 const logos = {
   azul: "https://iili.io/Frik9yl.png",
   preto: "https://iili.io/Frik9yl.png",
   branco: "https://iili.io/Fri8NTl.png",
-  verde: "https://iili.io/FryqWHG.png"
+  verde: "https://iili.io/FryqWHG.png",
 };
 
 const formats = {
-  quadrado: { width: 1080, height: 1080, topOffset: 120 },
-  post: { width: 1080, height: 1350, topOffset: 120 },
-  stories: { width: 1080, height: 1720, topOffset: 236 }
+  quadrado: { width: 1080, height: 1080, topOffset: 100, arrowOffset: 110 },
+  post: { width: 1080, height: 1350, topOffset: 185, arrowOffset: 143 },
+  stories: { width: 1080, height: 1720, topOffset: 236, arrowOffset: 143 },
 };
 
 let currentFormat = "post";
 let lastColor = null;
 let lastContent = null;
+let lastImageURL = null;
 let zoomLevel = 0.45;
-let cachedImage = null;
 
 function applyZoom() {
   canvas.style.transform = `scale(${zoomLevel})`;
@@ -41,87 +41,8 @@ document.getElementById("zoomOutBtn").addEventListener("click", () => {
 });
 applyZoom();
 
-const posts = [
-  {
-    Tema: "O que é desenquadramento do MEI",
-    Headline: "O que é desenquadramento do MEI: o que todo MEI precisa saber.",
-    Subheadline: "Talvez você nunca tenha ouvido falar disso, mas é um dos pontos mais decisivos para manter o CNPJ vivo.",
-    CTA: "Receba seu diagnóstico gratuito em menos de 2 minutos.",
-    Legenda: "Sabe quando tudo parece certo, mas o sistema trava? Muitas vezes o motivo é esse aqui — simples, silencioso e ignorado.",
-    Tags: "#NegócioSeguro #ConsultoriaMEI #RotinaEmpreendedora #DescomplicaMEI #CNPJPronto"
-  },
-  {
-    Tema: "Como emitir nota fiscal pelo celular",
-    Headline: "Como emitir nota fiscal pelo celular: o que todo MEI precisa saber.",
-    Subheadline: "Muitos ignoram esse detalhe e acabam travando o crescimento por uma questão simples de ajuste.",
-    CTA: "Fale com um especialista da CNPJ Legal agora mesmo.",
-    Legenda: "Tem empreendedor com anos de experiência ainda errando nesse detalhe. Não seja mais um.",
-    Tags: "#NotaFiscalSimples #MEIMobile #CNPJNaMão #RotinaEmpreendedora #EmissaoDigital"
-  },
-  {
-    Tema: "Passo a passo para abrir um MEI",
-    Headline: "Passo a passo para abrir um MEI: tudo o que você precisa saber.",
-    Subheadline: "Desde o cadastro até o primeiro imposto, veja como se formalizar sem sair de casa.",
-    CTA: "Comece agora mesmo e tenha apoio da CNPJ Legal.",
-    Legenda: "Abrir um MEI é mais simples do que parece. Só precisa seguir os passos certos — e evitar as armadilhas.",
-    Tags: "#MEIAberto #FormalizaçãoJá #CNPJLegal #PrimeiroPasso #EmpreendedorismoSimples"
-  }
-];
-
-function gerarVariaçãoDeTema(temaBase) {
-  const headlines = [
-    `Tudo sobre ${temaBase} que ninguém te contou.`,
-    `${temaBase}: entenda como aplicar na sua rotina.`,
-    `${temaBase}: o que você precisa saber agora.`,
-    `${temaBase} explicado de forma simples.`,
-    `${temaBase} pode mudar seu negócio.`
-  ];
-  const subheadlines = [
-    "Descubra como isso impacta diretamente seu sucesso.",
-    "Entenda por que isso é crucial no seu dia a dia.",
-    "Evite os erros mais comuns com esse conhecimento.",
-    "Dê o primeiro passo com clareza e confiança.",
-    "Veja o que os especialistas recomendam sobre o tema."
-  ];
-  const mensagens = [
-    "Acesse agora e tenha um diagnóstico gratuito.",
-    "Conte com a CNPJ Legal para te ajudar.",
-    "Fale com um especialista em menos de 2 minutos.",
-    "Tire suas dúvidas com quem entende.",
-    "Descubra tudo com um clique."
-  ];
-  const legendas = [
-    "Este conteúdo foi gerado com base no seu tema. Legal, né?",
-    "Um bom tema rende bons insights. Aqui está o seu.",
-    "Seu post foi criado automaticamente. Experimente outros!",
-    "Quer ver mais? Troque o tema e gere de novo.",
-    "Cada clique, uma ideia. Aqui está mais uma!"
-  ];
-  const tags = "#CNPJLegal #MarketingMEI #EmpreenderComSegurança #PostInteligente #AutomaçãoCriativa";
-
-  return {
-    tema: temaBase,
-    headline: random(headlines),
-    subheadline: random(subheadlines),
-    mensagem: random(mensagens),
-    legenda: random(legendas),
-    tags
-  };
-}
-
-function buscarConteudoPorTema(tema) {
-  const match = posts.find(p => p.Tema.toLowerCase().includes(tema.toLowerCase()));
-  if (match) {
-    return {
-      tema: match.Tema,
-      headline: match.Headline,
-      subheadline: match.Subheadline,
-      mensagem: match.CTA,
-      legenda: match.Legenda,
-      tags: match.Tags
-    };
-  }
-  return gerarVariaçãoDeTema(tema);
+function random(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
 }
 
 function wrapText(text, x, y, maxWidth, lineHeight) {
@@ -160,23 +81,60 @@ async function getUnsplashImage(query) {
   return data.url;
 }
 
+function getRandomColor() {
+  const keys = Object.keys(colors);
+  return keys[Math.floor(Math.random() * keys.length)];
+}
+
 async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, format, color }) {
-  const { width, height, topOffset } = formats[format];
+  const { width, height, topOffset, arrowOffset } = formats[format];
   canvas.width = width;
   canvas.height = height;
 
+  // fundo sólido
   ctx.globalAlpha = 1;
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
-  // Imagem principal
+  // camada de efeito multiplicação aplicada duas vezes
+  for (let i = 0; i < 2; i++) {
+    try {
+      const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
+      ctx.globalAlpha = 0.35;
+      ctx.drawImage(overlay, 0, 0, width, height);
+    } catch (e) {
+      console.warn("Erro ao carregar overlay:", e);
+    }
+  }
+
+  // elementos gráficos adicionais
+  try {
+    const isLight = color === "branco" || color === "verde";
+
+    const plus = await carregarImagem(isLight
+      ? "https://iili.io/FPeFE9n.png"
+      : "https://iili.io/FPeHOiP.png");
+
+    const arrow = await carregarImagem(isLight
+      ? "https://iili.io/FPeKPzG.png"
+      : "https://iili.io/FPe2AHg.png");
+
+    const plusW = plus.width;
+    const plusH = plus.height;
+    ctx.drawImage(plus, width - plusW - 85, 93, plusW, plusH);
+
+    const arrowW = arrow.width;
+    const arrowH = arrow.height;
+    const extraArrowOffset = format === "quadrado" ? 20 : 0;
+    ctx.drawImage(arrow, 27, height - arrowOffset - arrowH + extraArrowOffset, arrowW, arrowH);
+  } catch (e) {
+    console.warn("Erro ao carregar elementos visuais:", e);
+  }
+
+  // imagem principal
   let imageBottomY = 0;
   try {
-    if (!cachedImage) {
-      const imageUrl = await getUnsplashImage(tema);
-      cachedImage = await carregarImagem(imageUrl);
-    }
-    const img = cachedImage;
+    const img = await carregarImagem(lastImageURL);
     const imageWidth = 835;
     const imageHeight = (img.height / img.width) * imageWidth;
     const imageX = (width - imageWidth) / 2;
@@ -204,60 +162,14 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     console.warn("Erro ao carregar imagem:", e);
   }
 
-  // BG Overlay (duas camadas)
-  try {
-    const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
-    for (let i = 0; i < 2; i++) {
-      ctx.save();
-      ctx.globalAlpha = 0.3;
-      ctx.drawImage(overlay, 0, 0, width, height);
-      ctx.restore();
-    }
-  } catch (e) {
-    console.warn("Erro ao carregar overlay:", e);
-  }
-
-  // Elementos decorativos
-  try {
-    const elements = {
-      azul: {
-        topRight: "https://iili.io/FPeHOiP.png",
-        bottomLeft: "https://iili.io/FPe2AHg.png"
-      },
-      preto: {
-        topRight: "https://iili.io/FPeHOiP.png",
-        bottomLeft: "https://iili.io/FPe2AHg.png"
-      },
-      verde: {
-        topRight: "https://iili.io/FPeFE9n.png",
-        bottomLeft: "https://iili.io/FPeKPzG.png"
-      },
-      branco: {
-        topRight: "https://iili.io/FPeFE9n.png",
-        bottomLeft: "https://iili.io/FPeKPzG.png"
-      }
-    };
-    const deco = elements[color];
-    const topRight = await carregarImagem(deco.topRight);
-    const bottomLeft = await carregarImagem(deco.bottomLeft);
-
-    // Canto superior direito (sem distorção)
-    ctx.drawImage(topRight, width - 85 - topRight.width, 93, topRight.width, topRight.height);
-
-    // Canto inferior esquerdo (sem distorção)
-    ctx.drawImage(bottomLeft, 27, height - 143 - bottomLeft.height, bottomLeft.width, bottomLeft.height);
-  } catch (e) {
-    console.warn("Erro ao carregar elementos decorativos:", e);
-  }
-
-  // Textos
-  const spacingY = (format === "post" || format === "quadrado") ? 60 : 40;
-  const textStartY = imageBottomY + spacingY;
+  // textos
+  const textStartY = imageBottomY + (format === "post" || format === "quadrado" ? 60 : 40);
   ctx.textAlign = "center";
-  const textColor = (color === "branco" || color === "verde") ? "#000" : "#fff";
+  const textColor = color === "verde" || color === "branco" ? "#000" : "#fff";
+  const headlineColor = color === "verde" ? "#000" : color === "branco" ? "#0f3efa" : "#17e30d";
 
   ctx.font = "bold 46px Inter";
-  ctx.fillStyle = (color === "verde") ? "#000" : (color === "branco") ? "#0f3efa" : "#17e30d";
+  ctx.fillStyle = headlineColor;
   wrapText(headline, width / 2, textStartY, width * 0.85, 50);
 
   ctx.font = "28px Inter";
@@ -267,7 +179,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   ctx.font = "20px Inter";
   wrapText(mensagem, width / 2, textStartY + 180, width * 0.7, 28);
 
-  // Logotipo
+  // logo
   try {
     const logo = await carregarImagem(logos[color]);
     const logoWidth = 200;
@@ -282,13 +194,27 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   document.getElementById("tags").innerText = tags;
 }
 
+function buscarConteudoPorTema(tema) {
+  const match = posts.find((p) => p.Tema.toLowerCase().includes(tema.toLowerCase()));
+  if (match) {
+    return {
+      tema: match.Tema,
+      headline: match.Headline,
+      subheadline: match.Subheadline,
+      mensagem: match.CTA,
+      legenda: match.Legenda,
+      tags: match.Tags,
+    };
+  }
+  return gerarVariaçãoDeTema(tema);
+}
+
 document.getElementById("generateBtn").addEventListener("click", async () => {
   try {
     createLoader();
     const themeInput = document.getElementById("themeInput").value.trim();
     const conteudo = buscarConteudoPorTema(themeInput || random(posts).Tema);
     lastContent = conteudo;
-    cachedImage = null;
 
     const selectedColorBtn = document.querySelector(".color-btn.selected");
     const userColorChoice = selectedColorBtn?.dataset?.color;
@@ -296,17 +222,13 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
       ? getRandomColor()
       : userColorChoice;
 
-    if (userColorChoice === "aleatoria") {
-      document.querySelectorAll(".color-btn").forEach(b => {
-        b.classList.toggle("selected", b.dataset.color === "aleatoria");
-      });
-    }
-
     lastColor = color;
+    lastImageURL = await getUnsplashImage(conteudo.tema);
+
     await drawPost({ ...conteudo, format: currentFormat, color });
-  } catch (error) {
-    alert("Erro ao gerar post: " + error.message);
-    console.error(error);
+  } catch (e) {
+    alert("Erro ao gerar post: " + e.message);
+    console.error(e);
   } finally {
     removeLoader();
   }
@@ -319,23 +241,27 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
   link.click();
 });
 
-document.querySelectorAll(".color-btn").forEach(btn => {
+document.querySelectorAll(".color-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
-    document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("selected"));
+    document.querySelectorAll(".color-btn").forEach((b) => b.classList.remove("selected"));
     btn.classList.add("selected");
     lastColor = btn.dataset.color === "aleatoria" ? null : btn.dataset.color;
     const corFinal = lastColor || getRandomColor();
-    if (lastContent) drawPost({ ...lastContent, format: currentFormat, color: corFinal });
+    if (lastContent && lastImageURL) {
+      drawPost({ ...lastContent, format: currentFormat, color: corFinal });
+    }
   });
 });
 
-document.querySelectorAll(".dimension-btn").forEach(btn => {
+document.querySelectorAll(".dimension-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
-    document.querySelectorAll(".dimension-btn").forEach(b => b.classList.remove("selected"));
+    document.querySelectorAll(".dimension-btn").forEach((b) => b.classList.remove("selected"));
     btn.classList.add("selected");
     currentFormat = btn.dataset.format;
     const corFinal = lastColor || getRandomColor();
-    if (lastContent) drawPost({ ...lastContent, format: currentFormat, color: corFinal });
+    if (lastContent && lastImageURL) {
+      drawPost({ ...lastContent, format: currentFormat, color: corFinal });
+    }
   });
 });
 
@@ -365,13 +291,4 @@ function createLoader() {
 function removeLoader() {
   const loader = document.getElementById("loader");
   if (loader) loader.remove();
-}
-
-function getRandomColor() {
-  const keys = Object.keys(colors);
-  return keys[Math.floor(Math.random() * keys.length)];
-}
-
-function random(array) {
-  return array[Math.floor(Math.random() * array.length)];
 }
