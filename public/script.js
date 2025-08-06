@@ -27,6 +27,7 @@ let lastContent = null;
 let zoomLevel = 0.45;
 let cachedImage = null;
 
+// 🔍 Zoom
 function applyZoom() {
   canvas.style.transform = `scale(${zoomLevel})`;
   canvas.style.transformOrigin = "top";
@@ -41,6 +42,7 @@ document.getElementById("zoomOutBtn").addEventListener("click", () => {
 });
 applyZoom();
 
+// 🧠 Texto automático com quebra
 function wrapText(text, x, y, maxWidth, lineHeight) {
   const words = text.split(" ");
   let lines = [];
@@ -60,6 +62,7 @@ function wrapText(text, x, y, maxWidth, lineHeight) {
   lines.forEach((l, i) => ctx.fillText(l, x, y + i * lineHeight));
 }
 
+// 🖼️ Carregamento de imagem
 function carregarImagem(src) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -70,6 +73,7 @@ function carregarImagem(src) {
   });
 }
 
+// 📚 Base de posts
 const posts = [
   {
     Tema: "O que é desenquadramento do MEI",
@@ -97,6 +101,7 @@ const posts = [
   }
 ];
 
+// 🧠 Geração aleatória para temas fora do banco
 function gerarVariaçãoDeTema(temaBase) {
   const headlines = [
     `Tudo sobre ${temaBase} que ninguém te contou.`,
@@ -138,6 +143,7 @@ function gerarVariaçãoDeTema(temaBase) {
   };
 }
 
+// 🔍 Buscar conteúdo por tema
 function buscarConteudoPorTema(tema) {
   const match = posts.find(p => p.Tema.toLowerCase().includes(tema.toLowerCase()));
   if (match) {
@@ -153,6 +159,7 @@ function buscarConteudoPorTema(tema) {
   return gerarVariaçãoDeTema(tema);
 }
 
+// 🔁 Função para buscar imagem via API
 async function getUnsplashImage(query) {
   const res = await fetch(`/api/unsplash?query=${encodeURIComponent(query)}`);
   const data = await res.json();
@@ -169,6 +176,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
+  let imageBottomY = 0;
   try {
     if (!cachedImage) {
       const imageUrl = await getUnsplashImage(tema);
@@ -183,6 +191,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
 
     const imageX = (width - imageWidth) / 2;
     const imageY = topOffset;
+    imageBottomY = imageY + imageHeight;
 
     const radius = 80;
     ctx.save();
@@ -204,6 +213,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     console.warn("Erro ao carregar imagem:", e);
   }
 
+  // Overlay decorativo
   try {
     const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
     ctx.save();
@@ -245,24 +255,25 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     console.warn("Erro ao carregar decorativos:", e);
   }
 
-  // 📝 Texto fixo no rodapé, acima do logo
-  const textPaddingBottom = 180;
-  const textStartY = height - textPaddingBottom;
+  // 📐 Texto no centro inferior
+  const spaceAboveText = format === "stories" ? 130 : format === "post" ? 110 : 80;
+  const textBlockStartY = imageBottomY + spaceAboveText;
+
   ctx.textAlign = "center";
   const textColor = (color === "branco" || color === "verde") ? "#000" : "#fff";
 
   ctx.font = "bold 46px Inter";
   ctx.fillStyle = (color === "verde") ? "#000" : (color === "branco") ? "#0f3efa" : "#17e30d";
-  wrapText(headline, width / 2, textStartY, width * 0.85, 50);
+  wrapText(headline, width / 2, textBlockStartY, width * 0.85, 50);
 
   ctx.font = "28px Inter";
   ctx.fillStyle = textColor;
-  wrapText(subheadline, width / 2, textStartY + 110, width * 0.75, 34);
+  wrapText(subheadline, width / 2, textBlockStartY + 110, width * 0.75, 34);
 
   ctx.font = "20px Inter";
-  wrapText(mensagem, width / 2, textStartY + 180, width * 0.7, 28);
+  wrapText(mensagem, width / 2, textBlockStartY + 180, width * 0.7, 28);
 
-  // 👇 Logo centralizado
+  // 🔰 Logotipo
   try {
     const logo = await carregarImagem(logos[color]);
     const logoWidth = 200;
@@ -272,6 +283,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     console.warn("Erro ao carregar logo:", e);
   }
 
+  // ✅ Legenda
   document.getElementById("postInfo").style.display = "block";
   document.getElementById("caption").innerText = legenda;
   document.getElementById("tags").innerText = tags;
