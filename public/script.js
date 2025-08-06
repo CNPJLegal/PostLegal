@@ -1,3 +1,4 @@
+<script>
 const canvas = document.getElementById("postCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -16,9 +17,9 @@ const logos = {
 };
 
 const formats = {
-  quadrado: { width: 1080, height: 1080, topOffset: 100 },
-  post: { width: 1080, height: 1350, topOffset: 120 },
-  stories: { width: 1080, height: 1720, topOffset: 200 }
+  quadrado: { width: 1080, height: 1080, topOffset: 80 },
+  post: { width: 1080, height: 1350, topOffset: 100 },
+  stories: { width: 1080, height: 1720, topOffset: 180 }
 };
 
 let currentFormat = "post";
@@ -40,11 +41,88 @@ document.getElementById("zoomOutBtn").addEventListener("click", () => {
 });
 applyZoom();
 
-const posts = [/* seus posts aqui, igual antes */];
+const posts = [
+  {
+    Tema: "O que é desenquadramento do MEI",
+    Headline: "O que é desenquadramento do MEI: o que todo MEI precisa saber.",
+    Subheadline: "Talvez você nunca tenha ouvido falar disso, mas é um dos pontos mais decisivos para manter o CNPJ vivo.",
+    CTA: "Receba seu diagnóstico gratuito em menos de 2 minutos.",
+    Legenda: "Sabe quando tudo parece certo, mas o sistema trava? Muitas vezes o motivo é esse aqui — simples, silencioso e ignorado.",
+    Tags: "#NegócioSeguro #ConsultoriaMEI #RotinaEmpreendedora #DescomplicaMEI #CNPJPronto"
+  },
+  {
+    Tema: "Como emitir nota fiscal pelo celular",
+    Headline: "Como emitir nota fiscal pelo celular: o que todo MEI precisa saber.",
+    Subheadline: "Muitos ignoram esse detalhe e acabam travando o crescimento por uma questão simples de ajuste.",
+    CTA: "Fale com um especialista da CNPJ Legal agora mesmo.",
+    Legenda: "Tem empreendedor com anos de experiência ainda errando nesse detalhe. Não seja mais um.",
+    Tags: "#NotaFiscalSimples #MEIMobile #CNPJNaMão #RotinaEmpreendedora #EmissaoDigital"
+  },
+  {
+    Tema: "Passo a passo para abrir um MEI",
+    Headline: "Passo a passo para abrir um MEI: tudo o que você precisa saber.",
+    Subheadline: "Desde o cadastro até o primeiro imposto, veja como se formalizar sem sair de casa.",
+    CTA: "Comece agora mesmo e tenha apoio da CNPJ Legal.",
+    Legenda: "Abrir um MEI é mais simples do que parece. Só precisa seguir os passos certos — e evitar as armadilhas.",
+    Tags: "#MEIAberto #FormalizaçãoJá #CNPJLegal #PrimeiroPasso #EmpreendedorismoSimples"
+  }
+];
 
-function gerarVariaçãoDeTema(temaBase) { /* igual antes */ }
+function gerarVariaçãoDeTema(temaBase) {
+  const headlines = [
+    `Tudo sobre ${temaBase} que ninguém te contou.`,
+    `${temaBase}: entenda como aplicar na sua rotina.`,
+    `${temaBase}: o que você precisa saber agora.`,
+    `${temaBase} explicado de forma simples.`,
+    `${temaBase} pode mudar seu negócio.`
+  ];
+  const subheadlines = [
+    "Descubra como isso impacta diretamente seu sucesso.",
+    "Entenda por que isso é crucial no seu dia a dia.",
+    "Evite os erros mais comuns com esse conhecimento.",
+    "Dê o primeiro passo com clareza e confiança.",
+    "Veja o que os especialistas recomendam sobre o tema."
+  ];
+  const mensagens = [
+    "Acesse agora e tenha um diagnóstico gratuito.",
+    "Conte com a CNPJ Legal para te ajudar.",
+    "Fale com um especialista em menos de 2 minutos.",
+    "Tire suas dúvidas com quem entende.",
+    "Descubra tudo com um clique."
+  ];
+  const legendas = [
+    "Este conteúdo foi gerado com base no seu tema. Legal, né?",
+    "Um bom tema rende bons insights. Aqui está o seu.",
+    "Seu post foi criado automaticamente. Experimente outros!",
+    "Quer ver mais? Troque o tema e gere de novo.",
+    "Cada clique, uma ideia. Aqui está mais uma!"
+  ];
+  const tags = "#CNPJLegal #MarketingMEI #EmpreenderComSegurança #PostInteligente #AutomaçãoCriativa";
 
-function buscarConteudoPorTema(tema) { /* igual antes */ }
+  return {
+    tema: temaBase,
+    headline: random(headlines),
+    subheadline: random(subheadlines),
+    mensagem: random(mensagens),
+    legenda: random(legendas),
+    tags
+  };
+}
+
+function buscarConteudoPorTema(tema) {
+  const match = posts.find(p => p.Tema.toLowerCase().includes(tema.toLowerCase()));
+  if (match) {
+    return {
+      tema: match.Tema,
+      headline: match.Headline,
+      subheadline: match.Subheadline,
+      mensagem: match.CTA,
+      legenda: match.Legenda,
+      tags: match.Tags
+    };
+  }
+  return gerarVariaçãoDeTema(tema);
+}
 
 function wrapText(text, x, y, maxWidth, lineHeight) {
   const words = text.split(" ");
@@ -87,24 +165,10 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   canvas.width = width;
   canvas.height = height;
 
-  // Fundo sólido
   ctx.globalAlpha = 1;
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
-  // CAMADA 1 - Textura aplicada por baixo (duas vezes)
-  try {
-    const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
-    ctx.globalAlpha = 0.3;
-    ctx.drawImage(overlay, 0, 0, width, height);
-    ctx.drawImage(overlay, 0, 0, width, height);
-    ctx.globalAlpha = 1;
-  } catch (e) {
-    console.warn("Erro ao carregar overlay:", e);
-  }
-
-  // IMAGEM acima da textura
-  let imageBottomY = 0;
   try {
     const imageUrl = await getUnsplashImage(tema);
     const img = await carregarImagem(imageUrl);
@@ -112,7 +176,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     const imageHeight = (img.height / img.width) * imageWidth;
     const imageX = (width - imageWidth) / 2;
     const imageY = topOffset;
-    imageBottomY = imageY + imageHeight;
+    const imageBottomY = imageY + imageHeight;
 
     const radius = 80;
     ctx.save();
@@ -130,41 +194,44 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     ctx.clip();
     ctx.drawImage(img, imageX, imageY, imageWidth, imageHeight);
     ctx.restore();
-  } catch (e) {
-    console.warn("Erro ao carregar imagem:", e);
-  }
-  // Gradiente sutil por cima
-  const gradient = ctx.createRadialGradient(width / 2, 0, 100, width / 2, height / 2, height);
-  gradient.addColorStop(0, "rgba(0,0,0,0.15)");
-  gradient.addColorStop(1, "rgba(0,0,0,0)");
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, width, height);
 
-  // Textos posicionados com responsividade
-  const extraOffsetY = format === "stories" ? 100 : 40;
-  const textStartY = imageBottomY + extraOffsetY;
-  ctx.textAlign = "center";
-  const textColor = (color === "branco" || color === "verde") ? "#000" : "#fff";
+    for (let i = 0; i < 2; i++) {
+      const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
+      ctx.save();
+      ctx.globalAlpha = 0.35;
+      ctx.globalCompositeOperation = "multiply";
+      ctx.drawImage(overlay, 0, 0, width, height);
+      ctx.restore();
+    }
 
-  ctx.font = "bold 46px Inter";
-  ctx.fillStyle = (color === "verde") ? "#000" : (color === "branco") ? "#0f3efa" : "#17e30d";
-  wrapText(headline, width / 2, textStartY, width * 0.85, 50);
+    const gradient = ctx.createRadialGradient(width / 2, 0, 100, width / 2, height / 2, height);
+    gradient.addColorStop(0, "rgba(0,0,0,0.15)");
+    gradient.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
 
-  ctx.font = "28px Inter";
-  ctx.fillStyle = textColor;
-  wrapText(subheadline, width / 2, textStartY + 110, width * 0.75, 34);
+    const offset = format === "stories" ? 100 : 40;
+    const textStartY = imageBottomY + offset;
+    ctx.textAlign = "center";
+    const textColor = (color === "branco" || color === "verde") ? "#000" : "#fff";
 
-  ctx.font = "20px Inter";
-  wrapText(mensagem, width / 2, textStartY + 180, width * 0.7, 28);
+    ctx.font = "bold 46px Inter";
+    ctx.fillStyle = (color === "verde") ? "#000" : (color === "branco") ? "#0f3efa" : "#17e30d";
+    wrapText(headline, width / 2, textStartY, width * 0.85, 50);
 
-  // Logotipo
-  try {
+    ctx.font = "28px Inter";
+    ctx.fillStyle = textColor;
+    wrapText(subheadline, width / 2, textStartY + 110, width * 0.75, 34);
+
+    ctx.font = "20px Inter";
+    wrapText(mensagem, width / 2, textStartY + 180, width * 0.7, 28);
+
     const logo = await carregarImagem(logos[color]);
     const logoWidth = 200;
     const logoHeight = logo.height * (logoWidth / logo.width);
     ctx.drawImage(logo, (width - logoWidth) / 2, height - logoHeight - 50, logoWidth, logoHeight);
   } catch (e) {
-    console.warn("Erro ao carregar logo:", e);
+    console.warn("Erro ao desenhar post:", e);
   }
 
   document.getElementById("postInfo").style.display = "block";
@@ -172,12 +239,12 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   document.getElementById("tags").innerText = tags;
 }
 
-// === Interações ===
 document.getElementById("generateBtn").addEventListener("click", async () => {
   try {
     createLoader();
     const themeInput = document.getElementById("themeInput").value.trim();
-    const conteudo = buscarConteudoPorTema(themeInput || random(posts).Tema);
+    const temaSelecionado = themeInput || random(posts)?.Tema || "Empreendedorismo";
+    const conteudo = buscarConteudoPorTema(temaSelecionado);
     lastContent = conteudo;
 
     const selectedColorBtn = document.querySelector(".color-btn.selected");
@@ -185,12 +252,6 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
     const color = !userColorChoice || userColorChoice === "aleatoria"
       ? getRandomColor()
       : userColorChoice;
-
-    if (userColorChoice === "aleatoria") {
-      document.querySelectorAll(".color-btn").forEach(b => {
-        b.classList.toggle("selected", b.dataset.color === "aleatoria");
-      });
-    }
 
     lastColor = color;
     await drawPost({ ...conteudo, format: currentFormat, color });
@@ -229,7 +290,6 @@ document.querySelectorAll(".dimension-btn").forEach(btn => {
   });
 });
 
-// === Utils ===
 function createLoader() {
   const loader = document.createElement("div");
   loader.id = "loader";
@@ -266,3 +326,4 @@ function getRandomColor() {
 function random(array) {
   return array[Math.floor(Math.random() * array.length)];
 }
+</script>
