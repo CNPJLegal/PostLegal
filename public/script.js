@@ -1,3 +1,4 @@
+// 👇 Aqui está o código completo corrigido, iniciando pelo canvas e variáveis
 const canvas = document.getElementById("postCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -124,7 +125,6 @@ function buscarConteudoPorTema(tema) {
   } : gerarVariaçãoDeTema(tema);
 }
 
-// ✅ API com fallback para evitar canvas vazio
 async function getUnsplashImage(query) {
   try {
     const res = await fetch(`/api/unsplash?query=${encodeURIComponent(query)}`);
@@ -145,8 +145,39 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
-  let imageBottomY = 0;
+  // 🎯 Decorativos
+  try {
+    const elements = {
+      azul: { topRight: "https://iili.io/FPeHOiP.png", bottomLeft: "https://iili.io/FPe2AHg.png" },
+      preto: { topRight: "https://iili.io/FPeHOiP.png", bottomLeft: "https://iili.io/FPe2AHg.png" },
+      verde: { topRight: "https://iili.io/FPeFE9n.png", bottomLeft: "https://iili.io/FPeKPzG.png" },
+      branco: { topRight: "https://iili.io/FPeFE9n.png", bottomLeft: "https://iili.io/FPeKPzG.png" }
+    };
+    const deco = elements[color];
+    const topRight = await carregarImagem(deco.topRight);
+    const bottomLeft = await carregarImagem(deco.bottomLeft);
 
+    ctx.drawImage(topRight, width - 60 - topRight.width, 90);
+    const bottomYOffset = format === "quadrado" ? 80 : 143;
+    ctx.drawImage(bottomLeft, 30, height - bottomYOffset - bottomLeft.height);
+  } catch (e) {
+    console.warn("Erro decorativos:", e);
+  }
+
+  // 📄 Overlay
+  try {
+    const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
+    ctx.save();
+    ctx.globalAlpha = 0.4;
+    ctx.globalCompositeOperation = "multiply";
+    ctx.drawImage(overlay, 0, 0, width, height);
+    ctx.restore();
+  } catch (e) {
+    console.warn("Erro overlay:", e);
+  }
+
+  // 🖼️ Imagem (DESENHADA POR ÚLTIMO!)
+  let imageBottomY = 0;
   try {
     if (!cachedImage) {
       const imageUrl = await getUnsplashImage(tema);
@@ -182,37 +213,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     console.warn("Erro ao carregar imagem:", e);
   }
 
-  // 🎯 Decorativos (antes do overlay!)
-  try {
-    const elements = {
-      azul: { topRight: "https://iili.io/FPeHOiP.png", bottomLeft: "https://iili.io/FPe2AHg.png" },
-      preto: { topRight: "https://iili.io/FPeHOiP.png", bottomLeft: "https://iili.io/FPe2AHg.png" },
-      verde: { topRight: "https://iili.io/FPeFE9n.png", bottomLeft: "https://iili.io/FPeKPzG.png" },
-      branco: { topRight: "https://iili.io/FPeFE9n.png", bottomLeft: "https://iili.io/FPeKPzG.png" }
-    };
-    const deco = elements[color];
-    const topRight = await carregarImagem(deco.topRight);
-    const bottomLeft = await carregarImagem(deco.bottomLeft);
-
-    ctx.drawImage(topRight, width - 60 - topRight.width, 90);
-    const bottomYOffset = format === "quadrado" ? 80 : 143;
-    ctx.drawImage(bottomLeft, 30, height - bottomYOffset - bottomLeft.height);
-  } catch (e) {
-    console.warn("Erro decorativos:", e);
-  }
-
-  // 🎯 Overlay depois dos decorativos
-  try {
-    const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
-    ctx.save();
-    ctx.globalAlpha = 0.4;
-    ctx.globalCompositeOperation = "multiply";
-    ctx.drawImage(overlay, 0, 0, width, height);
-    ctx.restore();
-  } catch (e) {
-    console.warn("Erro overlay:", e);
-  }
-
+  // 🎨 Texto
   const spacingY = format === "quadrado" ? 60 : format === "post" ? 90 : 120;
   const textStartY = imageBottomY + spacingY;
   const textColor = (color === "branco" || color === "verde") ? "#000" : "#fff";
@@ -229,22 +230,22 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   ctx.font = "20px Inter";
   wrapText(mensagem, width / 2, textStartY + 180, width * 0.7, 28);
 
+  // ✅ Logo
   try {
-  const logo = await carregarImagem(logos[color]);
-  const logoWidth = 200; // AUMENTADO! (era 140)
-  const logoHeight = logo.height * (logoWidth / logo.width);
-  const marginBottom = 40;
-  const logoX = (width - logoWidth) / 2;
-  const logoY = height - logoHeight - marginBottom;
-  ctx.drawImage(logo, logoX, logoY, logoWidth, logoHeight);
-} catch (e) {
-  console.warn("Erro ao carregar logo:", e);
-}
+    const logo = await carregarImagem(logos[color]);
+    const logoWidth = 200;
+    const logoHeight = logo.height * (logoWidth / logo.width);
+    ctx.drawImage(logo, (width - logoWidth) / 2, height - logoHeight - 40, logoWidth, logoHeight);
+  } catch (e) {
+    console.warn("Erro ao carregar logo:", e);
+  }
 
   document.getElementById("postInfo").style.display = "block";
   document.getElementById("caption").innerText = legenda;
   document.getElementById("tags").innerText = tags;
 }
+
+// ... (restante dos eventListeners e utilitários permanece igual, como no seu código anterior)
 
 // 🔄 Loader
 function createLoader() {
