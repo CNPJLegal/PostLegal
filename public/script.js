@@ -169,7 +169,6 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
-  // Imagem principal
   let imageBottomY = 0;
   try {
     if (!cachedImage) {
@@ -177,8 +176,15 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
       cachedImage = await carregarImagem(imageUrl);
     }
     const img = cachedImage;
+
     const imageWidth = 835;
-    const imageHeight = (img.height / img.width) * imageWidth;
+    let imageHeight = (img.height / img.width) * imageWidth;
+
+    // 👇 ajuste exclusivo para formato quadrado (imagem mais baixa)
+    if (format === "quadrado") {
+      imageHeight *= 0.85;
+    }
+
     const imageX = (width - imageWidth) / 2;
     const imageY = topOffset;
     imageBottomY = imageY + imageHeight;
@@ -197,24 +203,26 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     ctx.quadraticCurveTo(imageX, imageY, imageX + radius, imageY);
     ctx.closePath();
     ctx.clip();
-
     ctx.drawImage(img, imageX, imageY, imageWidth, imageHeight);
     ctx.restore();
-
-    // Overlays com efeito multiplicação
-    const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
-    ctx.save();
-    ctx.globalAlpha = 0.35;
-    ctx.globalCompositeOperation = "multiply";
-    ctx.drawImage(overlay, 0, 0, width, height);
-    ctx.drawImage(overlay, 0, 0, width, height);
-    ctx.restore();
-
   } catch (e) {
     console.warn("Erro ao carregar imagem:", e);
   }
 
-  // Elementos decorativos
+  // 🔥 Overlay com efeito multiply e dupla camada
+  try {
+    const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
+    ctx.save();
+    ctx.globalAlpha = 0.4;
+    ctx.globalCompositeOperation = "multiply";
+    ctx.drawImage(overlay, 0, 0, width, height);
+    ctx.drawImage(overlay, 0, 0, width, height);
+    ctx.restore();
+  } catch (e) {
+    console.warn("Erro ao carregar overlay:", e);
+  }
+
+  // Elementos visuais DEPOIS do overlay
   try {
     const elements = {
       azul: {
@@ -238,16 +246,12 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     const topRight = await carregarImagem(deco.topRight);
     const bottomLeft = await carregarImagem(deco.bottomLeft);
 
+    // canto superior direito
     ctx.drawImage(topRight, width - 85 - topRight.width, 93, topRight.width, topRight.height);
 
-    const bottomLeftYOffset = format === "quadrado" ? 80 : 0;
-    ctx.drawImage(
-      bottomLeft,
-      27,
-      height - 143 - bottomLeft.height + bottomLeftYOffset,
-      bottomLeft.width,
-      bottomLeft.height
-    );
+    // canto inferior esquerdo (⬇ mais abaixo se for quadrado)
+    const bottomYOffset = format === "quadrado" ? 80 : 143;
+    ctx.drawImage(bottomLeft, 27, height - bottomYOffset - bottomLeft.height, bottomLeft.width, bottomLeft.height);
   } catch (e) {
     console.warn("Erro ao carregar elementos decorativos:", e);
   }
@@ -269,7 +273,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   ctx.font = "20px Inter";
   wrapText(mensagem, width / 2, textStartY + 180, width * 0.7, 28);
 
-  // Logotipo
+  // Logo
   try {
     const logo = await carregarImagem(logos[color]);
     const logoWidth = 200;
