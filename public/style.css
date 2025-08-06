@@ -49,7 +49,7 @@ body {
   gap: 6px;
 }
 
-/* BOTÕES DE COR (em linha única horizontal) */
+/* BOTÕES DE COR */
 #colorOptions {
   display: flex;
   flex-direction: row;
@@ -83,6 +83,26 @@ body {
 
 .color-btn.selected {
   outline: 2px solid #fff;
+}
+
+/* ✅ NOVA SEÇÃO - EDIÇÃO DE IMAGEM */
+.image-controls {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.image-controls button {
+  background-color: #444;
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.image-controls button:hover {
+  background-color: #555;
 }
 
 /* BOTÕES DE FORMATO */
@@ -233,7 +253,7 @@ canvas {
   word-break: break-word;
 }
 
-/* LOADER (inicialmente escondido, ativado via JS) */
+/* LOADER */
 #loader {
   display: none;
   position: fixed;
