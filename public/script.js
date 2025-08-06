@@ -1,4 +1,4 @@
-// 👇 Aqui está o código completo corrigido, iniciando pelo canvas e variáveis
+// 🎨 Canvas e variáveis principais
 const canvas = document.getElementById("postCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -28,20 +28,7 @@ let lastContent = null;
 let zoomLevel = 0.45;
 let cachedImage = null;
 
-function applyZoom() {
-  canvas.style.transform = `scale(${zoomLevel})`;
-  canvas.style.transformOrigin = "top";
-}
-document.getElementById("zoomInBtn").addEventListener("click", () => {
-  zoomLevel = Math.min(zoomLevel + 0.05, 1);
-  applyZoom();
-});
-document.getElementById("zoomOutBtn").addEventListener("click", () => {
-  zoomLevel = Math.max(zoomLevel - 0.05, 0.2);
-  applyZoom();
-});
-applyZoom();
-
+// 🔍 Utilidades
 function wrapText(text, x, y, maxWidth, lineHeight) {
   const words = text.split(" ");
   let lines = [], line = "";
@@ -69,7 +56,16 @@ function carregarImagem(src) {
   });
 }
 
-// 👇 Adicione aqui os posts conforme seu conteúdo
+function getRandomColor() {
+  const keys = Object.keys(colors);
+  return keys[Math.floor(Math.random() * keys.length)];
+}
+
+function random(array) {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
+// 📋 Lista de Posts
 const posts = [ 
   {
     Tema: "O que é desenquadramento do MEI",
@@ -95,8 +91,9 @@ const posts = [
     Legenda: "Abrir um MEI é mais simples do que parece. Só precisa seguir os passos certos — e evitar as armadilhas.",
     Tags: "#MEIAberto #FormalizaçãoJá #CNPJLegal #PrimeiroPasso #EmpreendedorismoSimples"
   }
- ];
+];
 
+// ✨ Geração dinâmica de variações de conteúdo
 function gerarVariaçãoDeTema(temaBase) {
   const headlines = ["Aumente seu alcance com estratégia.", "Conteúdo que conecta.", "Sua marca merece destaque."];
   const subheadlines = ["Impacte o público certo com postagens inteligentes.", "Aposte em conteúdo estratégico e autêntico.", "Chame atenção sem esforço."];
@@ -138,6 +135,7 @@ async function getUnsplashImage(query) {
   }
 }
 
+// 🖼️ Desenhar o post
 async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, format, color }) {
   const { width, height, topOffset } = formats[format];
   canvas.width = width;
@@ -146,18 +144,18 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
-  // Decorativos
+  // Elementos decorativos
+  const elementos = {
+    azul: { topRight: "https://iili.io/FPeHOiP.png", bottomLeft: "https://iili.io/FPe2AHg.png" },
+    preto: { topRight: "https://iili.io/FPeHOiP.png", bottomLeft: "https://iili.io/FPe2AHg.png" },
+    verde: { topRight: "https://iili.io/FPeFE9n.png", bottomLeft: "https://iili.io/FPeKPzG.png" },
+    branco: { topRight: "https://iili.io/FPeFE9n.png", bottomLeft: "https://iili.io/FPeKPzG.png" }
+  };
+
   try {
-    const elements = {
-      azul: { topRight: "https://iili.io/FPeHOiP.png", bottomLeft: "https://iili.io/FPe2AHg.png" },
-      preto: { topRight: "https://iili.io/FPeHOiP.png", bottomLeft: "https://iili.io/FPe2AHg.png" },
-      verde: { topRight: "https://iili.io/FPeFE9n.png", bottomLeft: "https://iili.io/FPeKPzG.png" },
-      branco: { topRight: "https://iili.io/FPeFE9n.png", bottomLeft: "https://iili.io/FPeKPzG.png" }
-    };
-    const deco = elements[color];
+    const deco = elementos[color];
     const topRight = await carregarImagem(deco.topRight);
     const bottomLeft = await carregarImagem(deco.bottomLeft);
-
     ctx.drawImage(topRight, width - 60 - topRight.width, 90);
     const bottomYOffset = format === "quadrado" ? 80 : 143;
     ctx.drawImage(bottomLeft, 30, height - bottomYOffset - bottomLeft.height);
@@ -165,7 +163,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     console.warn("Erro decorativos:", e);
   }
 
-  // Overlay
+  // Overlay multiplicação
   try {
     const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
     ctx.save();
@@ -177,7 +175,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     console.warn("Erro overlay:", e);
   }
 
-  // Imagem
+  // Imagem principal
   let imageBottomY = 0;
   try {
     if (!cachedImage) {
@@ -246,7 +244,20 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   document.getElementById("tags").innerText = tags;
 }
 
-// ... (restante dos eventListeners e utilitários permanece igual, como no seu código anterior)
+// 🔍 Zoom
+function applyZoom() {
+  canvas.style.transform = `scale(${zoomLevel})`;
+  canvas.style.transformOrigin = "top";
+}
+document.getElementById("zoomInBtn").addEventListener("click", () => {
+  zoomLevel = Math.min(zoomLevel + 0.05, 1);
+  applyZoom();
+});
+document.getElementById("zoomOutBtn").addEventListener("click", () => {
+  zoomLevel = Math.max(zoomLevel - 0.05, 0.2);
+  applyZoom();
+});
+applyZoom();
 
 // 🔄 Loader
 function createLoader() {
@@ -277,17 +288,7 @@ function removeLoader() {
   if (loader) loader.remove();
 }
 
-// 📦 Helpers
-function getRandomColor() {
-  const keys = Object.keys(colors);
-  return keys[Math.floor(Math.random() * keys.length)];
-}
-
-function random(array) {
-  return array[Math.floor(Math.random() * array.length)];
-}
-
-// 🎯 Botão Gerar
+// 🎯 Event Listeners
 document.getElementById("generateBtn").addEventListener("click", async () => {
   try {
     createLoader();
@@ -309,7 +310,6 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
   }
 });
 
-// 📥 Baixar imagem
 document.getElementById("downloadBtn").addEventListener("click", () => {
   const link = document.createElement("a");
   link.download = "post-cnpj-legal.png";
@@ -317,7 +317,6 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
   link.click();
 });
 
-// 🎨 Botões de cor e dimensão
 document.querySelectorAll(".color-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("selected"));
