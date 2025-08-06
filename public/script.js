@@ -16,9 +16,9 @@ const logos = {
 };
 
 const formats = {
-  quadrado: { width: 1080, height: 1080 },
-  post: { width: 1080, height: 1350 },
-  stories: { width: 1080, height: 1720 }
+  quadrado: { width: 1080, height: 1080, topOffset: 148 },
+  post: { width: 1080, height: 1350, topOffset: 185 },
+  stories: { width: 1080, height: 1720, topOffset: 236 }
 };
 
 let currentFormat = "post";
@@ -123,20 +123,6 @@ function buscarConteudoPorTema(tema) {
   return gerarVariaçãoDeTema(tema);
 }
 
-function random(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-function carregarImagem(src) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = src;
-  });
-}
-
 function wrapText(text, x, y, maxWidth, lineHeight) {
   const words = text.split(" ");
   let lines = [];
@@ -153,8 +139,16 @@ function wrapText(text, x, y, maxWidth, lineHeight) {
     }
   }
   lines.push(line.trim());
-  lines.forEach((l, i) => {
-    ctx.fillText(l, x, y + i * lineHeight);
+  lines.forEach((l, i) => ctx.fillText(l, x, y + i * lineHeight));
+}
+
+function carregarImagem(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
   });
 }
 
@@ -166,14 +160,16 @@ async function getUnsplashImage(query) {
 }
 
 async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, format, color }) {
-  const { width, height } = formats[format];
+  const { width, height, topOffset } = formats[format];
   canvas.width = width;
   canvas.height = height;
 
+  // Fundo fixo (sólido)
+  ctx.globalAlpha = 1;
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
-  // 🔲 Overlay atrás da imagem
+  // Overlay de textura antes da imagem
   try {
     const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
     ctx.save();
@@ -184,42 +180,62 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     console.warn("Erro ao carregar overlay:", e);
   }
 
-  // 📸 Imagem (835px largura) centralizada
+  // Imagem com bordas arredondadas
+  let imageBottomY = 0;
   try {
     const imageUrl = await getUnsplashImage(tema);
     const img = await carregarImagem(imageUrl);
     const imageWidth = 835;
     const imageHeight = (img.height / img.width) * imageWidth;
     const imageX = (width - imageWidth) / 2;
-    const imageY = 0;
+    const imageY = topOffset;
+    imageBottomY = imageY + imageHeight;
+
+    const radius = 80;
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(imageX + radius, imageY);
+    ctx.lineTo(imageX + imageWidth - radius, imageY);
+    ctx.quadraticCurveTo(imageX + imageWidth, imageY, imageX + imageWidth, imageY + radius);
+    ctx.lineTo(imageX + imageWidth, imageY + imageHeight - radius);
+    ctx.quadraticCurveTo(imageX + imageWidth, imageY + imageHeight, imageX + imageWidth - radius, imageY + imageHeight);
+    ctx.lineTo(imageX + radius, imageY + imageHeight);
+    ctx.quadraticCurveTo(imageX, imageY + imageHeight, imageX, imageY + imageHeight - radius);
+    ctx.lineTo(imageX, imageY + radius);
+    ctx.quadraticCurveTo(imageX, imageY, imageX + radius, imageY);
+    ctx.closePath();
+    ctx.clip();
+
     ctx.drawImage(img, imageX, imageY, imageWidth, imageHeight);
+    ctx.restore();
   } catch (e) {
     console.warn("Erro ao carregar imagem:", e);
   }
 
-  // ☄️ Gradient leve
+  // Gradiente leve no topo
   const gradient = ctx.createRadialGradient(width / 2, 0, 100, width / 2, height / 2, height);
-  gradient.addColorStop(0, "rgba(0,0,0,0.25)");
+  gradient.addColorStop(0, "rgba(0,0,0,0.15)");
   gradient.addColorStop(1, "rgba(0,0,0,0)");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width, height);
 
-  // ✍️ Textos
-  let textColor = (color === "branco" || color === "verde") ? "#000" : "#fff";
+  // Textos posicionados logo abaixo da imagem
+  const textStartY = imageBottomY + 40;
   ctx.textAlign = "center";
+  let textColor = (color === "branco" || color === "verde") ? "#000" : "#fff";
 
   ctx.font = "bold 46px Inter";
   ctx.fillStyle = (color === "verde") ? "#000" : (color === "branco") ? "#0f3efa" : "#17e30d";
-  wrapText(headline, width / 2, height * 0.42, width * 0.85, 50);
+  wrapText(headline, width / 2, textStartY, width * 0.85, 50);
 
   ctx.font = "28px Inter";
   ctx.fillStyle = textColor;
-  wrapText(subheadline, width / 2, height * 0.55, width * 0.75, 34);
+  wrapText(subheadline, width / 2, textStartY + 110, width * 0.75, 34);
 
   ctx.font = "20px Inter";
-  wrapText(mensagem, width / 2, height * 0.64, width * 0.7, 28);
+  wrapText(mensagem, width / 2, textStartY + 180, width * 0.7, 28);
 
-  // ✅ Logo fixo
+  // Logo fixo
   try {
     const logo = await carregarImagem(logos[color]);
     const logoWidth = 200;
