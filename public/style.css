@@ -313,47 +313,51 @@ canvas {
   100% { transform: rotate(360deg); }
 }
 
-/* TEXTOS EDITÁVEIS SOBRE O CANVAS */
+/* TEXTOS EDITÁVEIS SOBRE O POST */
 #editableTextContainer {
   position: absolute;
   top: 0;
   left: 0;
+  transform: scale(0.45);
+  transform-origin: top left;
   width: 1080px;
-  height: 100%;
-  pointer-events: none; /* impede clique fora dos textos */
-  z-index: 10;
+  height: 1350px;
+  z-index: 1000;
+  pointer-events: none;
 }
 
 .editable-text {
   position: absolute;
-  pointer-events: auto; /* ativa edição */
-  color: #000;
-  font-family: 'Inter', sans-serif;
-  text-align: center;
   width: 100%;
-  padding: 0 40px;
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  color: #000;
+  padding: 0 80px;
   outline: none;
+  pointer-events: auto;
   white-space: pre-wrap;
   overflow-wrap: break-word;
+  user-select: text;
+  cursor: text;
 }
 
 #editableHeadline {
-  top: 600px;
+  top: 650px;
   font-size: 46px;
   font-weight: 700;
   color: #0f3efa;
 }
 
 #editableSubheadline {
-  top: 710px;
+  top: 760px;
   font-size: 28px;
-  color: #000;
   font-weight: 400;
+  color: #000;
 }
 
 #editableCTA {
-  top: 780px;
+  top: 830px;
   font-size: 20px;
-  color: #000;
   font-weight: 400;
+  color: #000;
 }
