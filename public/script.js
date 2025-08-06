@@ -165,48 +165,11 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   canvas.width = width;
   canvas.height = height;
 
-  // Fundo sólido
   ctx.globalAlpha = 1;
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
-  // Elementos decorativos ANTES da imagem
-  try {
-    const elements = {
-      azul: {
-        topRight: "https://iili.io/FPeHOiP.png",
-        bottomLeft: "https://iili.io/FPe2AHg.png"
-      },
-      preto: {
-        topRight: "https://iili.io/FPeHOiP.png",
-        bottomLeft: "https://iili.io/FPe2AHg.png"
-      },
-      verde: {
-        topRight: "https://iili.io/FPeFE9n.png",
-        bottomLeft: "https://iili.io/FPeKPzG.png"
-      },
-      branco: {
-        topRight: "https://iili.io/FPeFE9n.png",
-        bottomLeft: "https://iili.io/FPeKPzG.png"
-      }
-    };
-    const deco = elements[color];
-    const topRight = await carregarImagem(deco.topRight);
-    const bottomLeft = await carregarImagem(deco.bottomLeft);
-
-    // Posicionamento dos elementos gráficos
-    const bottomOffsetSeta = format === "quadrado" ? 100 : 143;
-
-    // Canto superior direito
-    ctx.drawImage(topRight, width - 85 - topRight.width, 93, topRight.width, topRight.height);
-
-    // Canto inferior esquerdo (ajuste na altura se for formato quadrado)
-    ctx.drawImage(bottomLeft, 27, height - bottomOffsetSeta - bottomLeft.height, bottomLeft.width, bottomLeft.height);
-  } catch (e) {
-    console.warn("Erro ao carregar elementos decorativos:", e);
-  }
-
-  // Imagem principal ACIMA dos elementos gráficos
+  // Imagem principal
   let imageBottomY = 0;
   try {
     if (!cachedImage) {
@@ -237,8 +200,56 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
 
     ctx.drawImage(img, imageX, imageY, imageWidth, imageHeight);
     ctx.restore();
+
+    // Overlays com efeito multiplicação
+    const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
+    ctx.save();
+    ctx.globalAlpha = 0.35;
+    ctx.globalCompositeOperation = "multiply";
+    ctx.drawImage(overlay, 0, 0, width, height);
+    ctx.drawImage(overlay, 0, 0, width, height);
+    ctx.restore();
+
   } catch (e) {
     console.warn("Erro ao carregar imagem:", e);
+  }
+
+  // Elementos decorativos
+  try {
+    const elements = {
+      azul: {
+        topRight: "https://iili.io/FPeHOiP.png",
+        bottomLeft: "https://iili.io/FPe2AHg.png"
+      },
+      preto: {
+        topRight: "https://iili.io/FPeHOiP.png",
+        bottomLeft: "https://iili.io/FPe2AHg.png"
+      },
+      verde: {
+        topRight: "https://iili.io/FPeFE9n.png",
+        bottomLeft: "https://iili.io/FPeKPzG.png"
+      },
+      branco: {
+        topRight: "https://iili.io/FPeFE9n.png",
+        bottomLeft: "https://iili.io/FPeKPzG.png"
+      }
+    };
+    const deco = elements[color];
+    const topRight = await carregarImagem(deco.topRight);
+    const bottomLeft = await carregarImagem(deco.bottomLeft);
+
+    ctx.drawImage(topRight, width - 85 - topRight.width, 93, topRight.width, topRight.height);
+
+    const bottomLeftYOffset = format === "quadrado" ? 80 : 0;
+    ctx.drawImage(
+      bottomLeft,
+      27,
+      height - 143 - bottomLeft.height + bottomLeftYOffset,
+      bottomLeft.width,
+      bottomLeft.height
+    );
+  } catch (e) {
+    console.warn("Erro ao carregar elementos decorativos:", e);
   }
 
   // Textos
