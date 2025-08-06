@@ -1,4 +1,4 @@
-// 👇 Aqui está o script.js COMPLETO e ATUALIZADO com todas as funcionalidades corretas
+// script.js COMPLETO ATUALIZADO
 
 const canvas = document.getElementById("postCanvas");
 const ctx = canvas.getContext("2d");
@@ -24,167 +24,147 @@ const formats = {
 };
 
 let currentFormat = "post";
-let currentColor = "aleatoria";
-let cachedImage = null;
+let lastColor = null;
+let lastContent = null;
+let zoomLevel = 0.45;
+let backgroundImage = null;
 
-const canvasContainer = document.querySelector(".canvas-container");
-const editableTextContainer = document.getElementById("editableTextContainer");
-
-function getRandomColor() {
-  const colorKeys = Object.keys(colors).filter(c => c !== "aleatoria");
-  return colorKeys[Math.floor(Math.random() * colorKeys.length)];
-}
-
-function createEditableText(id, text, className) {
-  const div = document.createElement("div");
-  div.id = id;
-  div.className = `editable-text ${className}`;
-  div.contentEditable = true;
-  div.innerText = text;
-  editableTextContainer.appendChild(div);
-}
-
-function clearEditableTexts() {
-  editableTextContainer.innerHTML = "";
-}
-
-function drawCanvas() {
-  const { width, height } = formats[currentFormat];
-  canvas.width = width;
-  canvas.height = height;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  const color = currentColor === "aleatoria" ? getRandomColor() : currentColor;
-  ctx.fillStyle = colors[color];
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  if (cachedImage) {
-    const imgW = canvas.width;
-    const imgH = cachedImage.height * (imgW / cachedImage.width);
-    const x = 0;
-    const y = formats[currentFormat].topOffset;
-    ctx.drawImage(cachedImage, x, y, imgW, imgH);
-  }
-}
-
-function gerarTextoAleatorio() {
-  const temas = [
-    "Impulsione seu negócio hoje mesmo",
-    "Regularize seu CNPJ com agilidade",
-    "Cresça com segurança",
-    "Empreenda com o CNPJ Legal",
-    "Post inteligente. Resultado de verdade."
-  ];
-
-  const subtemas = [
-    "Descomplicamos a burocracia pra você",
-    "Especialistas em MEI e microempresas",
-    "Cuidamos do seu CNPJ do início ao sucesso",
-    "Apoio completo para empreendedores reais"
-  ];
-
-  const ctas = [
-    "Fale com um especialista",
-    "Clique no link da bio",
-    "Regularize agora",
-    "Comece seu negócio do jeito certo"
-  ];
-
+function generateContent() {
   return {
-    headline: temas[Math.floor(Math.random() * temas.length)],
-    subheadline: subtemas[Math.floor(Math.random() * subtemas.length)],
-    cta: ctas[Math.floor(Math.random() * ctas.length)]
+    headline: "Empreenda com CNPJ Legal",
+    subheadline: "Cuidamos do seu CNPJ do início ao sucesso",
+    mensagem: "Clique no link da bio e regularize agora mesmo!"
   };
 }
 
-function aplicarTextoNoCanvas(texto) {
-  clearEditableTexts();
-  createEditableText("editableHeadline", texto.headline, "headline");
-  createEditableText("editableSubheadline", texto.subheadline, "subheadline");
-  createEditableText("editableCTA", texto.cta, "cta");
+function applyZoom() {
+  const container = canvas.parentElement;
+  canvas.style.transform = `scale(${zoomLevel})`;
+  canvas.style.transformOrigin = "top left";
+  container.style.height = `${canvas.height * zoomLevel}px`;
+  container.style.width = `${canvas.width * zoomLevel}px`;
 }
 
-function generatePost() {
-  drawCanvas();
-  const texto = gerarTextoAleatorio();
-  aplicarTextoNoCanvas(texto);
-}
+function drawPost() {
+  const { width, height, topOffset } = formats[currentFormat];
+  canvas.width = width;
+  canvas.height = height;
+  
+  const selectedColor = lastColor || Object.keys(colors)[Math.floor(Math.random() * Object.keys(colors).length)];
+  const bgColor = colors[selectedColor];
+  const logo = logos[selectedColor];
 
-function downloadPost() {
-  html2canvas(canvasContainer).then(canvas => {
-    const link = document.createElement("a");
-    link.download = "post-cnpj-legal.png";
-    link.href = canvas.toDataURL();
-    link.click();
-  });
-}
+  ctx.fillStyle = bgColor;
+  ctx.fillRect(0, 0, width, height);
 
-// EVENTOS
-
-document.getElementById("generateBtn").addEventListener("click", generatePost);
-document.getElementById("downloadBtn").addEventListener("click", downloadPost);
-
-document.querySelectorAll(".color-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("selected"));
-    btn.classList.add("selected");
-    currentColor = btn.dataset.color;
-    drawCanvas();
-  });
-});
-
-document.querySelectorAll(".dimension-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".dimension-btn").forEach(b => b.classList.remove("selected"));
-    btn.classList.add("selected");
-    currentFormat = btn.dataset.format;
-    drawCanvas();
-  });
-});
-
-document.getElementById("uploadImageInput").addEventListener("change", e => {
-  const file = e.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function (event) {
-      const img = new Image();
-      img.onload = () => {
-        cachedImage = img;
-        drawCanvas();
-      };
-      img.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
+  if (backgroundImage) {
+    ctx.globalAlpha = 0.15;
+    ctx.drawImage(backgroundImage, 0, 0, width, height);
+    ctx.globalAlpha = 1;
   }
-});
 
-document.getElementById("changeImageBtn").addEventListener("click", () => {
-  fetch(`https://api.unsplash.com/photos/random?orientation=portrait&query=business&client_id=${window.UNSPLASH_ACCESS_KEY}`)
-    .then(res => res.json())
-    .then(data => {
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.onload = () => {
-        cachedImage = img;
-        drawCanvas();
-      };
-      img.src = data.urls.regular;
-    });
-});
+  const content = lastContent || generateContent();
 
-document.getElementById("resetBtn").addEventListener("click", () => {
-  cachedImage = null;
-  clearEditableTexts();
-  drawCanvas();
+  ctx.fillStyle = selectedColor === 'branco' ? '#000' : '#fff';
+  ctx.font = "bold 48px Inter";
+  ctx.textAlign = "center";
+  ctx.fillText(content.headline, width / 2, topOffset + 50);
+
+  ctx.font = "24px Inter";
+  ctx.fillText(content.subheadline, width / 2, topOffset + 110);
+
+  ctx.font = "20px Inter";
+  ctx.fillText(content.mensagem, width / 2, topOffset + 170);
+
+  const img = new Image();
+  img.onload = () => {
+    ctx.drawImage(img, width - 300, height - 150, 250, 80);
+  };
+  img.src = logo;
+
+  lastColor = selectedColor;
+  lastContent = content;
+}
+
+function handleGenerateClick() {
+  lastContent = generateContent();
+  drawPost();
+}
+
+function handleFormatChange(format) {
+  currentFormat = format;
+  drawPost();
+}
+
+document.getElementById("generateBtn").addEventListener("click", handleGenerateClick);
+document.getElementById("downloadBtn").addEventListener("click", () => {
+  const link = document.createElement("a");
+  link.download = "post-cnpj-legal.png";
+  link.href = canvas.toDataURL();
+  link.click();
 });
 
 document.getElementById("zoomInBtn").addEventListener("click", () => {
-  canvasContainer.style.transform = "scale(1.2)";
+  zoomLevel = Math.min(1, zoomLevel + 0.05);
+  applyZoom();
 });
 
 document.getElementById("zoomOutBtn").addEventListener("click", () => {
-  canvasContainer.style.transform = "scale(1)";
+  zoomLevel = Math.max(0.1, zoomLevel - 0.05);
+  applyZoom();
 });
 
-// Primeira renderização
-drawCanvas();
+Array.from(document.querySelectorAll(".color-btn")).forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("selected"));
+    btn.classList.add("selected");
+    lastColor = btn.dataset.color === "aleatoria" ? null : btn.dataset.color;
+    drawPost();
+  });
+});
+
+Array.from(document.querySelectorAll(".dimension-btn")).forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".dimension-btn").forEach(b => b.classList.remove("selected"));
+    btn.classList.add("selected");
+    handleFormatChange(btn.dataset.format);
+  });
+});
+
+document.getElementById("changeImageBtn").addEventListener("click", () => {
+  backgroundImage = null;
+  drawPost();
+});
+
+document.getElementById("uploadImageInput").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function (event) {
+    const img = new Image();
+    img.onload = () => {
+      backgroundImage = img;
+      drawPost();
+    };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  lastContent = null;
+  lastColor = null;
+  backgroundImage = null;
+  drawPost();
+});
+
+document.getElementById("undoBtn").addEventListener("click", () => {
+  // futuro: histórico de estados
+});
+
+document.getElementById("redoBtn").addEventListener("click", () => {
+  // futuro: refazer último
+});
+
+drawPost();
+applyZoom();
