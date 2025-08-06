@@ -16,9 +16,9 @@ const logos = {
 };
 
 const formats = {
-  quadrado: { width: 1080, height: 1080, topOffset: 148 },
-  post: { width: 1080, height: 1350, topOffset: 185 },
-  stories: { width: 1080, height: 1720, topOffset: 236 }
+  quadrado: { width: 1080, height: 1080, topOffset: 100 },
+  post: { width: 1080, height: 1350, topOffset: 120 },
+  stories: { width: 1080, height: 1720, topOffset: 200 }
 };
 
 let currentFormat = "post";
@@ -40,88 +40,11 @@ document.getElementById("zoomOutBtn").addEventListener("click", () => {
 });
 applyZoom();
 
-const posts = [
-  {
-    Tema: "O que é desenquadramento do MEI",
-    Headline: "O que é desenquadramento do MEI: o que todo MEI precisa saber.",
-    Subheadline: "Talvez você nunca tenha ouvido falar disso, mas é um dos pontos mais decisivos para manter o CNPJ vivo.",
-    CTA: "Receba seu diagnóstico gratuito em menos de 2 minutos.",
-    Legenda: "Sabe quando tudo parece certo, mas o sistema trava? Muitas vezes o motivo é esse aqui — simples, silencioso e ignorado.",
-    Tags: "#NegócioSeguro #ConsultoriaMEI #RotinaEmpreendedora #DescomplicaMEI #CNPJPronto"
-  },
-  {
-    Tema: "Como emitir nota fiscal pelo celular",
-    Headline: "Como emitir nota fiscal pelo celular: o que todo MEI precisa saber.",
-    Subheadline: "Muitos ignoram esse detalhe e acabam travando o crescimento por uma questão simples de ajuste.",
-    CTA: "Fale com um especialista da CNPJ Legal agora mesmo.",
-    Legenda: "Tem empreendedor com anos de experiência ainda errando nesse detalhe. Não seja mais um.",
-    Tags: "#NotaFiscalSimples #MEIMobile #CNPJNaMão #RotinaEmpreendedora #EmissaoDigital"
-  },
-  {
-    Tema: "Passo a passo para abrir um MEI",
-    Headline: "Passo a passo para abrir um MEI: tudo o que você precisa saber.",
-    Subheadline: "Desde o cadastro até o primeiro imposto, veja como se formalizar sem sair de casa.",
-    CTA: "Comece agora mesmo e tenha apoio da CNPJ Legal.",
-    Legenda: "Abrir um MEI é mais simples do que parece. Só precisa seguir os passos certos — e evitar as armadilhas.",
-    Tags: "#MEIAberto #FormalizaçãoJá #CNPJLegal #PrimeiroPasso #EmpreendedorismoSimples"
-  }
-];
+const posts = [/* seus posts aqui, igual antes */];
 
-function gerarVariaçãoDeTema(temaBase) {
-  const headlines = [
-    `Tudo sobre ${temaBase} que ninguém te contou.`,
-    `${temaBase}: entenda como aplicar na sua rotina.`,
-    `${temaBase}: o que você precisa saber agora.`,
-    `${temaBase} explicado de forma simples.`,
-    `${temaBase} pode mudar seu negócio.`
-  ];
-  const subheadlines = [
-    "Descubra como isso impacta diretamente seu sucesso.",
-    "Entenda por que isso é crucial no seu dia a dia.",
-    "Evite os erros mais comuns com esse conhecimento.",
-    "Dê o primeiro passo com clareza e confiança.",
-    "Veja o que os especialistas recomendam sobre o tema."
-  ];
-  const mensagens = [
-    "Acesse agora e tenha um diagnóstico gratuito.",
-    "Conte com a CNPJ Legal para te ajudar.",
-    "Fale com um especialista em menos de 2 minutos.",
-    "Tire suas dúvidas com quem entende.",
-    "Descubra tudo com um clique."
-  ];
-  const legendas = [
-    "Este conteúdo foi gerado com base no seu tema. Legal, né?",
-    "Um bom tema rende bons insights. Aqui está o seu.",
-    "Seu post foi criado automaticamente. Experimente outros!",
-    "Quer ver mais? Troque o tema e gere de novo.",
-    "Cada clique, uma ideia. Aqui está mais uma!"
-  ];
-  const tags = "#CNPJLegal #MarketingMEI #EmpreenderComSegurança #PostInteligente #AutomaçãoCriativa";
+function gerarVariaçãoDeTema(temaBase) { /* igual antes */ }
 
-  return {
-    tema: temaBase,
-    headline: random(headlines),
-    subheadline: random(subheadlines),
-    mensagem: random(mensagens),
-    legenda: random(legendas),
-    tags
-  };
-}
-
-function buscarConteudoPorTema(tema) {
-  const match = posts.find(p => p.Tema.toLowerCase().includes(tema.toLowerCase()));
-  if (match) {
-    return {
-      tema: match.Tema,
-      headline: match.Headline,
-      subheadline: match.Subheadline,
-      mensagem: match.CTA,
-      legenda: match.Legenda,
-      tags: match.Tags
-    };
-  }
-  return gerarVariaçãoDeTema(tema);
-}
+function buscarConteudoPorTema(tema) { /* igual antes */ }
 
 function wrapText(text, x, y, maxWidth, lineHeight) {
   const words = text.split(" ");
@@ -164,11 +87,23 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   canvas.width = width;
   canvas.height = height;
 
+  // Fundo sólido
   ctx.globalAlpha = 1;
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
-  // Imagem com bordas arredondadas
+  // CAMADA 1 - Textura aplicada por baixo (duas vezes)
+  try {
+    const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
+    ctx.globalAlpha = 0.3;
+    ctx.drawImage(overlay, 0, 0, width, height);
+    ctx.drawImage(overlay, 0, 0, width, height);
+    ctx.globalAlpha = 1;
+  } catch (e) {
+    console.warn("Erro ao carregar overlay:", e);
+  }
+
+  // IMAGEM acima da textura
   let imageBottomY = 0;
   try {
     const imageUrl = await getUnsplashImage(tema);
@@ -193,33 +128,21 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     ctx.quadraticCurveTo(imageX, imageY, imageX + radius, imageY);
     ctx.closePath();
     ctx.clip();
-
     ctx.drawImage(img, imageX, imageY, imageWidth, imageHeight);
     ctx.restore();
   } catch (e) {
     console.warn("Erro ao carregar imagem:", e);
   }
-
-  // Overlay de textura (por cima da cor de fundo, mas abaixo da imagem e textos)
-  try {
-    const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
-    ctx.save();
-    ctx.globalAlpha = 0.35;
-    ctx.drawImage(overlay, 0, 0, width, height);
-    ctx.restore();
-  } catch (e) {
-    console.warn("Erro ao carregar overlay:", e);
-  }
-
-  // Gradiente leve no topo
+  // Gradiente sutil por cima
   const gradient = ctx.createRadialGradient(width / 2, 0, 100, width / 2, height / 2, height);
   gradient.addColorStop(0, "rgba(0,0,0,0.15)");
   gradient.addColorStop(1, "rgba(0,0,0,0)");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width, height);
 
-  // Textos
-  const textStartY = imageBottomY + 40;
+  // Textos posicionados com responsividade
+  const extraOffsetY = format === "stories" ? 100 : 40;
+  const textStartY = imageBottomY + extraOffsetY;
   ctx.textAlign = "center";
   const textColor = (color === "branco" || color === "verde") ? "#000" : "#fff";
 
@@ -249,6 +172,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   document.getElementById("tags").innerText = tags;
 }
 
+// === Interações ===
 document.getElementById("generateBtn").addEventListener("click", async () => {
   try {
     createLoader();
@@ -305,6 +229,7 @@ document.querySelectorAll(".dimension-btn").forEach(btn => {
   });
 });
 
+// === Utils ===
 function createLoader() {
   const loader = document.createElement("div");
   loader.id = "loader";
