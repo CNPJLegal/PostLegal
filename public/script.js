@@ -1,3 +1,4 @@
+// 👇 script.js atualizado
 const canvas = document.getElementById("postCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -40,72 +41,10 @@ document.getElementById("zoomOutBtn").addEventListener("click", () => {
 });
 applyZoom();
 
-const posts = [
-  {
-    Tema: "O que é desenquadramento do MEI",
-    Headline: "O que é desenquadramento do MEI: o que todo MEI precisa saber.",
-    Subheadline: "Talvez você nunca tenha ouvido falar disso, mas é um dos pontos mais decisivos para manter o CNPJ vivo.",
-    CTA: "Receba seu diagnóstico gratuito em menos de 2 minutos.",
-    Legenda: "Sabe quando tudo parece certo, mas o sistema trava? Muitas vezes o motivo é esse aqui — simples, silencioso e ignorado.",
-    Tags: "#NegócioSeguro #ConsultoriaMEI #RotinaEmpreendedora #DescomplicaMEI #CNPJPronto"
-  },
-  {
-    Tema: "Como emitir nota fiscal pelo celular",
-    Headline: "Como emitir nota fiscal pelo celular: o que todo MEI precisa saber.",
-    Subheadline: "Muitos ignoram esse detalhe e acabam travando o crescimento por uma questão simples de ajuste.",
-    CTA: "Fale com um especialista da CNPJ Legal agora mesmo.",
-    Legenda: "Tem empreendedor com anos de experiência ainda errando nesse detalhe. Não seja mais um.",
-    Tags: "#NotaFiscalSimples #MEIMobile #CNPJNaMão #RotinaEmpreendedora #EmissaoDigital"
-  },
-  {
-    Tema: "Passo a passo para abrir um MEI",
-    Headline: "Passo a passo para abrir um MEI: tudo o que você precisa saber.",
-    Subheadline: "Desde o cadastro até o primeiro imposto, veja como se formalizar sem sair de casa.",
-    CTA: "Comece agora mesmo e tenha apoio da CNPJ Legal.",
-    Legenda: "Abrir um MEI é mais simples do que parece. Só precisa seguir os passos certos — e evitar as armadilhas.",
-    Tags: "#MEIAberto #FormalizaçãoJá #CNPJLegal #PrimeiroPasso #EmpreendedorismoSimples"
-  }
-];
+const posts = [/* ... seus posts ... */];
 
 function gerarVariaçãoDeTema(temaBase) {
-  const headlines = [
-    `Tudo sobre ${temaBase} que ninguém te contou.`,
-    `${temaBase}: entenda como aplicar na sua rotina.`,
-    `${temaBase}: o que você precisa saber agora.`,
-    `${temaBase} explicado de forma simples.`,
-    `${temaBase} pode mudar seu negócio.`
-  ];
-  const subheadlines = [
-    "Descubra como isso impacta diretamente seu sucesso.",
-    "Entenda por que isso é crucial no seu dia a dia.",
-    "Evite os erros mais comuns com esse conhecimento.",
-    "Dê o primeiro passo com clareza e confiança.",
-    "Veja o que os especialistas recomendam sobre o tema."
-  ];
-  const mensagens = [
-    "Acesse agora e tenha um diagnóstico gratuito.",
-    "Conte com a CNPJ Legal para te ajudar.",
-    "Fale com um especialista em menos de 2 minutos.",
-    "Tire suas dúvidas com quem entende.",
-    "Descubra tudo com um clique."
-  ];
-  const legendas = [
-    "Este conteúdo foi gerado com base no seu tema. Legal, né?",
-    "Um bom tema rende bons insights. Aqui está o seu.",
-    "Seu post foi criado automaticamente. Experimente outros!",
-    "Quer ver mais? Troque o tema e gere de novo.",
-    "Cada clique, uma ideia. Aqui está mais uma!"
-  ];
-  const tags = "#CNPJLegal #MarketingMEI #EmpreenderComSegurança #PostInteligente #AutomaçãoCriativa";
-
-  return {
-    tema: temaBase,
-    headline: random(headlines),
-    subheadline: random(subheadlines),
-    mensagem: random(mensagens),
-    legenda: random(legendas),
-    tags
-  };
+  // ... mesmo código ...
 }
 
 function buscarConteudoPorTema(tema) {
@@ -187,11 +126,17 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     ctx.arcTo(0, imgHeight, 0, radius, radius);
     ctx.closePath();
     ctx.clip();
-
     ctx.drawImage(img, 0, 0, width, imgHeight);
     ctx.restore();
+
+    // ➕ Papel amassado overlay (com multiply)
+    const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
+    ctx.save();
+    ctx.globalCompositeOperation = "multiply";
+    ctx.drawImage(overlay, 0, 0, width, height);
+    ctx.restore();
   } catch (e) {
-    console.warn("Erro ao carregar imagem do Unsplash:", e);
+    console.warn("Erro ao carregar imagem do Unsplash ou overlay:", e);
   }
 
   const gradient = ctx.createRadialGradient(width / 2, 0, 100, width / 2, height / 2, height);
@@ -216,7 +161,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
 
   try {
     const logo = await carregarImagem(logos[color]);
-    const logoWidth = 140;
+    const logoWidth = 200; // aumentado
     const logoHeight = logo.height * (logoWidth / logo.width);
     ctx.drawImage(logo, (width - logoWidth) / 2, height - logoHeight - 50, logoWidth, logoHeight);
   } catch (e) {
@@ -228,45 +173,10 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   document.getElementById("tags").innerText = tags;
 }
 
-function createLoader() {
-  const loader = document.createElement("div");
-  loader.id = "loader";
-  loader.innerHTML = `<span style="
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border: 3px solid #fff;
-    border-top: 3px solid transparent;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;"></span> Gerando post...`;
-  Object.assign(loader.style, {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    padding: "20px 30px",
-    background: "#1e1e1e",
-    color: "#fff",
-    position: "fixed",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    zIndex: 9999,
-    borderRadius: "8px",
-    boxShadow: "0 0 20px rgba(0,0,0,0.4)",
-    fontSize: "16px"
-  });
-  document.body.appendChild(loader);
-}
-
-function removeLoader() {
-  const loader = document.getElementById("loader");
-  if (loader) loader.remove();
-}
-
+// 👇 event listeners (gerar, baixar, cores, formatos etc.)
 document.getElementById("generateBtn").addEventListener("click", async () => {
   try {
     createLoader();
-
     const themeInput = document.getElementById("themeInput").value.trim();
     const conteudo = buscarConteudoPorTema(themeInput || random(posts).Tema);
     lastContent = conteudo;
@@ -285,7 +195,6 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
 
     lastColor = color;
     await drawPost({ ...conteudo, format: currentFormat, color });
-
   } catch (error) {
     alert("Erro ao gerar post: " + error.message);
     console.error(error);
@@ -322,6 +231,34 @@ document.querySelectorAll(".dimension-btn").forEach(btn => {
     if (lastContent) drawPost({ ...lastContent, format: currentFormat, color: corFinal });
   });
 });
+
+function createLoader() {
+  const loader = document.createElement("div");
+  loader.id = "loader";
+  loader.innerHTML = `<span style="display:inline-block;width:16px;height:16px;border:3px solid #fff;border-top:3px solid transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></span> Gerando post...`;
+  Object.assign(loader.style, {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "20px 30px",
+    background: "#1e1e1e",
+    color: "#fff",
+    position: "fixed",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    zIndex: 9999,
+    borderRadius: "8px",
+    boxShadow: "0 0 20px rgba(0,0,0,0.4)",
+    fontSize: "16px"
+  });
+  document.body.appendChild(loader);
+}
+
+function removeLoader() {
+  const loader = document.getElementById("loader");
+  if (loader) loader.remove();
+}
 
 function getRandomColor() {
   const keys = Object.keys(colors);
