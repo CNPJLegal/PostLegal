@@ -1,4 +1,3 @@
-<script>
 const canvas = document.getElementById("postCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -41,6 +40,42 @@ document.getElementById("zoomOutBtn").addEventListener("click", () => {
 });
 applyZoom();
 
+function carregarImagem(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+function wrapText(text, x, y, maxWidth, lineHeight) {
+  const words = text.split(" ");
+  let lines = [];
+  let line = "";
+
+  for (let i = 0; i < words.length; i++) {
+    const testLine = line + words[i] + " ";
+    const metrics = ctx.measureText(testLine);
+    if (metrics.width > maxWidth && i > 0) {
+      lines.push(line.trim());
+      line = words[i] + " ";
+    } else {
+      line = testLine;
+    }
+  }
+  lines.push(line.trim());
+  lines.forEach((l, i) => ctx.fillText(l, x, y + i * lineHeight));
+}
+
+async function getUnsplashImage(query) {
+  const res = await fetch(`/api/unsplash?query=${encodeURIComponent(query)}`);
+  const data = await res.json();
+  if (!data.url) throw new Error(data.error || "Erro ao obter imagem da API.");
+  return data.url;
+}
+
 const posts = [
   {
     Tema: "O que é desenquadramento do MEI",
@@ -68,47 +103,6 @@ const posts = [
   }
 ];
 
-function gerarVariaçãoDeTema(temaBase) {
-  const headlines = [
-    `Tudo sobre ${temaBase} que ninguém te contou.`,
-    `${temaBase}: entenda como aplicar na sua rotina.`,
-    `${temaBase}: o que você precisa saber agora.`,
-    `${temaBase} explicado de forma simples.`,
-    `${temaBase} pode mudar seu negócio.`
-  ];
-  const subheadlines = [
-    "Descubra como isso impacta diretamente seu sucesso.",
-    "Entenda por que isso é crucial no seu dia a dia.",
-    "Evite os erros mais comuns com esse conhecimento.",
-    "Dê o primeiro passo com clareza e confiança.",
-    "Veja o que os especialistas recomendam sobre o tema."
-  ];
-  const mensagens = [
-    "Acesse agora e tenha um diagnóstico gratuito.",
-    "Conte com a CNPJ Legal para te ajudar.",
-    "Fale com um especialista em menos de 2 minutos.",
-    "Tire suas dúvidas com quem entende.",
-    "Descubra tudo com um clique."
-  ];
-  const legendas = [
-    "Este conteúdo foi gerado com base no seu tema. Legal, né?",
-    "Um bom tema rende bons insights. Aqui está o seu.",
-    "Seu post foi criado automaticamente. Experimente outros!",
-    "Quer ver mais? Troque o tema e gere de novo.",
-    "Cada clique, uma ideia. Aqui está mais uma!"
-  ];
-  const tags = "#CNPJLegal #MarketingMEI #EmpreenderComSegurança #PostInteligente #AutomaçãoCriativa";
-
-  return {
-    tema: temaBase,
-    headline: random(headlines),
-    subheadline: random(subheadlines),
-    mensagem: random(mensagens),
-    legenda: random(legendas),
-    tags
-  };
-}
-
 function buscarConteudoPorTema(tema) {
   const match = posts.find(p => p.Tema.toLowerCase().includes(tema.toLowerCase()));
   if (match) {
@@ -121,43 +115,14 @@ function buscarConteudoPorTema(tema) {
       tags: match.Tags
     };
   }
-  return gerarVariaçãoDeTema(tema);
-}
-
-function wrapText(text, x, y, maxWidth, lineHeight) {
-  const words = text.split(" ");
-  let lines = [];
-  let line = "";
-
-  for (let i = 0; i < words.length; i++) {
-    const testLine = line + words[i] + " ";
-    const metrics = ctx.measureText(testLine);
-    if (metrics.width > maxWidth && i > 0) {
-      lines.push(line.trim());
-      line = words[i] + " ";
-    } else {
-      line = testLine;
-    }
-  }
-  lines.push(line.trim());
-  lines.forEach((l, i) => ctx.fillText(l, x, y + i * lineHeight));
-}
-
-function carregarImagem(src) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = src;
-  });
-}
-
-async function getUnsplashImage(query) {
-  const res = await fetch(`/api/unsplash?query=${encodeURIComponent(query)}`);
-  const data = await res.json();
-  if (!data.url) throw new Error(data.error || "Erro ao obter imagem da API.");
-  return data.url;
+  return {
+    tema,
+    headline: `${tema}: tudo o que você precisa saber.`,
+    subheadline: "Conteúdo gerado automaticamente.",
+    mensagem: "Fale com um especialista agora mesmo.",
+    legenda: "Post gerado com tema personalizado.",
+    tags: "#PostInteligente #ConteúdoGerado #CNPJLegal"
+  };
 }
 
 async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, format, color }) {
@@ -169,6 +134,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
+  let imageBottomY = 0;
   try {
     const imageUrl = await getUnsplashImage(tema);
     const img = await carregarImagem(imageUrl);
@@ -176,7 +142,17 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     const imageHeight = (img.height / img.width) * imageWidth;
     const imageX = (width - imageWidth) / 2;
     const imageY = topOffset;
-    const imageBottomY = imageY + imageHeight;
+    imageBottomY = imageY + imageHeight;
+
+    // EFEITO MULTIPLICAÇÃO - ANTES DA IMAGEM
+    for (let i = 0; i < 2; i++) {
+      const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
+      ctx.save();
+      ctx.globalAlpha = 0.35;
+      ctx.globalCompositeOperation = "multiply";
+      ctx.drawImage(overlay, 0, 0, width, height);
+      ctx.restore();
+    }
 
     const radius = 80;
     ctx.save();
@@ -194,44 +170,40 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     ctx.clip();
     ctx.drawImage(img, imageX, imageY, imageWidth, imageHeight);
     ctx.restore();
+  } catch (e) {
+    console.warn("Erro ao carregar imagem:", e);
+  }
 
-    for (let i = 0; i < 2; i++) {
-      const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
-      ctx.save();
-      ctx.globalAlpha = 0.35;
-      ctx.globalCompositeOperation = "multiply";
-      ctx.drawImage(overlay, 0, 0, width, height);
-      ctx.restore();
-    }
+  const gradient = ctx.createRadialGradient(width / 2, 0, 100, width / 2, height / 2, height);
+  gradient.addColorStop(0, "rgba(0,0,0,0.15)");
+  gradient.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
 
-    const gradient = ctx.createRadialGradient(width / 2, 0, 100, width / 2, height / 2, height);
-    gradient.addColorStop(0, "rgba(0,0,0,0.15)");
-    gradient.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, width, height);
+  const textOffset = format === "stories" ? 100 : 40;
+  const textStartY = imageBottomY + textOffset;
+  const textColor = (color === "branco" || color === "verde") ? "#000" : "#fff";
 
-    const offset = format === "stories" ? 100 : 40;
-    const textStartY = imageBottomY + offset;
-    ctx.textAlign = "center";
-    const textColor = (color === "branco" || color === "verde") ? "#000" : "#fff";
+  ctx.textAlign = "center";
 
-    ctx.font = "bold 46px Inter";
-    ctx.fillStyle = (color === "verde") ? "#000" : (color === "branco") ? "#0f3efa" : "#17e30d";
-    wrapText(headline, width / 2, textStartY, width * 0.85, 50);
+  ctx.font = "bold 46px Inter";
+  ctx.fillStyle = (color === "verde") ? "#000" : (color === "branco") ? "#0f3efa" : "#17e30d";
+  wrapText(headline, width / 2, textStartY, width * 0.85, 50);
 
-    ctx.font = "28px Inter";
-    ctx.fillStyle = textColor;
-    wrapText(subheadline, width / 2, textStartY + 110, width * 0.75, 34);
+  ctx.font = "28px Inter";
+  ctx.fillStyle = textColor;
+  wrapText(subheadline, width / 2, textStartY + 110, width * 0.75, 34);
 
-    ctx.font = "20px Inter";
-    wrapText(mensagem, width / 2, textStartY + 180, width * 0.7, 28);
+  ctx.font = "20px Inter";
+  wrapText(mensagem, width / 2, textStartY + 180, width * 0.7, 28);
 
+  try {
     const logo = await carregarImagem(logos[color]);
     const logoWidth = 200;
     const logoHeight = logo.height * (logoWidth / logo.width);
     ctx.drawImage(logo, (width - logoWidth) / 2, height - logoHeight - 50, logoWidth, logoHeight);
   } catch (e) {
-    console.warn("Erro ao desenhar post:", e);
+    console.warn("Erro ao carregar logo:", e);
   }
 
   document.getElementById("postInfo").style.display = "block";
@@ -243,8 +215,8 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
   try {
     createLoader();
     const themeInput = document.getElementById("themeInput").value.trim();
-    const temaSelecionado = themeInput || random(posts)?.Tema || "Empreendedorismo";
-    const conteudo = buscarConteudoPorTema(temaSelecionado);
+    const tema = themeInput || posts[0].Tema;
+    const conteudo = buscarConteudoPorTema(tema);
     lastContent = conteudo;
 
     const selectedColorBtn = document.querySelector(".color-btn.selected");
@@ -326,4 +298,3 @@ function getRandomColor() {
 function random(array) {
   return array[Math.floor(Math.random() * array.length)];
 }
-</script>
