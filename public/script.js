@@ -193,11 +193,10 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   // Imagem principal
   let imageBottomY = 0;
   try {
-    const imageUrl = await getUnsplashImage(`${tema}-${Date.now()}`); // força nova imagem
+   const imageUrl = await getUnsplashImage(`${tema}-${Date.now()}`);
 const img = await carregarImagem(imageUrl);
 cachedImage = img;
-
-    const img = cachedImage;
+    
     const imageWidth = 835;
     let imageHeight = (img.height / img.width) * imageWidth;
     if (format === "quadrado") imageHeight *= 0.85;
