@@ -135,6 +135,21 @@ async function getUnsplashImage(query) {
   }
 }
 
+// ✅ Ajuste de proporção da imagem
+function ajustarProporcaoImagem(img, maxWidth, maxHeight) {
+  const ratio = img.width / img.height;
+  let width = maxWidth;
+  let height = maxWidth / ratio;
+
+  if (height > maxHeight) {
+    height = maxHeight;
+    width = height * ratio;
+  }
+
+  return { width, height };
+}
+
+
 // 🖼️ Desenhar o post
 async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, format, color }) {
   const { width, height, topOffset } = formats[format];
