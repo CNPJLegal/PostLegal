@@ -135,18 +135,24 @@ async function getUnsplashImage(query) {
   }
 }
 
-// ✅ Ajuste de proporção da imagem
-function ajustarProporcaoImagem(img, maxWidth, maxHeight) {
-  const ratio = img.width / img.height;
-  let width = maxWidth;
-  let height = maxWidth / ratio;
+// ✅ Ajuste de proporção estilo "background-size: cover"
+function desenharImagemProporcional(img) {
+  const proporcao = img.width / img.height;
+  const canvasRatio = canvas.width / canvas.height;
 
-  if (height > maxHeight) {
-    height = maxHeight;
-    width = height * ratio;
+  let drawWidth, drawHeight, offsetX = 0, offsetY = 0;
+
+  if (proporcao > canvasRatio) {
+    drawHeight = canvas.height;
+    drawWidth = img.width * (canvas.height / img.height);
+    offsetX = (canvas.width - drawWidth) / 2;
+  } else {
+    drawWidth = canvas.width;
+    drawHeight = img.height * (canvas.width / img.width);
+    offsetY = (canvas.height - drawHeight) / 2;
   }
 
-  return { width, height };
+  ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
 }
 
 
