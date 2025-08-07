@@ -193,10 +193,9 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   // Imagem principal
   let imageBottomY = 0;
   try {
-    if (!cachedImage) {
-      const imageUrl = await getUnsplashImage(tema);
-      cachedImage = await carregarImagem(imageUrl);
-    }
+    const imageUrl = await getUnsplashImage(tema);
+const img = await carregarImagem(imageUrl);
+cachedImage = img;
 
     const img = cachedImage;
     const imageWidth = 835;
