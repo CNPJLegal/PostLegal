@@ -1,4 +1,4 @@
-/ 👇 Aqui está o código completo corrigido, iniciando pelo canvas e variáveis
+// 🎨 Canvas e variáveis principais
 const canvas = document.getElementById("postCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -28,6 +28,7 @@ let lastContent = null;
 let zoomLevel = 0.45;
 let cachedImage = null;
 
+// 🔍 Zoom
 function applyZoom() {
   canvas.style.transform = `scale(${zoomLevel})`;
   canvas.style.transformOrigin = "top";
@@ -42,6 +43,7 @@ document.getElementById("zoomOutBtn").addEventListener("click", () => {
 });
 applyZoom();
 
+// 🔡 Text wrapping
 function wrapText(text, x, y, maxWidth, lineHeight) {
   const words = text.split(" ");
   let lines = [], line = "";
@@ -59,6 +61,7 @@ function wrapText(text, x, y, maxWidth, lineHeight) {
   lines.forEach((l, i) => ctx.fillText(l, x, y + i * lineHeight));
 }
 
+// 📷 Carregamento de imagem
 function carregarImagem(src) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -69,6 +72,7 @@ function carregarImagem(src) {
   });
 }
 
+// 🧠 Conteúdos
 const posts = [
   {
     Tema: "O que é desenquadramento do MEI",
@@ -176,7 +180,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     console.warn("Erro overlay:", e);
   }
 
-  // 🖼️ Imagem (DESENHADA POR ÚLTIMO!)
+  // 🖼️ Imagem
   let imageBottomY = 0;
   try {
     if (!cachedImage) {
@@ -245,30 +249,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   document.getElementById("tags").innerText = tags;
 }
 
-// 🔄 Loader
-function createLoader() {
-  const loader = document.createElement("div");
-  loader.id = "loader";
-  loader.innerHTML = `<span></span> Gerando post...`;
-  document.body.appendChild(loader);
-}
-
-function removeLoader() {
-  const loader = document.getElementById("loader");
-  if (loader) loader.remove();
-}
-
-// 📦 Helpers
-function getRandomColor() {
-  const keys = Object.keys(colors);
-  return keys[Math.floor(Math.random() * keys.length)];
-}
-
-function random(array) {
-  return array[Math.floor(Math.random() * array.length)];
-}
-
-// 🔁 Reset Post
+// 🔁 Reset
 document.getElementById("resetBtn").addEventListener("click", () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   lastContent = null;
@@ -278,41 +259,7 @@ document.getElementById("resetBtn").addEventListener("click", () => {
   document.getElementById("tags").innerText = "";
 });
 
-// ↩️ Undo / ↪️ Redo stacks
-let undoStack = [];
-let redoStack = [];
-
-function saveState() {
-  undoStack.push(canvas.toDataURL());
-  redoStack = [];
-}
-
-document.getElementById("undoBtn").addEventListener("click", () => {
-  if (undoStack.length > 0) {
-    redoStack.push(canvas.toDataURL());
-    const lastState = undoStack.pop();
-    restoreState(lastState);
-  }
-});
-
-document.getElementById("redoBtn").addEventListener("click", () => {
-  if (redoStack.length > 0) {
-    undoStack.push(canvas.toDataURL());
-    const nextState = redoStack.pop();
-    restoreState(nextState);
-  }
-});
-
-function restoreState(dataUrl) {
-  const img = new Image();
-  img.onload = () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0);
-  };
-  img.src = dataUrl;
-}
-
-// 📤 Upload de imagem personalizada
+// 📥 Upload de imagem
 document.getElementById("uploadImageInput")?.addEventListener("change", async function (event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -329,4 +276,78 @@ document.getElementById("uploadImageInput")?.addEventListener("change", async fu
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
+});
+
+// 🔁 Undo / Redo
+let undoStack = [];
+let redoStack = [];
+
+function saveState() {
+  undoStack.push(canvas.toDataURL());
+  redoStack = [];
+}
+
+function restoreState(dataUrl) {
+  const img = new Image();
+  img.onload = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+  };
+  img.src = dataUrl;
+}
+
+document.getElementById("undoBtn").addEventListener("click", () => {
+  if (undoStack.length > 0) {
+    redoStack.push(canvas.toDataURL());
+    restoreState(undoStack.pop());
+  }
+});
+
+document.getElementById("redoBtn").addEventListener("click", () => {
+  if (redoStack.length > 0) {
+    undoStack.push(canvas.toDataURL());
+    restoreState(redoStack.pop());
+  }
+});
+
+// 🔄 Loader
+function createLoader() {
+  const loader = document.createElement("div");
+  loader.id = "loader";
+  loader.innerHTML = `<span></span> Gerando post...`;
+  document.body.appendChild(loader);
+}
+function removeLoader() {
+  const loader = document.getElementById("loader");
+  if (loader) loader.remove();
+}
+
+// 🎲 Helpers
+function getRandomColor() {
+  const keys = Object.keys(colors);
+  return keys[Math.floor(Math.random() * keys.length)];
+}
+function random(array) {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
+// 🎯 Geração do Post
+document.getElementById("generateBtn").addEventListener("click", async () => {
+  const temaInput = document.getElementById("temaInput").value.trim();
+  const color = getRandomColor();
+  const temaEscolhido = temaInput || "Empreendedorismo";
+
+  createLoader();
+
+  try {
+    const conteudo = buscarConteudoPorTema(temaEscolhido);
+    lastContent = conteudo;
+    lastColor = color;
+    await drawPost({ ...conteudo, format: currentFormat, color });
+    saveState();
+  } catch (err) {
+    console.error("Erro ao gerar post:", err);
+  } finally {
+    removeLoader();
+  }
 });
