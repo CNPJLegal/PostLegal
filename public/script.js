@@ -193,7 +193,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   // Imagem principal
   let imageBottomY = 0;
   try {
-    const imageUrl = await getUnsplashImage(tema);
+    const imageUrl = await getUnsplashImage(`${tema}-${Date.now()}`); // força nova imagem
 const img = await carregarImagem(imageUrl);
 cachedImage = img;
 
