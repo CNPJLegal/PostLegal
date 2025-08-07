@@ -125,8 +125,10 @@ function buscarConteudoPorTema(tema) {
 
 async function getUnsplashImage(query) {
   try {
-    const res = await fetch(`/api/unsplash?query=${encodeURIComponent(query)}`);
+    const timestamp = Date.now(); // 🔄 força cache busting
+    const res = await fetch(`/api/unsplash?query=${encodeURIComponent(query)}&t=${timestamp}`);
     const data = await res.json();
+
     if (!data.url) throw new Error(data.error || "URL inválida");
     return data.url;
   } catch (err) {
