@@ -1,4 +1,4 @@
-// 👇 Aqui está o código completo corrigido, iniciando pelo canvas e variáveis
+/ 👇 Aqui está o código completo corrigido, iniciando pelo canvas e variáveis
 const canvas = document.getElementById("postCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -137,10 +137,6 @@ async function getUnsplashImage(query) {
   }
 }
 
-function random(array) {
-  return array[Math.floor(Math.random() * array.length)];
-}
-
 async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, format, color }) {
   const { width, height, topOffset } = formats[format];
   canvas.width = width;
@@ -149,22 +145,26 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   ctx.fillStyle = colors[color];
   ctx.fillRect(0, 0, width, height);
 
+  // 🎯 Decorativos
   try {
-    const deco = {
+    const elements = {
       azul: { topRight: "https://iili.io/FPeHOiP.png", bottomLeft: "https://iili.io/FPe2AHg.png" },
       preto: { topRight: "https://iili.io/FPeHOiP.png", bottomLeft: "https://iili.io/FPe2AHg.png" },
       verde: { topRight: "https://iili.io/FPeFE9n.png", bottomLeft: "https://iili.io/FPeKPzG.png" },
       branco: { topRight: "https://iili.io/FPeFE9n.png", bottomLeft: "https://iili.io/FPeKPzG.png" }
-    }[color];
-
+    };
+    const deco = elements[color];
     const topRight = await carregarImagem(deco.topRight);
     const bottomLeft = await carregarImagem(deco.bottomLeft);
+
     ctx.drawImage(topRight, width - 60 - topRight.width, 90);
-    ctx.drawImage(bottomLeft, 30, height - 143 - bottomLeft.height);
+    const bottomYOffset = format === "quadrado" ? 80 : 143;
+    ctx.drawImage(bottomLeft, 30, height - bottomYOffset - bottomLeft.height);
   } catch (e) {
     console.warn("Erro decorativos:", e);
   }
 
+  // 📄 Overlay
   try {
     const overlay = await carregarImagem("https://iili.io/FrLiI5P.png");
     ctx.save();
@@ -176,6 +176,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     console.warn("Erro overlay:", e);
   }
 
+  // 🖼️ Imagem (DESENHADA POR ÚLTIMO!)
   let imageBottomY = 0;
   try {
     if (!cachedImage) {
@@ -212,6 +213,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
     console.warn("Erro ao carregar imagem:", e);
   }
 
+  // 🎨 Texto
   const spacingY = format === "quadrado" ? 60 : format === "post" ? 90 : 120;
   const textStartY = imageBottomY + spacingY;
   const textColor = (color === "branco" || color === "verde") ? "#000" : "#fff";
@@ -228,6 +230,7 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   ctx.font = "20px Inter";
   wrapText(mensagem, width / 2, textStartY + 180, width * 0.7, 28);
 
+  // ✅ Logo
   try {
     const logo = await carregarImagem(logos[color]);
     const logoWidth = 200;
@@ -241,3 +244,89 @@ async function drawPost({ tema, headline, subheadline, mensagem, legenda, tags, 
   document.getElementById("caption").innerText = legenda;
   document.getElementById("tags").innerText = tags;
 }
+
+// 🔄 Loader
+function createLoader() {
+  const loader = document.createElement("div");
+  loader.id = "loader";
+  loader.innerHTML = `<span></span> Gerando post...`;
+  document.body.appendChild(loader);
+}
+
+function removeLoader() {
+  const loader = document.getElementById("loader");
+  if (loader) loader.remove();
+}
+
+// 📦 Helpers
+function getRandomColor() {
+  const keys = Object.keys(colors);
+  return keys[Math.floor(Math.random() * keys.length)];
+}
+
+function random(array) {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
+// 🔁 Reset Post
+document.getElementById("resetBtn").addEventListener("click", () => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  lastContent = null;
+  cachedImage = null;
+  document.getElementById("postInfo").style.display = "none";
+  document.getElementById("caption").innerText = "";
+  document.getElementById("tags").innerText = "";
+});
+
+// ↩️ Undo / ↪️ Redo stacks
+let undoStack = [];
+let redoStack = [];
+
+function saveState() {
+  undoStack.push(canvas.toDataURL());
+  redoStack = [];
+}
+
+document.getElementById("undoBtn").addEventListener("click", () => {
+  if (undoStack.length > 0) {
+    redoStack.push(canvas.toDataURL());
+    const lastState = undoStack.pop();
+    restoreState(lastState);
+  }
+});
+
+document.getElementById("redoBtn").addEventListener("click", () => {
+  if (redoStack.length > 0) {
+    undoStack.push(canvas.toDataURL());
+    const nextState = redoStack.pop();
+    restoreState(nextState);
+  }
+});
+
+function restoreState(dataUrl) {
+  const img = new Image();
+  img.onload = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+  };
+  img.src = dataUrl;
+}
+
+// 📤 Upload de imagem personalizada
+document.getElementById("uploadImageInput")?.addEventListener("change", async function (event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async function (e) {
+    const img = new Image();
+    img.onload = async function () {
+      cachedImage = img;
+      if (lastContent && lastColor) {
+        await drawPost({ ...lastContent, format: currentFormat, color: lastColor });
+      }
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+});
