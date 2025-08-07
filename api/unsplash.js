@@ -7,15 +7,18 @@ export default async function handler(req, res) {
   }
 
   try {
-    const apiResponse = await fetch(`https://api.unsplash.com/photos/random?query=${encodeURIComponent(query)}&orientation=landscape&client_id=${accessKey}`);
+    const apiUrl = `https://api.unsplash.com/photos/random?query=${encodeURIComponent(query)}&orientation=portrait&client_id=${accessKey}`;
+    const apiResponse = await fetch(apiUrl);
     const data = await apiResponse.json();
 
-    if (!data.urls) {
+    if (!data.urls || !data.urls.regular) {
+      console.warn("Resposta inválida da API Unsplash:", data);
       return res.status(500).json({ error: "Imagem não encontrada." });
     }
 
     res.status(200).json({ url: data.urls.regular });
   } catch (error) {
+    console.error("Erro na API do Unsplash:", error);
     res.status(500).json({ error: "Erro ao buscar imagem do Unsplash." });
   }
 }
