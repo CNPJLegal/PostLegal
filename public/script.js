@@ -66,7 +66,7 @@ function random(array) {
 }
 
 // 📋 Lista de Posts
-const posts = [ 
+const posts = [
   {
     Tema: "O que é desenquadramento do MEI",
     Headline: "O que é desenquadramento do MEI: o que todo MEI precisa saber.",
@@ -93,7 +93,7 @@ const posts = [
   }
 ];
 
-// ✨ Geração dinâmica de variações de conteúdo
+// 🔍 Geração dinâmica de variações de conteúdo
 function gerarVariaçãoDeTema(temaBase) {
   const headlines = ["Aumente seu alcance com estratégia.", "Conteúdo que conecta.", "Sua marca merece destaque."];
   const subheadlines = ["Impacte o público certo com postagens inteligentes.", "Aposte em conteúdo estratégico e autêntico.", "Chame atenção sem esforço."];
@@ -131,7 +131,7 @@ async function getUnsplashImage(query) {
     return data.url;
   } catch (err) {
     console.warn("Erro na API do Unsplash, usando fallback:", err.message);
-    return "https://images.unsplash.com/photo-1581090700227-1e8d65dc66f5?auto=format&fit=crop&w=800&q=80";
+    return "https://iili.io/Frg5LHP.png";
   }
 }
 
